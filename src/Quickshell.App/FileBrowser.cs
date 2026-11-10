@@ -46,6 +46,10 @@ public sealed class FileBrowser : Window
         ArgumentNullException.ThrowIfNull(local);
 
         Title = remote is null ? "Files — Aduzi" : $"Files on {remote.Title} — Aduzi";
+
+        // A window of its own beside the main one, so a case reading "the rightmost text" names this
+        // window and not whichever of the two happens to reach further right (QS390).
+        System.Windows.Automation.AutomationProperties.SetAutomationId(this, "Files");
         Width = 1100;
         Height = 640;
         MinWidth = 480;

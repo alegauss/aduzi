@@ -225,6 +225,10 @@ try {
     Check (Test-Path -LiteralPath $kept) "the settings folder is still there: $settings"
 
     Remove-Item -LiteralPath $kept -Force
+
+    # The data the upgrade moved is this run's own, and the guest's profile is where UI cases that set
+    # no ADUZI_DATA run: a session left in it is a row in every sidebar they read.
+    if ($upgrading) { Remove-Item -LiteralPath (Join-Path $env:APPDATA 'Aduzi') -Recurse -Force }
 }
 catch {
     Say "FAIL  $($_.Exception.Message)"

@@ -59,7 +59,9 @@
           "named": "and listed what is in it"
         },
         {
-          "locator": "Text[order=right]",
+          // Within the Files window: the main window stands behind it, and where its saved placement
+          // reaches further right, its menu's _Help is the rightmost text on the desk (QS390).
+          "locator": "Window#Files > Text[order=right]",
           "act": "read",
           "reads": "name",
           "expect": "This tab is a local shell, so there is no remote side to list.",
