@@ -22,6 +22,7 @@
       // directory since winwright 1.0.1 (WW508).
       "name": "the import preview",
       "arguments": ["--import", "cases/fixtures/MobaXterm.ini"],
+      "variables": { "ADUZI_DATA": "{files}" },
       "shareable": true
     }
   ],

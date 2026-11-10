@@ -16,12 +16,14 @@
     {
       "name": "the window a default installation opens",
       "arguments": [],
+      "variables": { "ADUZI_DATA": "{files}" },
       "shareable": true
     },
     {
       // A window asked for a tab, which opens on a local shell whatever startWith says (QS272).
       "name": "a window started on a shell",
       "arguments": ["--tabs", "1"],
+      "variables": { "ADUZI_DATA": "{files}" },
       "shareable": true
     },
     {
@@ -29,6 +31,7 @@
       // changes the window's shape.
       "name": "a window of two tabs to fill the screen with",
       "arguments": ["--tabs", "2"],
+      "variables": { "ADUZI_DATA": "{files}" },
       "shareable": false
     }
   ],

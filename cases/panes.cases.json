@@ -12,12 +12,14 @@
     {
       "name": "a tab split in two",
       "arguments": ["--panes", "2"],
+      "variables": { "ADUZI_DATA": "{files}" },
       "shareable": true
     },
     {
       // Its own and not lent: the case closes one of the panes (QS317).
       "name": "a tab split in two, to close a pane of",
       "arguments": ["--panes", "2"],
+      "variables": { "ADUZI_DATA": "{files}" },
       "shareable": false
     }
   ],

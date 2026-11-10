@@ -11,7 +11,8 @@
       // Two tabs, so the chord has a tab on the strip to be pressed at, as the palette case does. Not
       // lent: a quick-connect window left open by a red would stand over another case's window.
       "name": "a window to connect from",
-      "arguments": ["--tabs", "2"]
+      "arguments": ["--tabs", "2"],
+      "variables": { "ADUZI_DATA": "{files}" }
     }
   ],
 

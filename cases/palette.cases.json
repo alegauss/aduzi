@@ -18,6 +18,7 @@
       // declarations of one name are two launches a case naming it cannot choose between.
       "name": "a window to open the palette over",
       "arguments": ["--tabs", "2"],
+      "variables": { "ADUZI_DATA": "{files}" },
       "shareable": true
     },
     {

@@ -389,6 +389,7 @@
 - ✅ **QS374** **The release gate runs while the guest VM a runner left up is still running, and the sitting comes out too noisy to judge** — The gate refuses in a second while any VM runs on the desk, and suspend-vm.cmd suspends it once a run holding the guest is done (design recorded in `docs/PERFORMANCE.md`).
 - ✅ **QS383** **The shipping discipline tells every task to commit through run-commit.cmd, which the repository no longer has** — The skill commits through the PATH run-commit.cmd -m, says it stages the whole tree, and that the tree must hold only the task's files (design superseded: the user chose run-commit.cmd).
 - ✅ **QS388** **A guest run that starts while the VM is still booting is refused as though the guest had no VMware Tools** — Connect-Guest waits up to ten minutes for VMware Tools whether it started the guest or found it still booting, instead of refusing a guest whose Tools say installed.
+- ✅ **QS390** **A UI case that sets no ADUZI_DATA reads the guest's real profile, so whatever was left there changes its verdict** — Every case fixture gives the client its own ADUZI_DATA folder, and a test refuses one that does not, so the guest profile no longer decides a verdict.
 
 ## Block L — An agent at the controls, held to a policy it cannot edit
 

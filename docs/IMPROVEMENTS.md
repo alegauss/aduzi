@@ -493,28 +493,6 @@ both sides' algorithm lists.
 
 ## Block K — The build and the harness — what a green run is evidence of
 
-### §QS390 QS390 — UI cases that run on the guest's real profile
-
-Found on 10/11/2026. The first run of `run-install-vm.cmd -Former` (QS384) cleared the
-guest user's `%AppData%\quickshell` and `%AppData%\Aduzi` so the upgrade could be
-watched from nothing, and everything the profile had kept went with them, a saved window
-placement included. Every guest run after that failed the browser case "the browser
-opens on this computer, lists it, and says why it has no remote side": its
-`Text[order=right]` read `_Help`.
-
-The fixture "the file browser over a local tab" sets no `ADUZI_DATA`, so the client
-opened at whatever the profile held. Under the old placement the Files window reached
-furthest right. At the default size the main window behind it does, and the locator,
-which named no window, found that window's menu. The browser case now reads
-`Window#Files > Text[order=right]` and the Files window carries the automation id
-`Files`, which settles that case. Fixtures that read the profile are still exposed the
-same way. install-vm also removes the data its upgrade check moved, but can no longer
-give back what it cleared.
-
-Done when every case fixture that does not mean to read the profile gives the client a
-data folder of its own (`ADUZI_DATA` to `{files}`), so the verdict does not depend on
-what the guest profile happens to hold.
-
 ### §QS391 QS391 — The keystroke test that closes its own channel
 
 Found on 10/11/2026 in a guest run of the full suite.

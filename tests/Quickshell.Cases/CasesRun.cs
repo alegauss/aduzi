@@ -81,6 +81,24 @@ public sealed class CasesRun
     }
 
     /// <summary>
+    /// Every fixture gives the client a data folder of its own (QS390). A fixture that set none ran on
+    /// the guest user's real <c>%AppData%\Aduzi</c>, so a window placement or a session some other tool
+    /// left there decided the verdict: the local-browser case went red for a day over a placement it
+    /// never named. Read from the declarations, so it needs no desk.
+    /// </summary>
+    [Fact]
+    public void EveryFixtureKeepsItsDataInAFolderOfItsOwn()
+    {
+        string[] reading = [.. Declared().Select(each => each.Fixture).DistinctBy(fixture => fixture.Name)
+                               .Where(fixture => !fixture.Variables.ContainsKey("ADUZI_DATA"))
+                               .Select(fixture => fixture.Name)];
+
+        Assert.True(reading.Length == 0,
+                    "these fixtures read the desk's own profile; give each \"variables\": { \"ADUZI_DATA\": \"{files}\" }: "
+                    + string.Join("; ", reading));
+    }
+
+    /// <summary>
     /// One case, run again and again on one build, for a claim that is a count and not a pass (QS368).
     ///
     /// <para><b>Why the suite's own test carries it.</b> A case that goes red in two guest runs of

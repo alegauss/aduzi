@@ -13,12 +13,14 @@
       "name": "a window with one tab",
       // --tabs 1: a window asked for a tab opens on a shell, whatever startWith says (QS272).
       "arguments": ["--tabs", "1"],
+      "variables": { "ADUZI_DATA": "{files}" },
       "shareable": false
     },
     {
       // Three tabs, one of which the numbering case closes (QS319).
       "name": "a window with three tabs to number",
       "arguments": ["--tabs", "3"],
+      "variables": { "ADUZI_DATA": "{files}" },
       "shareable": false
     },
     {
@@ -26,12 +28,14 @@
       // one or two tabs that are not on screen, so which tab stays selected is part of the claim.
       "name": "a window with four tabs to close from",
       "arguments": ["--tabs", "4"],
+      "variables": { "ADUZI_DATA": "{files}" },
       "shareable": false
     },
     {
       // Two tabs, so the strip is up; the case retitles the one on screen, short and then long (QS348).
       "name": "a window with two tabs to retitle",
       "arguments": ["--tabs", "2"],
+      "variables": { "ADUZI_DATA": "{files}" },
       "shareable": false
     }
   ],

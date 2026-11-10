@@ -29,9 +29,8 @@
 
 ## Block K — The build and the harness — what a green run is evidence of
 
-- 📋 **QS390** (deps: —) **A UI case that sets no ADUZI_DATA reads the guest's real profile, so whatever was left there changes its verdict** — The local-browser case failed twice on 10/11/2026 after a session left in the guest's %AppData%\Aduzi; a fixture should own its data folder. → §QS390
-- 📋 **QS391** (deps: —) **KeystrokePathTests' queue-full test sometimes throws ChannelClosedException within 3 ms** — Seen once in the guest on 10/11/2026 and not on the rerun, so the pipeline can close its typing channel before the first keystroke and nobody knows why. → §QS391
-- 📋 **QS392** (deps: —) **A UI case's client still outlives its case now and then, failing a run whose every assertion passed** — Seen twice in guest runs on 10/11/2026 after QS298 shipped: the vault-export case's client would not stop, and a held quickshell.log broke the next case's staging. → §QS392
+- 🛠 **QS391** (deps: —) **KeystrokePathTests' queue-full test sometimes throws ChannelClosedException within 3 ms** — Seen once in the guest on 10/11/2026 and not on the rerun, so the pipeline can close its typing channel before the first keystroke and nobody knows why. → §QS391
+- 🛠 **QS392** (deps: —) **A UI case's client still outlives its case now and then, failing a run whose every assertion passed** — Seen twice in guest runs on 10/11/2026 after QS298 shipped: the vault-export case's client would not stop, and a held quickshell.log broke the next case's staging. → §QS392
 
 ## Block L — An agent at the controls, held to a policy it cannot edit
 

@@ -12,6 +12,7 @@
     {
       "name": "the file browser over a local tab",
       "arguments": ["--tabs", "1", "--browse"],
+      "variables": { "ADUZI_DATA": "{files}" },
       "shareable": true
     },
     {

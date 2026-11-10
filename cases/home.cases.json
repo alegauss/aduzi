@@ -12,7 +12,8 @@
       // Two tabs and Home over the first. Not lent: Home stays on screen in place of the terminal
       // another case would read.
       "name": "a window opened on Home",
-      "arguments": ["--tabs", "2", "--home"]
+      "arguments": ["--tabs", "2", "--home"],
+      "variables": { "ADUZI_DATA": "{files}" }
     }
   ],
 
