@@ -359,9 +359,9 @@ public sealed class SessionPipeline : IAsyncDisposable
             await Completed.ConfigureAwait(false);
             await _resizing.ConfigureAwait(false);
         }
-        catch (OperationCanceledException)
+        catch (Exception stopped) when (stopped is OperationCanceledException or ChannelClosedException)
         {
-            // Stopping is how this ends.
+            // Stopping is how this ends, and a queue closed under a waiting write is part of it (QS391).
         }
 
         _stopping.Dispose();
@@ -411,6 +411,11 @@ public sealed class SessionPipeline : IAsyncDisposable
         catch (OperationCanceledException)
         {
             // Closing.
+        }
+        catch (ChannelClosedException)
+        {
+            // Closing too: the queue was completed under a write, which only a stop does. Left to
+            // escape, it faulted Completed and turned an ordinary dispose into a throw (QS391).
         }
         catch (IOException)
         {

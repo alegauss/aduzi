@@ -98,6 +98,33 @@ public sealed class KeystrokePathTests
     }
 
     /// <summary>
+    /// QS391: a pipeline disposed while its reader waits on a full queue ends without an exception.
+    /// The queue-full test above failed once in the guest with ChannelClosedException out of the
+    /// dispose; this is that ending, a few hundred times over, so a race that loses one time in many
+    /// loses here.
+    /// </summary>
+    [Fact]
+    public async Task DisposingWhileTheReaderWaitsOnAFullQueueEndsCleanly()
+    {
+        for (int run = 0; run < 300; run++)
+        {
+            PtyStub far = new();
+            SessionPipeline pipeline = SessionPipeline.Start(far, new Emulator(80, 24), capacity: 4);
+
+            for (int read = 0; read < 200; read++)
+            {
+                far.Produce(Encoding.UTF8.GetBytes($"noise {read}\r\n"));
+            }
+
+            await pipeline.TypeAsync("x"u8.ToArray(), TestContext.Current.CancellationToken);
+
+            Exception? ended = await Record.ExceptionAsync(async () => await pipeline.DisposeAsync());
+
+            Assert.True(ended is null, $"run {run}: disposing threw {ended}");
+        }
+    }
+
+    /// <summary>
     /// Writes are not batched. Coalescing keystrokes to save a syscall trades away the one resource
     /// everything else here is being spent to protect, so three keys are three writes.
     /// </summary>

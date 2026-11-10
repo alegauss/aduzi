@@ -493,22 +493,6 @@ both sides' algorithm lists.
 
 ## Block K — The build and the harness — what a green run is evidence of
 
-### §QS391 QS391 — The keystroke test that closes its own channel
-
-Found on 10/11/2026 in a guest run of the full suite.
-`KeystrokePathTests.AKeystrokeDoesNotWaitForAQueueFullOfOutput` failed after 3 ms with
-`System.Threading.Channels.ChannelClosedException: The channel has been closed`; the
-stack was not read, and `SessionPipeline.TypeAsync` is the likely source. The rerun with
-the same tree passed, and the two runs before it passed too.
-
-The test queues ten thousand reads in a `PtyStub` and types one byte. The typing channel
-being closed means the pipeline had already started to stop before the first keystroke:
-a read loop that faulted on the burst, or a shutdown racing `Start`. Either would be a
-real defect in the keystroke path, where a typed key is lost rather than late, and the
-stack trace in the guest's trx report is where to start.
-
-Done when the cause is named and the test passes a hundred runs in a row in the guest.
-
 ### §QS392 QS392 — A case's client that will not stop, again
 
 QS298 made a case whose client outlives it say which case, and stopped that from turning
