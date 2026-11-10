@@ -23,15 +23,17 @@
 - 📋 **QS380** (deps: QS386, visibility VS58) **Every release still ships unsigned, so SmartScreen warns on the first download and managed machines refuse it** — The Store signs the MSIX itself, and claude-tray tests that path first (VS58); SignPath and Certum become the fallback. → §QS380
 - 💭 **QS381** (deps: QS380) **If SignPath Foundation declines the project, there is no affordable certificate lined up** — Certum's Open Source Code Signing certificate is issued to individuals anywhere for tens of euros a year, and release.ps1 -Certificate can use it. → §QS381
 - 📋 **QS382** (deps: QS380) **Once a certificate exists, nothing sends the tagged build to SignPath and publishes what comes back** — With SignPath the key never reaches this desk, so the tag workflow submits its archive, waits for the maintainer's approval and publishes the signed result. → §QS382
-- 📋 **QS386** (deps: QS384 ✅) **There is nothing to download: no release or tag, only a CI artefact that expires in five days** — Every channel waits for a first release, and the Store and any certificate application need one to exist. → §QS386
+- 🛠 **QS386** (deps: QS384 ✅) **There is nothing to download: no release or tag, only a CI artefact that expires in five days** — Every channel waits for a first release, and the Store and any certificate application need one to exist. → §QS386
 
 ## Block I — An error a user can act on
 
 ## Block J — Leaving MobaXterm, proven by the switch
 
-- 📋 **QS389** (deps: —) **A sessions.json saved with a UTF-8 byte-order mark leaves the sidebar empty** — SessionTree.ReadFrom hands the raw bytes to JsonSerializer, which refuses a BOM; Windows PowerShell and older editors write one, so a hand-edited store reads as broken. → §QS389
-
 ## Block K — The build and the harness — what a green run is evidence of
+
+- 📋 **QS390** (deps: —) **A UI case that sets no ADUZI_DATA reads the guest's real profile, so whatever was left there changes its verdict** — The local-browser case failed twice on 10/11/2026 after a session left in the guest's %AppData%\Aduzi; a fixture should own its data folder. → §QS390
+- 📋 **QS391** (deps: —) **KeystrokePathTests' queue-full test sometimes throws ChannelClosedException within 3 ms** — Seen once in the guest on 10/11/2026 and not on the rerun, so the pipeline can close its typing channel before the first keystroke and nobody knows why. → §QS391
+- 📋 **QS392** (deps: —) **A UI case's client still outlives its case now and then, failing a run whose every assertion passed** — Seen twice in guest runs on 10/11/2026 after QS298 shipped: the vault-export case's client would not stop, and a held quickshell.log broke the next case's staging. → §QS392
 
 ## Block L — An agent at the controls, held to a policy it cannot edit
 

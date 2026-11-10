@@ -265,7 +265,7 @@ public sealed class SessionTree
 
         try
         {
-            return new SessionTree(JsonSerializer.Deserialize<SessionNode>(File.ReadAllBytes(file), Reading)
+            return new SessionTree(JsonSerializer.Deserialize<SessionNode>(SettingsFile.Unmarked(File.ReadAllBytes(file)).Span, Reading)
                                    ?? new SessionNode());
         }
         catch (JsonException broken) when (Unknown(broken) is { } field)

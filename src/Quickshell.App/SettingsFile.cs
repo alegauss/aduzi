@@ -218,15 +218,23 @@ public static class SettingsFile
     public static FileStream OpenShared(string path) =>
         new(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite | FileShare.Delete);
 
-    /// <summary>The whole file, through <see cref="OpenShared"/>.</summary>
-    internal static byte[] Shared(string path)
+    /// <summary>The whole file, through <see cref="OpenShared"/>, less a UTF-8 byte-order mark at its head.</summary>
+    internal static ReadOnlyMemory<byte> Shared(string path)
     {
         using FileStream file = OpenShared(path);
         using MemoryStream into = new();
 
         file.CopyTo(into);
-        return into.ToArray();
+        return Unmarked(into.ToArray());
     }
+
+    /// <summary>
+    /// <paramref name="bytes"/> less a UTF-8 byte-order mark at the head (QS389). The serializer and
+    /// <see cref="JsonDocument"/> refuse one in a byte buffer, and Windows PowerShell 5.1 and older
+    /// Notepad write one into a file a person edits by hand.
+    /// </summary>
+    internal static ReadOnlyMemory<byte> Unmarked(byte[] bytes) =>
+        bytes.AsSpan().StartsWith((ReadOnlySpan<byte>)[0xEF, 0xBB, 0xBF]) ? bytes.AsMemory(3) : bytes;
 
     /// <summary>The whole file through <see cref="OpenShared"/>, decoded as <c>File.ReadAllText</c> decodes.</summary>
     internal static string SharedText(string path)

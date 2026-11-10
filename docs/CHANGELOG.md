@@ -322,6 +322,7 @@
 - ✅ **QS296** **A MobaXterm import drops jump hosts, flattens nested folders, and finds no portable edition's file** — A MobaXterm import carries the jump host into the session's own, keeps nested folders nested, and asks for the file where none is where MobaXterm keeps it.
 - ✅ **QS81** **A user weighing the switch has nothing that says what they will and will not get** — docs/SWITCHING.md says what comes across, what quickshell does and refuses with what to use instead, and compares it with MobaXterm 26.5 from a documented guest run.
 - ✅ **QS297** **An imported MobaXterm jump host drops its user and port, and a chain of two jumps becomes one unusable name** — A MobaXterm jump comes across as user@host:port from its three fields, two jumps as an OpenSSH chain; JumpHost takes that chain, and the guest opens a session through two hops.
+- ✅ **QS389** **A sessions.json saved with a UTF-8 byte-order mark leaves the sidebar empty** — A session store or settings file saved with a UTF-8 byte-order mark is read as the same file without it, so a hand edit in Windows PowerShell or old Notepad no longer empties the sidebar.
 
 ## Block K — The build and the harness — what a green run is evidence of
 

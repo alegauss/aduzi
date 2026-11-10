@@ -527,24 +527,64 @@ both sides' algorithm lists.
 
 ## Block J — Leaving MobaXterm, proven by the switch
 
-### §QS389 QS389 — A session store with a byte-order mark reads as empty
-
-Found on 10/11/2026 while proving QS384 in the guest. `install-vm.ps1 -Former` wrote a
-saved session into `%AppData%\quickshell\sessions.json` with Windows PowerShell's
-`Set-Content -Encoding UTF8`, which puts a byte-order mark first. The Aduzi window that
-read it after the move listed no rows at all; the same JSON written without the mark was
-listed at once.
-
-`SessionTree.ReadFrom` passes `File.ReadAllBytes` straight to
-`JsonSerializer.Deserialize`, and the serializer does not skip a UTF-8 BOM in a byte
-span the way its stream overloads do. Windows PowerShell 5.1 and Notepad before Windows
-10 1903 both write one, and SESSIONS.md invites editing the store by hand, so a person
-who does that sees their sessions vanish.
-
-Done when a store with a BOM reads as the same store without one (a test with the mark
-first), and the settings file's reader is checked for the same thing.
-
 ## Block K — The build and the harness — what a green run is evidence of
+
+### §QS390 QS390 — UI cases that run on the guest's real profile
+
+Found on 10/11/2026. The first run of `run-install-vm.cmd -Former` (QS384) cleared the
+guest user's `%AppData%\quickshell` and `%AppData%\Aduzi` so the upgrade could be
+watched from nothing, and everything the profile had kept went with them, a saved window
+placement included. Every guest run after that failed the browser case "the browser
+opens on this computer, lists it, and says why it has no remote side": its
+`Text[order=right]` read `_Help`.
+
+The fixture "the file browser over a local tab" sets no `ADUZI_DATA`, so the client
+opened at whatever the profile held. Under the old placement the Files window reached
+furthest right. At the default size the main window behind it does, and the locator,
+which named no window, found that window's menu. The browser case now reads
+`Window#Files > Text[order=right]` and the Files window carries the automation id
+`Files`, which settles that case. Fixtures that read the profile are still exposed the
+same way. install-vm also removes the data its upgrade check moved, but can no longer
+give back what it cleared.
+
+Done when every case fixture that does not mean to read the profile gives the client a
+data folder of its own (`ADUZI_DATA` to `{files}`), so the verdict does not depend on
+what the guest profile happens to hold.
+
+### §QS391 QS391 — The keystroke test that closes its own channel
+
+Found on 10/11/2026 in a guest run of the full suite.
+`KeystrokePathTests.AKeystrokeDoesNotWaitForAQueueFullOfOutput` failed after 3 ms with
+`System.Threading.Channels.ChannelClosedException: The channel has been closed`; the
+stack was not read, and `SessionPipeline.TypeAsync` is the likely source. The rerun with
+the same tree passed, and the two runs before it passed too.
+
+The test queues ten thousand reads in a `PtyStub` and types one byte. The typing channel
+being closed means the pipeline had already started to stop before the first keystroke:
+a read loop that faulted on the burst, or a shutdown racing `Start`. Either would be a
+real defect in the keystroke path, where a typed key is lost rather than late, and the
+stack trace in the guest's trx report is where to start.
+
+Done when the cause is named and the test passes a hundred runs in a row in the guest.
+
+### §QS392 QS392 — A case's client that will not stop, again
+
+QS298 made a case whose client outlives it say which case, and stopped that from turning
+a green run red without a name. On 10/11/2026 it happened twice more in guest runs of
+the full suite. In the first, `EveryUiCaseOnAServerRuns` failed with an IOException:
+winwright's FixtureDeclaration.Stage could not write `quickshell.log` because a client
+from the case before still held it. In the second, every assertion of all 31 cases
+passed and the run failed anyway on "pid 912 aduzi.exe, launched for 'the vault export
+asks for a passphrase it can stand behind, and can be refused' - outlived its case and
+would not stop; gone by the time the run looked again".
+
+The second says the process did exit, only later than the runner waited. Either the
+client's shutdown after a dialog is refused takes longer than the stop allows, or the
+stop gives up too soon. Which it is decides whether this is the client's defect or the
+engine's: if it is the engine's wait, the line belongs in winwright's roadmap as well.
+
+Done when the vault-export case's client is shown to exit within the stop's wait over
+twenty guest runs, or the wait is shown to be what is short and filed with winwright.
 
 ## Block L — An agent at the controls, held to a policy it cannot edit
 

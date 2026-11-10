@@ -25,6 +25,25 @@ public sealed class SettingsFileTests : IDisposable
         }
     }
 
+    /// <summary>
+    /// QS389: a settings file saved with a UTF-8 byte-order mark is read for what it says, not taken
+    /// for one that does not parse and answered with the defaults.
+    /// </summary>
+    [Fact]
+    public void AFileWithAByteOrderMarkIsReadForWhatItSays()
+    {
+        Directory.CreateDirectory(_here);
+
+        string file = Path.Combine(_here, "settings.json");
+
+        File.WriteAllText(file, "{ \"fontSize\": 17 }", new System.Text.UTF8Encoding(true));
+
+        Assert.Equal(0xEF, File.ReadAllBytes(file)[0]);
+        Assert.True(SettingsFile.Readable(file));
+        Assert.Equal(17, SettingsFile.ReadFrom(file).FontSize);
+        Assert.Empty(SettingsFile.Unused(file));
+    }
+
     // ---- What a window opens on (QS272) ----
 
     /// <summary>A new window opens on Home unless the file says Shell, and the choice round-trips.</summary>

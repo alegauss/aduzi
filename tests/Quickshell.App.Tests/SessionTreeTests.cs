@@ -100,6 +100,22 @@ public sealed class SessionTreeTests : IDisposable
     }
 
     /// <summary>
+    /// QS389: a store saved with a UTF-8 byte-order mark first, as Windows PowerShell 5.1 and older
+    /// Notepad write one, reads as the same store without it.
+    /// </summary>
+    [Fact]
+    public void AStoreWithAByteOrderMarkReadsAsTheSameStore()
+    {
+        string file = Write("marked.json", string.Empty);
+
+        File.WriteAllText(file, ByHand, new UTF8Encoding(true));
+
+        Assert.Equal(0xEF, File.ReadAllBytes(file)[0]);
+        Assert.Equal(SessionTree.ReadFrom(Write("unmarked.json", ByHand)).Sessions().Select(each => each.Path),
+                     SessionTree.ReadFrom(file).Sessions().Select(each => each.Path));
+    }
+
+    /// <summary>
     /// QS254's falsification: a setting written beside the host, not under <c>settings</c>, is
     /// refused with where it goes, and never read as a session on its defaults. This is the store
     /// that connected to port 22 as the Windows user while QS137 was being measured.
