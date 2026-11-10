@@ -30,23 +30,23 @@ machine, the date and the command that produced it.
 
 ## Install
 
-> **No release has been published yet.** The SSH client, SFTP, port forwards, tabs, split panes
-> and the MobaXterm/PuTTY importers work today. The installer is not signed yet, so Windows
-> SmartScreen warns on first start. What is done and what is still open is in the
+Download `aduzi-0.1.0-win-x64-unsigned.zip` from the
+**[0.1.0 release](https://github.com/alegauss/aduzi/releases/tag/v0.1.0)**, and check it against
+`SHA256SUMS.txt` beside it.
+
+> **Pre-release, and not signed yet.** Windows SmartScreen warns on first start: *More info*,
+> then *Run anyway*. The SSH client, SFTP, port forwards, tabs, split panes and the
+> MobaXterm/PuTTY importers work. What is done and what is still open is in the
 > [roadmap](docs/ROADMAP.md) and the [changelog](docs/CHANGELOG.md).
-
-Until the first release:
-
-- **Build it**: needs Windows x64 and the [.NET 10 SDK](https://dotnet.microsoft.com/download).
-  `run-tests.cmd` builds everything and runs the tests; `run.cmd Release` builds the client and
-  starts it.
-- **CI builds** an unsigned `aduzi-<version>-win-x64.zip` on every push, kept for five days
-  under the workflow run's artifacts.
 
 The archive carries its own .NET runtime. Unzip it anywhere and it runs as a portable copy, or
 install it for yourself with `aduzi.exe --install` (no administrator prompt) or for every
 user with `--install --all-users`. [INSTALL.md](docs/INSTALL.md) lists everything it does to
 your machine, which is not much.
+
+To build it yourself you need Windows x64 and the [.NET 10 SDK](https://dotnet.microsoft.com/download):
+`run-tests.cmd` builds everything and runs the tests, and `run.cmd Release` builds the client and
+starts it.
 
 ## Coming from MobaXterm
 
@@ -58,9 +58,8 @@ aduzi.exe --import
 
 Or `Ctrl+Shift+I` inside the client. MobaXterm session files and PuTTY's saved sessions are
 both read. A session type Aduzi doesn't support (RDP, VNC, serial and so on) is named in
-the import report instead of being dropped silently. Known issue: a key file that MobaXterm
-stored as `_ProfileDir_\...` is not found after import yet, so point the session at the key
-again ([QS276](docs/ROADMAP.md)).
+the import report instead of being dropped silently. Key paths MobaXterm stored as
+`_ProfileDir_\...` and its other placeholders are expanded on import.
 
 Your `~/.ssh/config` is read live as well, `ProxyJump` and `Include` included, so hosts you
 already defined there appear without being retyped.

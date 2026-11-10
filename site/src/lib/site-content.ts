@@ -54,8 +54,8 @@ export const repoUrl = "https://github.com/alegauss/aduzi";
 export const parentUrl = "https://alegauss.github.io/";
 
 // The releases page rather than a file: the installer carries its version in its name, so
-// there is no version-independent URL for the asset itself. Not `releases/latest` while no
-// release has been published, since that link answers a 404 until one is (QS286).
+// there is no version-independent URL for the asset itself. Not `releases/latest` either: that
+// skips pre-releases, and every release so far is one, so it answers a 404 (QS286, QS386).
 export const releasesUrl = `${repoUrl}/releases`;
 
 // Where the light/dark choice is stored: read by the pre-paint script vite.config.ts inlines
@@ -580,7 +580,7 @@ export const download = {
   intro: [
     "Windows 10 or 11, x64. It installs under ",
     { code: "%LOCALAPPDATA%" },
-    " and asks for nothing else, which is what reaches a managed laptop. This is a pre-release, version 0.1.0: no release has been published yet, and the build is not signed yet, so SmartScreen warns on first start.",
+    " and asks for nothing else, which is what reaches a managed laptop. Version 0.1.0 is a pre-release on GitHub, and it is not signed yet, so SmartScreen warns on first start.",
   ] as Rich,
   facts: [
     "No service, no scheduled task",

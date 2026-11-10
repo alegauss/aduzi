@@ -17,8 +17,9 @@ That is what an SSH client does with a remote machine.
 Formerly quickshell. The executable is `aduzi.exe` and the archive `aduzi-<version>-win-x64.zip`;
 an install under the old name upgrades in place, with its settings and saved sessions.
 
-**Status: pre-release, version 0.1.0.** No release has been published yet, and the build is not
-signed yet. The SSH client, SFTP, port forwards, tabs, split panes and the MobaXterm and PuTTY
+**Status: pre-release, version 0.1.0**, published at
+<https://github.com/alegauss/aduzi/releases/tag/v0.1.0> as `aduzi-0.1.0-win-x64-unsigned.zip`
+with `SHA256SUMS.txt`. The build is not signed yet. The SSH client, SFTP, port forwards, tabs, split panes and the MobaXterm and PuTTY
 importers work today; what is done and what is still open is in the roadmap,
 <https://github.com/alegauss/aduzi/blob/main/docs/ROADMAP.md>, and the changelog.
 Every figure on the site is a budget from `docs/PERFORMANCE.md` or a "Done when" criterion
