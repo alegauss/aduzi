@@ -179,7 +179,7 @@ What a new window opens on: Home, or a local shell.
 
 `Home` (the default) or `Shell`. `Home`: quick connect, the sessions you connected to last, and the ways to start, with
 the sessions sidebar beside them. No shell is started until you ask for one. `Shell` opens a local
-shell in a tab instead, as quickshell did before Home. A window started with `--session`, `--tabs`
+shell in a tab instead, as Aduzi did before Home. A window started with `--session`, `--tabs`
 or `--panes` opens on what it asked for, whichever this says.
 
 ### `vaultFile`
@@ -223,8 +223,8 @@ A long output comes back as its first and last lines within a budget, and `outpu
 `output_grep` reach the rest without running the command again. Passwords, tokens, keys and the like in
 anything a tool returns are replaced with `«redacted:…»` before the agent sees them; that guards against
 a slip, not a determined command, which can always encode a value past it. Every call is recorded in
-`audit` in quickshell's folder, and `aduzi --audit` prints what a run changed, ran, refused and
-read ([COMMAND-LINE.md](COMMAND-LINE.md#serving-an-agent)). Each run also appears in quickshell, while it is open, as a read-only tab badged `agent` that shows every
+`audit` in Aduzi's folder, and `aduzi --audit` prints what a run changed, ran, refused and
+read ([COMMAND-LINE.md](COMMAND-LINE.md#serving-an-agent)). Each run also appears in Aduzi, while it is open, as a read-only tab badged `agent` that shows every
 call and what came back. `Ctrl+Shift+F12` stops every agent at once,
 cancelling the jobs they started, until *Let agents run again* in the palette ([KEYS.md](KEYS.md)). It signs in with the session's
 key and your agents, never a typed password, and refuses a host whose key you have not already trusted
@@ -232,17 +232,17 @@ from the window. It is a separate process: the window, its start and its memory 
 it on or off.
 
 Every call that reaches a server is judged first by the agent policy, `agent-policy.json` in
-quickshell's folder. With no such file every session is at *operate*: what can be shown to be a read
+Aduzi's folder. With no such file every session is at *operate*: what can be shown to be a read
 runs (`df`, `journalctl`, `systemctl status`, and the list the client ships), and anything else asks you
-in a quickshell dialog that shows each command as its words, its session, its tags and an edit's diff:
+in a Aduzi dialog that shows each command as its words, its session, its tags and an edit's diff:
 *Run it*, *Run it and allow these for* 30 minutes, an hour or four hours (written into the policy as a
-grant), or *Refuse* with a note the agent reads. With no quickshell window open, or no answer within ten
+grant), or *Refuse* with a note the agent reads. With no Aduzi window open, or no answer within ten
 minutes, the call is refused and the agent is told why. Once an agent has read text from a server (a file,
 a log, a command's output other than the machine's own state such as `uptime` or `df`), every change asks
 you, even one a grant allows, because that text may be telling it what to do. The agent's tab says when
 this happens, and *Trust what agents have read* in the palette lifts it. A change to `agent-policy.json`
-made outside quickshell, in an editor or by a script, holds every call until you accept or reject it in
-the dialog quickshell shows with the change. A session tagged `prod` is at *observe*: reads only. In
+made outside Aduzi, in an editor or by a script, holds every call until you accept or reject it in
+the dialog Aduzi shows with the change. A session tagged `prod` is at *observe*: reads only. In
 the file you set levels by tag or by session path (`deny`, `observe`, `operate`), and grants that
 expire within four hours: named commands on named sessions, or `"level": "break-glass"` for
 everything. `certificateMinutes` (1 to 60, 5 by default) is how long a certificate signed for an
@@ -254,11 +254,11 @@ gives the format with an example.
 Whether Windows Hello asks for you before Aduzi signs an agent a certificate. Off by default; on, an agent signs in only while you are at the desk to answer.
 
 On a session set up to take its agent in on a certificate (`AgentCertificate`, [SESSIONS.md](SESSIONS.md)),
-the gateway asks quickshell's window before each signing, and the window shows the Windows Hello prompt
+the gateway asks Aduzi's window before each signing, and the window shows the Windows Hello prompt
 over itself, naming the session and the account. The gateway signs once per connection, so the prompt
 comes once per session per agent run, not once per command. With no window open, or Hello declined or
 not set up for your account, nothing is signed and the agent is told why. Without it, any program
-running as you can have quickshell sign a certificate; that certificate still opens only the account
+running as you can have Aduzi sign a certificate; that certificate still opens only the account
 the server limited.
 
 ### `claudeCommand`
@@ -266,20 +266,21 @@ the server limited.
 What Open Claude Code runs in its pane, found on the path: claude by default.
 
 *Open Claude Code* in the palette opens a local tab running this, through the command processor,
-with the agent gateway as its MCP server and `--agent-hook` installed (both written into quickshell's
+with the agent gateway as its MCP server and `--agent-hook` installed (both written into Aduzi's
 folder each time). *Send to Claude* types the selection, or the screen, of the pane with the keyboard
 into it, under a line naming the session and its tags. Both need `agentGateway` on.
 
 Below the settings, *Install the Claude Code plugin…* is offered where this command is found on the
-path. It writes a plugin into `claude-plugin` in quickshell's folder: the gateway as an MCP server,
+path. It writes a plugin into `claude-plugin` in Aduzi's folder: the gateway as an MCP server,
 `--agent-hook` before every shell command and file write, and a skill saying which gateway tool does
 what. It then installs the plugin for your user through `claude plugin`, after showing every command
-it will run. Install it again after updating quickshell. A plugin written by another version is
-refused by the gateway, which says so.
+it will run. Install it again after updating Aduzi. A plugin written by another version is
+refused by the gateway, which says so. The plugin and its MCP server are named `aduzi`; installing
+uninstalls the `quickshell` plugin an earlier version wrote, so Claude Code is not left with two.
 
 *Install into WSL…* beside it does the same for a Claude Code inside WSL2, the setup the agent gateway's
 design recommends on Windows. It looks in your WSL distributions for `claude` only when you press it,
-and writes the plugin naming quickshell by the `/mnt` path that distribution uses. Turn Claude Code's
+and writes the plugin naming Aduzi by the `/mnt` path that distribution uses. Turn Claude Code's
 sandbox on there yourself; the plugin does not change your Claude Code settings.
 
 ### `menuBar`

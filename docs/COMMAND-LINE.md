@@ -50,7 +50,7 @@ input and output, with no window. It exits when its input ends. Without the `age
 ([SETTINGS.md](SETTINGS.md#agentgateway)) it writes why to standard error and exits with 2.
 
 You need not wire either by hand. *Install the Claude Code plugin…* in Settings, offered where
-`claude` is on the path, writes a plugin holding both into quickshell's folder and installs it, after
+`claude` is on the path, writes a plugin holding both into Aduzi's folder and installs it, after
 saying what it changes. Its `--mcp` entry carries `--plugin-version`, so after an update the plugin
 is installed again before the gateway serves it.
 
@@ -78,7 +78,7 @@ runs outside the sandbox, keeps its connections. Claude Code's sandbox runs on m
 not on native Windows, where the hook is the only measure on the agent's side.
 
 So on Windows, run the agent in WSL2 with the sandbox on and give it the Windows client as its MCP
-server: `"command": "/mnt/c/<where quickshell is>/aduzi.exe", "args": ["--mcp"]`. The gateway
+server: `"command": "/mnt/c/<where Aduzi is>/aduzi.exe", "args": ["--mcp"]`. The gateway
 then runs on the Windows side with your sessions, keys and policy, and the agent's own shell cannot
 reach port 22 around it. A firewall rule per program blocks only the programs it names, and a second
 account for the agent would wall in the gateway too, which Claude Code starts as the agent; the design
@@ -89,4 +89,4 @@ document weighs both.
 | `--audit` | `[run]` | Prints an agent gateway run's audit log as a summary of what was changed, run, refused and read, and says whether the log is whole; with no run, lists the runs recorded. Opens no window. |
 | `--agent-hook` | | Reads a Claude Code PreToolUse call on standard input and denies a shell command that reaches a server around the agent gateway, or a write to the files that limit agents, saying why. Opens no window. |
 | `--mcp` | | Serves the agent gateway to an agent such as Claude Code on standard input and output, and opens no window. Refused unless the agentGateway setting is on; every call is judged by the agent policy first. |
-| `--plugin-version` | `<version>` | With --mcp: the version of quickshell that wrote the Claude Code plugin starting it. A plugin written by another version is refused, naming both, until it is installed again from Settings. |
+| `--plugin-version` | `<version>` | With --mcp: the version of Aduzi that wrote the Claude Code plugin starting it. A plugin written by another version is refused, naming both, until it is installed again from Settings. |

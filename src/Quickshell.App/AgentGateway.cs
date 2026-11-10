@@ -133,7 +133,7 @@ public sealed class AgentGateway : IAsyncDisposable
     {
         ["protocolVersion"] = asked?["protocolVersion"]?.GetValue<string>() ?? Protocol,
         ["capabilities"] = new JsonObject { ["tools"] = new JsonObject() },
-        ["serverInfo"] = new JsonObject { ["name"] = "quickshell", ["version"] = _version },
+        ["serverInfo"] = new JsonObject { ["name"] = ClaudePlugin.Name, ["version"] = _version },
         ["instructions"] =
             "Runs commands on the SSH sessions saved in Aduzi. hosts_list names them; exec runs an argument "
             + "vector on one and answers its exit code, stdout and stderr apart. read_file and edit_file read a text "

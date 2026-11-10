@@ -685,7 +685,7 @@ public sealed class SshNetTransport : ISshTransport, ICommandChannel
             _ => throw new SshException(
                 SshFailureKind.NoMethodAccepted,
                 $"{credential.GetType().Name} is not a credential this transport knows.",
-                "This is a gap in quickshell rather than something the server refused."),
+                "This is a gap in Aduzi rather than something the server refused."),
         };
 
     /// <summary>

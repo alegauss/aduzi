@@ -86,7 +86,7 @@ public static partial class AgentAccountSetup
         StringBuilder script = new();
 
         script.Append("#!/bin/sh\n")
-              .Append("# Written by quickshell (QS340): an account for an agent, limited by this server.\n")
+              .Append("# Written by Aduzi (QS340): an account for an agent, limited by this server.\n")
               .Append("set -eu\n")
               .Append(CultureInfo.InvariantCulture, $"account={account}\n")
               .Append("id -u \"$account\" >/dev/null 2>&1 || useradd -m -s /bin/sh \"$account\"\n")
@@ -96,7 +96,7 @@ public static partial class AgentAccountSetup
               .Append("chown \"$account:$account\" \"$home/.ssh/authorized_keys\"\n")
               .Append("chmod 600 \"$home/.ssh/authorized_keys\"\n")
               .Append("allowed=$(mktemp)\n")
-              .Append("printf '%s\\n' '# Written by quickshell (QS340): what the agent account may run as root, and nothing else.' > \"$allowed\"\n");
+              .Append("printf '%s\\n' '# Written by Aduzi (QS340): what the agent account may run as root, and nothing else.' > \"$allowed\"\n");
 
         foreach (IReadOnlyList<string> command in sudo)
         {
@@ -134,7 +134,7 @@ public static partial class AgentAccountSetup
         }
 
         return "#!/bin/sh\n"
-               + "# Removes what quickshell's agent setup made (QS340, QS359).\n"
+               + "# Removes what Aduzi's agent setup made (QS340, QS359).\n"
                + $"rm -f {Sudoers}\n"
                + $"pkill -u {account} 2>/dev/null || true\n"
                + $"userdel -r {account} 2>/dev/null || true\n"

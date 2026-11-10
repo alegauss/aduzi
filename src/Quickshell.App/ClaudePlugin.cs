@@ -14,11 +14,11 @@ public sealed record PluginStep(IReadOnlyList<string> Command, int ExitCode, str
 
 /// <summary>
 /// The agent gateway as a Claude Code plugin (QS343): the MCP server, the hook and a skill in one install,
-/// so wiring quickshell into Claude Code is one answer in Settings rather than three hand edits.
+/// so wiring Aduzi into Claude Code is one answer in Settings rather than three hand edits.
 ///
 /// <para><b>Written by the client, never published.</b> The plugin's MCP entry and its hook name the
-/// <c>quickshell.exe</c> that wrote them, by its full path, and carry that copy's version. A plugin
-/// published once could name neither, since where a person installs quickshell is theirs to choose. So
+/// <c>aduzi.exe</c> that wrote them, by its full path, and carry that copy's version. A plugin
+/// published once could name neither, since where a person installs Aduzi is theirs to choose. So
 /// the client writes the plugin, inside a marketplace of its own, into its own folder, and asks Claude
 /// Code to add that marketplace and install from it. Installing again after an update writes the new
 /// version over it.</para>
@@ -34,10 +34,19 @@ public sealed record PluginStep(IReadOnlyList<string> Command, int ExitCode, str
 public static class ClaudePlugin
 {
     /// <summary>The plugin's name, which is also the MCP server's.</summary>
-    public const string Name = "quickshell";
+    public const string Name = "aduzi";
 
     /// <summary>The marketplace the client writes it into.</summary>
-    public const string Marketplace = "quickshell-local";
+    public const string Marketplace = "aduzi-local";
+
+    /// <summary>
+    /// The plugin as the client wrote it under its earlier name (QS384), uninstalled before this one is
+    /// installed so Claude Code is not left with two gateways, one naming a program that is gone.
+    /// </summary>
+    public const string FormerName = "quickshell";
+
+    /// <summary>The marketplace the earlier plugin was written into.</summary>
+    public const string FormerMarketplace = "quickshell-local";
 
     private static readonly JsonSerializerOptions Indented = new() { WriteIndented = true };
 
@@ -48,8 +57,8 @@ public static class ClaudePlugin
     public static string? Mismatch(string? plugin, string mine) =>
         plugin is null || string.Equals(plugin, mine, StringComparison.Ordinal)
             ? null
-            : $"the quickshell plugin for Claude Code was written by quickshell {plugin}, and this is quickshell {mine}. "
-              + "Install the plugin again from quickshell's Settings, which writes it for this version.";
+            : $"the Aduzi plugin for Claude Code was written by Aduzi {plugin}, and this is Aduzi {mine}. "
+              + "Install the plugin again from Aduzi's Settings, which writes it for this version.";
 
     /// <summary>
     /// Writes the marketplace and the plugin in it into <paramref name="folder"/>, naming
@@ -72,18 +81,18 @@ public static class ClaudePlugin
         Json(Path.Combine(folder, ".claude-plugin", "marketplace.json"), new JsonObject
         {
             ["name"] = Marketplace,
-            ["description"] = "The quickshell agent gateway, written by the quickshell installed on this machine.",
-            ["owner"] = new JsonObject { ["name"] = "quickshell" },
+            ["description"] = "The Aduzi agent gateway, written by the Aduzi installed on this machine.",
+            ["owner"] = new JsonObject { ["name"] = "Aduzi" },
             ["plugins"] = new JsonArray(new JsonObject { ["name"] = Name, ["source"] = "./" + Name }),
         });
 
         Json(Path.Combine(plugin, ".claude-plugin", "plugin.json"), new JsonObject
         {
             ["name"] = Name,
-            ["description"] = "Reach your quickshell sessions through its agent gateway: every call judged by your policy, "
-                              + "changes approved in quickshell, and ssh around it turned back.",
+            ["description"] = "Reach your Aduzi sessions through its agent gateway: every call judged by your policy, "
+                              + "changes approved in Aduzi, and ssh around it turned back.",
             ["version"] = version,
-            ["author"] = new JsonObject { ["name"] = "quickshell" },
+            ["author"] = new JsonObject { ["name"] = "Aduzi" },
             ["mcpServers"] = new JsonObject
             {
                 [Name] = new JsonObject
@@ -111,7 +120,7 @@ public static class ClaudePlugin
             },
         });
 
-        string skill = Path.Combine(plugin, "skills", "quickshell-gateway", "SKILL.md");
+        string skill = Path.Combine(plugin, "skills", Name + "-gateway", "SKILL.md");
 
         Directory.CreateDirectory(Path.GetDirectoryName(skill)!);
 
@@ -126,12 +135,15 @@ public static class ClaudePlugin
     }
 
     /// <summary>
-    /// What installing asks Claude Code to do, in order: the marketplace taken off where an earlier install
+    /// What installing asks Claude Code to do, in order: the plugin written under the earlier name
+    /// uninstalled and its marketplace taken off (QS384), this marketplace taken off where an earlier install
     /// added it, added again from <paramref name="marketplace"/>, and the plugin installed from it for this
     /// user.
     /// </summary>
     public static IReadOnlyList<IReadOnlyList<string>> Steps(string marketplace) =>
     [
+        ["plugin", "uninstall", $"{FormerName}@{FormerMarketplace}", "-s", "user"],
+        ["plugin", "marketplace", "remove", FormerMarketplace],
         ["plugin", "marketplace", "remove", Marketplace],
         ["plugin", "marketplace", "add", marketplace],
         // -s is Claude Code's own short form of its scope option; a long form here would read as one of
@@ -140,8 +152,8 @@ public static class ClaudePlugin
     ];
 
     /// <summary>
-    /// Runs <see cref="Steps"/> with <paramref name="run"/>, stopping at the first that fails after the
-    /// first: taking off a marketplace that was never added is the one failure that means nothing.
+    /// Runs <see cref="Steps"/> with <paramref name="run"/>, stopping at the first that fails and is not a
+    /// removal: taking off a plugin or a marketplace that was never there is the one failure that means nothing.
     /// </summary>
     /// <returns>Every step run, the last being the one that failed where one did.</returns>
     public static IReadOnlyList<PluginStep> Install(string marketplace, Func<IReadOnlyList<string>, PluginStep> run)
@@ -156,7 +168,7 @@ public static class ClaudePlugin
 
             ran.Add(done);
 
-            if (done.ExitCode != 0 && ran.Count > 1)
+            if (done.ExitCode != 0 && step is not ([_, "uninstall", ..] or [_, "marketplace", "remove", _]))
             {
                 break;
             }

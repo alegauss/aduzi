@@ -237,7 +237,7 @@ public sealed class SettingsWindow : Window
         string changes =
             $"This writes a Claude Code plugin into {folder}-wsl-…, naming {quickshell} by the path {picked} starts it by, and asks the "
             + $"Claude Code in {picked} ({found.Single(each => each.Distribution == picked).Claude}) to install it for your user: the MCP "
-            + "server \"quickshell\" and the hook that turns back ssh around it, as on Windows.\n\n"
+            + $"server \"{ClaudePlugin.Name}\" and the hook that turns back ssh around it, as on Windows.\n\n"
             + "Turn Claude Code's sandbox on in that distribution too (sandbox.enabled, failIfUnavailable, allowUnsandboxedCommands: false): "
             + "it is what stops a script the hook cannot see, and the plugin does not change your Claude Code settings.";
 

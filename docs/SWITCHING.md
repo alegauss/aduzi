@@ -1,13 +1,13 @@
 # Switching from MobaXterm
 
 This page is for somebody who works in MobaXterm today and is deciding whether to move to
-quickshell. It says what comes with you, what quickshell does, what it deliberately does not do and
+Aduzi. It says what comes with you, what Aduzi does, what it deliberately does not do and
 what to use instead, and how the two compare on one machine, with the run that produced every
 number. Where MobaXterm is better, it says so.
 
 ## In one paragraph
 
-quickshell is an SSH client and terminal for Windows, and only that: SSH sessions with their keys,
+Aduzi is an SSH client and terminal for Windows, and only that: SSH sessions with their keys,
 agents, jump hosts and forwards, a file browser over the same connection, tabs and split panes, and a
 local shell. It draws the terminal on the GPU and does nothing while you are not typing. It does not
 carry an X server, RDP, VNC, Telnet, serial, FTP or a Unix toolbox — if your day depends on any of
@@ -16,7 +16,7 @@ those, keep the tool you have for it, named below for each one.
 ## What comes with you
 
 **Your saved sessions.** Press `Ctrl+Shift+I` (or *Import sessions from another client* in the
-palette, or the card on Home). quickshell reads `MobaXterm.ini` from where MobaXterm keeps it — your
+palette, or the card on Home). Aduzi reads `MobaXterm.ini` from where MobaXterm keeps it — your
 Documents, OneDrive's Documents or AppData — and PuTTY's sessions from the registry, and shows what
 it would do before writing anything. A portable MobaXterm keeps its `MobaXterm.ini` beside
 `MobaXterm.exe`; where none is found in the usual places, the import asks you for the file. The
@@ -25,13 +25,13 @@ same import runs from the command line as `aduzi.exe --import [file]`.
 What carries over, for every SSH session:
 
 - host, port and user;
-- the private key, referenced where it lies — a `.ppk` included, which quickshell reads as it is
+- the private key, referenced where it lies — a `.ppk` included, which Aduzi reads as it is
   and does not convert;
-- the jump host, which quickshell reaches with your keys and agents and never with a password;
+- the jump host, which Aduzi reaches with your keys and agents and never with a password;
 - MobaXterm's folders, nested as they were, under a folder named *Imported from MobaXterm* and the
-  day. The sessions already in quickshell stay as they are.
+  day. The sessions already in Aduzi stay as they are.
 
-What does not, and is named rather than dropped: sessions of a kind quickshell does not connect with
+What does not, and is named rather than dropped: sessions of a kind Aduzi does not connect with
 (RDP, VNC, Telnet, serial, FTP, Mosh, MobaXterm's local shells and the rest) are listed with the
 reason; and any setting a session carried that has nowhere to go here — X11 forwarding, compression,
 a macro to run after login, and any field the import does not recognise, by its position — is listed
@@ -43,17 +43,17 @@ whether you have five sessions or five hundred. What takes time afterwards is wh
 a session whose login macro you relied on gets the same commands in its **After login** field
 (`PostLogin`), by hand.
 
-**Your keys in an agent.** quickshell asks Windows' own OpenSSH agent and Pageant, through the window
+**Your keys in an agent.** Aduzi asks Windows' own OpenSSH agent and Pageant, through the window
 every Pageant opens — tested against a real Pageant 0.77. MobAgent,
 MobaXterm's agent, is made to answer as Pageant does, so keys loaded there should be offered while
-MobaXterm runs; that one has not been tried with quickshell. Loaded into Pageant or the Windows
+MobaXterm runs; that one has not been tried with Aduzi. Loaded into Pageant or the Windows
 agent, they are.
 
-**Your passwords** do not come across: MobaXterm keeps them in its own store. quickshell asks for a
+**Your passwords** do not come across: MobaXterm keeps them in its own store. Aduzi asks for a
 password when a server wants one, and can keep it in Windows Credential Manager under a name you give
 the session (`Credential`), where you can see and remove it with Windows' own tools.
 
-## What quickshell does
+## What Aduzi does
 
 - **SSH sessions**, saved in one JSON file you can read and edit (`%AppData%\Aduzi\sessions.json`,
   or `data\` beside a portable copy), in folders that hand settings down — see [SESSIONS.md](SESSIONS.md).
@@ -78,7 +78,7 @@ the session (`Credential`), where you can see and remove it with Windows' own to
 These are decisions, written down in the roadmap's non-goals with the reason for each; none of them
 is a feature that is merely late.
 
-| MobaXterm has | quickshell | Use instead |
+| MobaXterm has | Aduzi | Use instead |
 |---|---|---|
 | A built-in X server, and X11 forwarding | No, and no forwarding | An X server of its own: VcXsrv or X410, with `ssh -X` from a terminal that has one; or WSLg for Linux programs on this machine. Or keep MobaXterm for the sessions that run X programs. |
 | RDP | No | Windows' own Remote Desktop Connection (`mstsc`). |
@@ -99,7 +99,7 @@ the same method for both, since MobaXterm reports nothing of its own. Medians; e
 builds, the method and the command that produced them are in
 [measurements/mobaxterm.md](measurements/mobaxterm.md).
 
-| | quickshell 0.1.0 | MobaXterm 26.5 Home |
+| | Aduzi 0.1.0 | MobaXterm 26.5 Home |
 |---|---|---|
 | Start to first window | 1.09 s | 1.93 s |
 | Private memory | 63 MB | 72.5 MB |
@@ -108,16 +108,16 @@ builds, the method and the command that produced them are in
 
 What these say and do not say:
 
-- **Idle** is the one a laptop feels: quickshell's window, left alone, spent no measurable
+- **Idle** is the one a laptop feels: Aduzi's window, left alone, spent no measurable
   processor time in a minute; MobaXterm's spent most of a percent of a core, every minute it is
   open.
 - **Start** is to the first window, which is each client's home screen, not a connected session.
 - **Memory** goes both ways. MobaXterm's working set — everything Windows keeps resident for it —
-  is about a quarter smaller. quickshell's private memory — what is its alone — is the smaller;
+  is about a quarter smaller. Aduzi's private memory — what is its alone — is the smaller;
   the rest of its working set is shareable pages, such as the code of the libraries it loads.
 - **Not compared: terminal throughput and input latency.** MobaXterm's terminal cannot be timed from
   outside without watching its screen, and a number taken one way for one client and another way for
-  the other is not a comparison. quickshell's own are in [PERFORMANCE.md](PERFORMANCE.md) and
+  the other is not a comparison. Aduzi's own are in [PERFORMANCE.md](PERFORMANCE.md) and
   [measurements/throughput.md](measurements/throughput.md), on a different machine.
 - This is a virtual machine without a GPU of its own, so absolute figures are slower than on a real
   desk; the comparison is the point, not the numbers.
@@ -125,9 +125,9 @@ What these say and do not say:
 ## What MobaXterm does better
 
 - **One program for everything above.** If you use its X server, RDP, serial and SSH in the same
-  day, MobaXterm is one window and quickshell is one of several.
-- **Its working set is smaller** in the measurement above, by about a quarter, though quickshell's
+  day, MobaXterm is one window and Aduzi is one of several.
+- **Its working set is smaller** in the measurement above, by about a quarter, though Aduzi's
   private memory is the smaller of the two.
 - **A Unix toolbox on a machine without WSL.** Where WSL is not allowed, MobaXterm's bundled tools are
   the only Unix shell on the machine.
-- **Sessions of every kind in one tree.** quickshell's tree holds SSH sessions and nothing else.
+- **Sessions of every kind in one tree.** Aduzi's tree holds SSH sessions and nothing else.

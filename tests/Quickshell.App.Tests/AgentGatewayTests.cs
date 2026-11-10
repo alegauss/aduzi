@@ -29,7 +29,7 @@ public sealed class AgentGatewayTests
         JsonObject started = (await gateway.AnswerAsync("""{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-06-18","capabilities":{},"clientInfo":{"name":"t","version":"1"}}}""", Stop))!;
 
         Assert.Equal("2025-06-18", started["result"]!["protocolVersion"]!.GetValue<string>());
-        Assert.Equal("quickshell", started["result"]!["serverInfo"]!["name"]!.GetValue<string>());
+        Assert.Equal("aduzi", started["result"]!["serverInfo"]!["name"]!.GetValue<string>());
         Assert.Equal("1.2.3", started["result"]!["serverInfo"]!["version"]!.GetValue<string>());
 
         Assert.Null(await gateway.AnswerAsync("""{"jsonrpc":"2.0","method":"notifications/initialized"}""", Stop));

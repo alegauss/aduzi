@@ -138,7 +138,7 @@ public sealed class DynamicForward : IAsyncDisposable
             throw new SshException(
                 SshFailureKind.Unrecognised,
                 "This build of SSH.NET cannot carry a proxy the way this client does.",
-                "A channel member quickshell reaches by name is not there; LibraryShape names which.",
+                "A channel member Aduzi reaches by name is not there; LibraryShape names which.",
                 "Report this with the SSH.NET version.");
         }
 

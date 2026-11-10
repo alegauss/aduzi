@@ -10,7 +10,7 @@ namespace Quickshell.App.Tests;
 /// <summary>QS343: the agent gateway as a Claude Code plugin, written by the client and installed in one answer.</summary>
 public sealed class ClaudePluginTests : IDisposable
 {
-    private const string Exe = @"C:\Program Files\quickshell\quickshell.exe";
+    private const string Exe = @"C:\Program Files\Aduzi\aduzi.exe";
 
     private readonly string _here = Path.Combine(Path.GetTempPath(), "qs-plugin-" + Guid.NewGuid().ToString("N"));
 
@@ -27,20 +27,20 @@ public sealed class ClaudePluginTests : IDisposable
     public void TheWrittenPluginNamesThisCopyAndItsVersion()
     {
         string folder = ClaudePlugin.Write(Path.Combine(_here, "market"), Exe, "1.2.3");
-        string plugin = Path.Combine(folder, "quickshell");
+        string plugin = Path.Combine(folder, "aduzi");
 
         JsonNode market = Read(Path.Combine(folder, ".claude-plugin", "marketplace.json"));
         JsonNode manifest = Read(Path.Combine(plugin, ".claude-plugin", "plugin.json"));
         JsonNode hook = Read(Path.Combine(plugin, "hooks", "hooks.json"))["hooks"]!["PreToolUse"]![0]!;
-        JsonNode server = manifest["mcpServers"]!["quickshell"]!;
+        JsonNode server = manifest["mcpServers"]!["aduzi"]!;
 
-        Assert.Equal("quickshell-local", market["name"]!.GetValue<string>());
-        Assert.Equal("./quickshell", market["plugins"]![0]!["source"]!.GetValue<string>());
+        Assert.Equal("aduzi-local", market["name"]!.GetValue<string>());
+        Assert.Equal("./aduzi", market["plugins"]![0]!["source"]!.GetValue<string>());
         Assert.Equal("1.2.3", manifest["version"]!.GetValue<string>());
         Assert.Equal(Exe, server["command"]!.GetValue<string>());
         Assert.Equal(["--mcp", "--plugin-version", "1.2.3"], server["args"]!.AsArray().Select(word => word!.GetValue<string>()));
         Assert.Equal($"\"{Exe}\" --agent-hook", hook["hooks"]![0]!["command"]!.GetValue<string>());
-        Assert.Contains("name: quickshell-gateway", File.ReadAllText(Path.Combine(plugin, "skills", "quickshell-gateway", "SKILL.md")), StringComparison.Ordinal);
+        Assert.Contains("name: aduzi-gateway", File.ReadAllText(Path.Combine(plugin, "skills", "aduzi-gateway", "SKILL.md")), StringComparison.Ordinal);
 
         // Written again, for another version, over the first.
         ClaudePlugin.Write(folder, Exe, "1.2.4");
@@ -64,8 +64,8 @@ public sealed class ClaudePluginTests : IDisposable
     {
         Assert.Null(ClaudePlugin.Mismatch(null, "1.2.3"));
         Assert.Null(ClaudePlugin.Mismatch("1.2.3", "1.2.3"));
-        Assert.Equal("the quickshell plugin for Claude Code was written by quickshell 1.2.2, and this is quickshell 1.2.3. "
-                     + "Install the plugin again from quickshell's Settings, which writes it for this version.",
+        Assert.Equal("the Aduzi plugin for Claude Code was written by Aduzi 1.2.2, and this is Aduzi 1.2.3. "
+                     + "Install the plugin again from Aduzi's Settings, which writes it for this version.",
                      ClaudePlugin.Mismatch("1.2.2", "1.2.3"));
     }
 
@@ -89,10 +89,13 @@ public sealed class ClaudePluginTests : IDisposable
 
         Assert.True(gateway.WaitForExit(TimeSpan.FromSeconds(30)), "the gateway kept running for a stale plugin");
         Assert.Equal(2, gateway.ExitCode);
-        Assert.Contains("written by quickshell 0.0.1, and this is quickshell", said, StringComparison.Ordinal);
+        Assert.Contains("written by Aduzi 0.0.1, and this is Aduzi", said, StringComparison.Ordinal);
     }
 
-    /// <summary>Installing takes off an earlier marketplace (a failure there meaning nothing), adds it, installs, and stops at a failure after that.</summary>
+    /// <summary>
+    /// Installing uninstalls the plugin written under the earlier name and takes off both marketplaces (a
+    /// failure there meaning nothing was there), adds this one, installs, and stops at a failure after that.
+    /// </summary>
     [Fact]
     public void InstallingStopsAtTheFirstFailureThatMeansSomething()
     {
@@ -102,17 +105,18 @@ public sealed class ClaudePluginTests : IDisposable
         {
             asked.Add(string.Join(' ', step));
 
-            return new PluginStep(step, step[1] == "marketplace" && step[2] == "remove" ? 1 : 0, "ok");
+            return new PluginStep(step, step[1] == "uninstall" || step[2] == "remove" ? 1 : 0, "not there");
         });
 
-        Assert.Equal(["plugin marketplace remove quickshell-local", @"plugin marketplace add C:\data\claude-plugin",
-                      "plugin install quickshell@quickshell-local -s user"], asked);
+        Assert.Equal(["plugin uninstall quickshell@quickshell-local -s user", "plugin marketplace remove quickshell-local",
+                      "plugin marketplace remove aduzi-local", @"plugin marketplace add C:\data\claude-plugin",
+                      "plugin install aduzi@aduzi-local -s user"], asked);
         Assert.Equal(0, ran[^1].ExitCode);
 
         IReadOnlyList<PluginStep> refused = ClaudePlugin.Install(@"C:\data\claude-plugin",
                                                                  step => new PluginStep(step, step[2] == "add" ? 1 : 0, "no such path"));
 
-        Assert.Equal(2, refused.Count);
+        Assert.Equal(4, refused.Count);
     }
 
     /// <summary>claude is found on the path by any extension Windows runs, and a full path is taken as itself.</summary>
@@ -181,21 +185,21 @@ public sealed class ClaudePluginTests : IDisposable
             TextBlock result = (TextBlock)((StackPanel)((ScrollViewer)window.Content).Content).Children
                 .OfType<TextBlock>().Single(block => System.Windows.Automation.AutomationProperties.GetAutomationId(block) == "ClaudePluginSaid");
 
-            return (question, no, commands.ToArray(), result.Text, File.Exists(Path.Combine(plugin, "quickshell", ".claude-plugin", "plugin.json")));
+            return (question, no, commands.ToArray(), result.Text, File.Exists(Path.Combine(plugin, "aduzi", ".claude-plugin", "plugin.json")));
         });
 
         Assert.Equal(0, declined);
         Assert.NotNull(asked);
         Assert.Contains("--agent-hook", asked, StringComparison.Ordinal);
-        Assert.Contains("claude plugin install quickshell@quickshell-local -s user", asked, StringComparison.Ordinal);
-        Assert.Equal(3, ran.Length);
+        Assert.Contains("claude plugin install aduzi@aduzi-local -s user", asked, StringComparison.Ordinal);
+        Assert.Equal(5, ran.Length);
         Assert.StartsWith("Installed: Aduzi ", said, StringComparison.Ordinal);
         Assert.True(written, "the plugin was not written before it was installed");
     }
 
     /// <summary>
     /// QS363, against a stand-in wsl.exe: the distributions with claude are found and the one without is not;
-    /// the plugin written for one names this copy by its /mnt path; and its three steps run through that
+    /// the plugin written for one names this copy by its /mnt path; and its steps run through that
     /// distribution's own claude, from the marketplace's /mnt path.
     /// </summary>
     [Fact]
@@ -219,22 +223,22 @@ public sealed class ClaudePluginTests : IDisposable
 
         Assert.Equal([("Ubuntu", "/home/me/.local/bin/claude")], ClaudePlugin.InWsl(Wsl));
 
-        (string windows, string inside) = ClaudePlugin.WriteForWsl(Path.Combine(_here, "claude-plugin"), "Ubuntu", @"C:\Program Files\quickshell\quickshell.exe", "1.2.3", Wsl);
-        JsonNode manifest = Read(Path.Combine(windows, "quickshell", ".claude-plugin", "plugin.json"));
+        (string windows, string inside) = ClaudePlugin.WriteForWsl(Path.Combine(_here, "claude-plugin"), "Ubuntu", @"C:\Program Files\Aduzi\aduzi.exe", "1.2.3", Wsl);
+        JsonNode manifest = Read(Path.Combine(windows, "aduzi", ".claude-plugin", "plugin.json"));
 
         Assert.EndsWith("claude-plugin-wsl-Ubuntu", windows, StringComparison.Ordinal);
         Assert.StartsWith("/mnt/", inside, StringComparison.Ordinal);
-        Assert.Equal("/mnt/c/Program Files/quickshell/quickshell.exe", manifest["mcpServers"]!["quickshell"]!["command"]!.GetValue<string>());
-        Assert.Equal("\"/mnt/c/Program Files/quickshell/quickshell.exe\" --agent-hook",
-                     Read(Path.Combine(windows, "quickshell", "hooks", "hooks.json"))["hooks"]!["PreToolUse"]![0]!["hooks"]![0]!["command"]!.GetValue<string>());
+        Assert.Equal("/mnt/c/Program Files/Aduzi/aduzi.exe", manifest["mcpServers"]!["aduzi"]!["command"]!.GetValue<string>());
+        Assert.Equal("\"/mnt/c/Program Files/Aduzi/aduzi.exe\" --agent-hook",
+                     Read(Path.Combine(windows, "aduzi", "hooks", "hooks.json"))["hooks"]!["PreToolUse"]![0]!["hooks"]![0]!["command"]!.GetValue<string>());
 
         calls.Clear();
 
         IReadOnlyList<PluginStep> ran = ClaudePlugin.Install(inside, step => ClaudePlugin.RunInWsl("Ubuntu", step, Wsl));
 
-        Assert.Equal(3, ran.Count);
-        Assert.Equal($"Ubuntu: sh -lc exec claude \"$@\" claude plugin marketplace add {inside}", calls[1]);
-        Assert.Equal("Ubuntu: sh -lc exec claude \"$@\" claude plugin install quickshell@quickshell-local -s user", calls[2]);
+        Assert.Equal(5, ran.Count);
+        Assert.Equal($"Ubuntu: sh -lc exec claude \"$@\" claude plugin marketplace add {inside}", calls[3]);
+        Assert.Equal("Ubuntu: sh -lc exec claude \"$@\" claude plugin install aduzi@aduzi-local -s user", calls[4]);
     }
 
     /// <summary>Settings looks in WSL only when asked, says so where no distribution has claude, and installs into the one picked after asking.</summary>
@@ -296,7 +300,7 @@ public sealed class ClaudePluginTests : IDisposable
 
         Assert.StartsWith("No WSL distribution here finds claude", none, StringComparison.Ordinal);
         Assert.Contains("Turn Claude Code's sandbox on in that distribution", asked, StringComparison.Ordinal);
-        Assert.Equal(3, ran);
+        Assert.Equal(5, ran);
         Assert.StartsWith("Installed into Ubuntu: Aduzi ", said, StringComparison.Ordinal);
     }
 

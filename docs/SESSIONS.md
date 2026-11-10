@@ -221,7 +221,7 @@ agents, and not the keys OpenSSH looks for. A path, as `Key` is.
 
 ### `AgentCertificate`
 
-`true` where the server trusts quickshell's certificate authority rather than `AgentKey` itself. The
+`true` where the server trusts Aduzi's certificate authority rather than `AgentKey` itself. The
 gateway then signs a certificate for `AgentKey` before every connection, valid for the agent policy's
 `certificateMinutes`, so the key alone signs in nowhere. The setup from the session menu sets it when
 its certificate option is left on, as it is by default.

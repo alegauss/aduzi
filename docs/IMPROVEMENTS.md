@@ -478,30 +478,6 @@ stays for a certificate on this desk, should the fallback of QS381 be taken.
 Done when a pushed tag ends in a GitHub release whose quickshell.exe and assemblies
 verify Valid and timestamped under Get-AuthenticodeSignature on the guest.
 
-### §QS384 QS384 — Carrying the name Aduzi through the product
-
-From the portfolio review of 30/10/2026. Quickshell is already the name of a well-known
-Linux project (a QtQuick toolkit for desktop shells), and winget lists a "Quick Shell"
-by another author, so a search for the name leads to them. The new name is **Aduzi**,
-chosen by the author on 02/11/2026, when nothing by that name was on NuGet, PyPI, npm,
-winget or GitHub; no trademark search was done. Listings read "Aduzi SSH".
-
-Done (e04f88d, e79e4fa): what a person reads. The window title, dialogs, crash and setup
-messages, the gateway's prose, the README, the site's copy and llms.txt say Aduzi, and
-the README and llms.txt say the rest still carries the old name.
-
-Left, in one commit once the repository is renamed on GitHub (the maintainer's action;
-GitHub redirects the old URL): `aduzi.exe`, the archive `aduzi-<version>-win-x64.zip`,
-the install folder `Programs\Aduzi`, the uninstall key and Start menu entry, the data
-folder `%AppData%\Aduzi`, the site's BASE and every repository link. An install under
-the old name is recognised by its uninstall key: installing over it moves
-`%AppData%\quickshell` to the new folder when the new one is absent, removes the old
-entry and shortcut, and keeps QUICKSHELL_DATA as an alias. The Claude plugin and MCP
-server become `aduzi`; Settings removes the `quickshell` plugin when it writes the new
-one. The scheme keeps answering to `quickshell` so settings files that name it still
-load. Code namespaces and the QS prefix stay. The old site path redirects to the new
-one.
-
 ### §QS386 QS386 — The first release
 
 From the portfolio review of 30/10/2026 (visibility, `produtos/quickshell.md` and
@@ -569,6 +545,23 @@ Falsified when a failed negotiation against the `legacy` fixture leaves a log na
 both sides' algorithm lists.
 
 ## Block J — Leaving MobaXterm, proven by the switch
+
+### §QS389 QS389 — A session store with a byte-order mark reads as empty
+
+Found on 10/11/2026 while proving QS384 in the guest. `install-vm.ps1 -Former` wrote a
+saved session into `%AppData%\quickshell\sessions.json` with Windows PowerShell's
+`Set-Content -Encoding UTF8`, which puts a byte-order mark first. The Aduzi window that
+read it after the move listed no rows at all; the same JSON written without the mark was
+listed at once.
+
+`SessionTree.ReadFrom` passes `File.ReadAllBytes` straight to
+`JsonSerializer.Deserialize`, and the serializer does not skip a UTF-8 BOM in a byte
+span the way its stream overloads do. Windows PowerShell 5.1 and Notepad before Windows
+10 1903 both write one, and SESSIONS.md invites editing the store by hand, so a person
+who does that sees their sessions vanish.
+
+Done when a store with a BOM reads as the same store without one (a test with the mark
+first), and the settings file's reader is checked for the same thing.
 
 ## Block K — The build and the harness — what a green run is evidence of
 

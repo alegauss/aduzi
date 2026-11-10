@@ -1,7 +1,7 @@
 # The agent gateway — design
 
 Block L's design: a way for a coding agent such as Claude Code to work on the servers saved in
-quickshell, through quickshell, instead of through an SSH key handed to it. This document is where
+Aduzi, through Aduzi, instead of through an SSH key handed to it. This document is where
 the block matures. It opens with the threat model (QS320) because every later section is judged
 against it; the sections after it are written by the lines that own them, listed at the end.
 
@@ -37,8 +37,8 @@ gateway at all.
 - **Text the agent read.** An injected instruction acts with the agent's authority. Nothing on
   the client can tell a command the agent meant from one it was talked into. The design treats
   every byte read from a server as untrusted input (QS338).
-- **Another process running as the same Windows user.** It can read what quickshell can read and
-  drive what quickshell drives. Nothing in this design stops it, and the document does not claim
+- **Another process running as the same Windows user.** It can read what Aduzi can read and
+  drive what Aduzi drives. Nothing in this design stops it, and the document does not claim
   otherwise (see the second layer).
 
 A person deliberately using the agent to attack their own servers is out of scope: they hold the
@@ -59,10 +59,10 @@ socket; a language runtime, a proxy or a binary the agent writes can route aroun
 and the sandbox's port rule. Steering is a convenience that makes the safe path the default. It
 is not a boundary.
 
-### 2. Credential isolation: quickshell holds the keys
+### 2. Credential isolation: Aduzi holds the keys
 
 The agent never holds a credential. Keys, agent identities and saved passwords stay with
-quickshell, which authenticates on the agent's behalf over its own kept-alive connection (QS325).
+Aduzi, which authenticates on the agent's behalf over its own kept-alive connection (QS325).
 An agent without a key has nothing to authenticate with if it bypasses the gateway.
 
 **What it stops:** the agent carrying a credential away, using it outside the session, or
@@ -70,7 +70,7 @@ reaching hosts that are not saved sessions.
 
 **What it does not stop:** anything running as the same Windows user. Credential Manager and DPAPI
 answer to the account, not to the process (see `SecretStore.WhatThisDoesNotProtect`), so a process
-that runs as the user can ask for the same secrets quickshell asks for, or drive quickshell itself.
+that runs as the user can ask for the same secrets Aduzi asks for, or drive Aduzi itself.
 This raises the cost of going around the gateway from "run `ssh`" to "write code that reads
 Credential Manager", which matters against an agent that is mistaken or nudged. It is not a wall
 against one that is determined.
@@ -101,7 +101,7 @@ server layer is what makes it hold.
 
 ## Harms against layers
 
-| Harm | Steering | Credentials in quickshell | Restricted server account |
+| Harm | Steering | Credentials in Aduzi | Restricted server account |
 |---|---|---|---|
 | Wrong host | Tags and the tab badge make it visible (QS331, QS335) | — | A staging account cannot reach production at all |
 | Secret carried out | — | The agent never holds keys | The account cannot read what it is not given |
@@ -170,10 +170,10 @@ further away than four hours, is refused when it is written. `break-glass` is a 
 too: it cannot be a standing level. An expired grant is ignored, not deleted, so the audit (QS333)
 can still say what it allowed.
 
-**Only the person writes it.** The policy is `agent-policy.json` in quickshell's own folder
+**Only the person writes it.** The policy is `agent-policy.json` in Aduzi's own folder
 (`%AppData%\Aduzi`, or `data\` in a portable copy), outside any repository the agent works in,
-and is edited through quickshell's own window. The plugin's hook denies a write to that path
-(QS339). quickshell watches the file as it watches its settings: a change it did not make suspends
+and is edited through Aduzi's own window. The plugin's hook denies a write to that path
+(QS339). Aduzi watches the file as it watches its settings: a change it did not make suspends
 the policy (every call asks) until the person confirms the change in a dialog that shows it. So an
 agent that does write the file gains nothing: its edit makes the gateway stricter until somebody
 looks.
@@ -280,7 +280,7 @@ canonical form (session paths, then each argv as length-prefixed strings, then e
 diff), so a batch that changes by one byte after it was shown is a new request, never a silent
 substitution. A batch is run in its order and stops at the first command that fails, saying which.
 
-**Shown where it cannot be faked.** In quickshell's own dialog, never in the agent's terminal, where
+**Shown where it cannot be faked.** In Aduzi's own dialog, never in the agent's terminal, where
 the agent controls what is printed. The dialog shows each session by name and address with its tag,
 a `prod` tag in the colour the client already uses for danger; each command as parsed into its
 words, so quoting cannot hide a second command; each edit as a diff; and the batch's short hash,
@@ -300,22 +300,22 @@ under two seconds, repeatedly, is what a reflex looks like, and the number the s
    person sees exactly what runs. If it is ever wanted, it is a separate line with its own threat
    model, not a setting.
 2. *What the agent sees while it waits:* the tool call blocks and its progress says "waiting for
-   approval in quickshell, plan `<short hash>`". After ten minutes with no answer it returns a named
+   approval in Aduzi, plan `<short hash>`". After ten minutes with no answer it returns a named
    error, `approval timed out`, which the agent can report or retry. Silence is never consent: a
    batch nobody answered is a batch that did not run.
 
 ## Whether this belongs in the client (QS321)
 
-**Yes, on four conditions, decided by the owner on 2026-10-15.** The README sells quickshell as the
+**Yes, on four conditions, decided by the owner on 2026-10-15.** The README sells Aduzi as the
 SSH part of MobaXterm without the suite around it, and the non-goals refuse a plugin host and a
 scripting engine in the MVP. The gateway is neither, and the conditions below are what keep it
 that way. A change that breaks one of them reopens this decision; it does not get argued past it.
 
-**Why it is in scope.** The gateway is not something quickshell hosts. It is quickshell offered as
+**Why it is in scope.** The gateway is not something Aduzi hosts. It is Aduzi offered as
 a tool to an agent that already exists on the machine, for a task people already do badly: letting
 an agent work on a server by handing it an SSH key that opens everything the key opens. The task is
 the user's, and the client that already holds their sessions, their keys and their known hosts is
-the place that can narrow it. No code from outside runs inside quickshell, and nothing the agent
+the place that can narrow it. No code from outside runs inside Aduzi, and nothing the agent
 sends extends what the client can do: it asks for the operations listed in the policy, and the
 client decides.
 
@@ -392,7 +392,7 @@ are the identity the gateway then signs in with, offering that key alone.
 The guided half is *Set up an agent account…* on a session's menu, there only while `agentGateway` is
 on (`MainWindow.AgentSetup.cs`). It opens the person's own tab on the server and, over that tab's
 connection, reads the address the server sees (`SSH_CLIENT`); a Windows server is refused, since the
-setup writes sudoers. It makes the agent's ed25519 key in `agent-keys` in quickshell's folder, one per
+setup writes sudoers. It makes the agent's ed25519 key in `agent-keys` in Aduzi's folder, one per
 session, kept if one is there. The dialog (`AgentSetupDialog`) starts its list from the `sudo` commands
 the policy's grants name for that session, and writes the exact script again on every change. While a
 line cannot be written exactly, it says why and offers no Run. Run puts the script in the person's
@@ -413,7 +413,7 @@ window says that the gateway will still try it here. Any process of the person's
 an agent's included. A copy used directly skips the client's policy and audit, but signs in as the
 same limited account, which is why the account is the boundary.
 
-**Certificates that expire with the task (QS341).** quickshell is a small SSH certificate authority
+**Certificates that expire with the task (QS341).** Aduzi is a small SSH certificate authority
 (`AgentAuthority.cs`). Its ed25519 pair is made the first time a server is set up, in `agent-keys`:
 the public half as `ca_ed25519.pub` and the private half only as `ca_ed25519.sealed`, protected with
 DPAPI for this Windows account. It is unsealed into a file only while `ssh-keygen -s` (the OpenSSH that
@@ -442,17 +442,17 @@ left behind, and the agent sees its connection refused with the reason. Since th
 per connection and keeps the connection, the person is asked once per session per gateway run.
 
 The authority stays sealed with DPAPI with the prompt in front of it, not in a key held by Windows
-Hello. That is weaker against a process that unseals DPAPI itself, past quickshell, but it needs no
+Hello. That is weaker against a process that unseals DPAPI itself, past Aduzi, but it needs no
 migration of setups already made, and a locked or unattended desk answers no either way. Proven with
 the verdict stubbed. The real prompt waits on a desk with Windows Hello and a person (QS344), and no
 test raises it on a desk somebody is using.
 
-**A policy the agent cannot widen (QS339).** Three measures. The policy lives in quickshell's folder,
+**A policy the agent cannot widen (QS339).** Three measures. The policy lives in Aduzi's folder,
 outside any repository an agent is pointed at. `aduzi --agent-hook` denies the agent's `Write`,
 `Edit`, `MultiEdit` and `NotebookEdit` any path at or under the files that limit or watch it: the
 policy and its approved copy, `agent-taints`, `agent-asks` (or an agent could write its own approval),
 `agents-stopped` and `audit`. It also denies its shell any command naming them. Reading them is left
-alone. And quickshell keeps the version the person approved as `agent-policy.json.approved`: while
+alone. And Aduzi keeps the version the person approved as `agent-policy.json.approved`: while
 the policy on disk differs from it, or exists with no approved copy, the gateway refuses every call
 with that rule, and the window shows the change as a diff, *Accept the change* or *Reject the change*,
 the second putting the approved bytes back. A grant written from the approval dialog updates both, so
@@ -474,7 +474,7 @@ that reads anything asks for every change after, which is the cost of not knowin
 believed. A same-user process could delete the file, which the side-door hook does not yet cover; it is
 the file QS339's guard should protect beside the policy. Code: `AgentGateway.Untrusted`, `Tainted`.
 
-**Approval, built (QS337).** An ask writes `agent-asks/<id>.ask.json` into quickshell's folder, holding
+**Approval, built (QS337).** An ask writes `agent-asks/<id>.ask.json` into Aduzi's folder, holding
 the batch: each call's session, address, tags, tool, the words it runs or an edit's diff (previewed
 without writing it, and redacted), and the rule that asked. The window holds the named mutex
 `Local\quickshell-agent-asks` while it is open, so a gateway with no window to ask refuses at once,
@@ -491,7 +491,7 @@ a single call that asks is a plan of one. The audit line carries `approved <hash
 `automatic`. Code: `AgentAsks.cs`, `ApprovalDialog.cs`, `AgentGateway.ApprovedAsync`.
 
 **The policy in the path of every call (QS336).** Before a call that reaches a session runs, the
-gateway reads `agent-policy.json` from quickshell's folder (`AgentPolicy`) and judges it: `exec` and
+gateway reads `agent-policy.json` from Aduzi's folder (`AgentPolicy`) and judges it: `exec` and
 `job_start` by their argument vector, `read_file`, `job_status`, `job_output` and `job_cancel` as reads
 (a cancel only ends what the agent started), `edit_file` as a mutation. `hosts_list` and the kept
 output reach no server and are not judged. A refusal or an ask comes back as a tool error carrying
@@ -522,7 +522,7 @@ sends (`OpenSSH_for_Windows`) and gets the command without the preamble, joined 
 `src/Quickshell.App/CommandPrompts.cs`.
 
 **The agent's work in plain sight (QS335).** Each gateway run appends what it does to
-`agent-feeds/<run>.vt` in quickshell's data folder, as terminal output: a title, then for each call a
+`agent-feeds/<run>.vt` in Aduzi's data folder, as terminal output: a title, then for each call a
 prompt line (`agent`, the session, the tool, the command as the agent gave it) written before it runs,
 then what came back, errors in red, and `[exit N]` or the refusal. All of it is redacted as answers
 are. The window opens each feed written in the last ten minutes once it is idle, and any feed written
@@ -535,7 +535,7 @@ command ends (QS325), so a call shows its prompt at once and its output when it 
 `src/Quickshell.App/AgentFeed.cs`.
 
 **The kill switch (QS334).** `Ctrl+Shift+F12` in the window, or *Stop every agent* in the palette,
-writes `agents-stopped` in quickshell's data folder. Every gateway watches for that file. When it
+writes `agents-stopped` in Aduzi's data folder. Every gateway watches for that file. When it
 appears, the gateway ends any call in flight, sends TERM to every job still running for the account on
 each session it holds and KILL after five seconds, closes every connection, and records the stop and
 what it cancelled in the audit log. From then on every call is refused with `stopped: true` and a
@@ -548,7 +548,7 @@ yet, so it waits for one; grants (QS337) do not exist yet, so there are none to 
 `MainWindow.AgentStop.cs`, `AgentGateway.StopAsync`, `RemoteJobs.CancelAllAsync`.
 
 **The audit trail (QS333).** Every tool call, answered or refused, is one JSON line in
-`audit/<run>.jsonl` under quickshell's data folder, one file per gateway run, appended and never
+`audit/<run>.jsonl` under Aduzi's data folder, one file per gateway run, appended and never
 edited, rotated at 16 MB into `<run>.1.jsonl` and on with the chain unbroken. A line holds the time, the
 call's number, the tool and what kind of call it is (read, changed, ran), the session and its tags,
 the arguments redacted as answers are, the verdict, the rule and the approval, whether it failed, the
@@ -662,8 +662,8 @@ anywhere against the same gateway. What would reopen this is a task a pane canno
 for a nicer one.
 
 **Wired to the gateway from its first command.** Each time the pane opens, it writes two files into
-quickshell's folder, naming this copy of `aduzi.exe`:
-- `claude-mcp.json` starts the gateway as the MCP server `quickshell` (`--mcp`);
+Aduzi's folder, naming this copy of `aduzi.exe`:
+- `claude-mcp.json` starts the gateway as the MCP server `aduzi` (`--mcp`);
 - `claude-settings.json` installs `--agent-hook` for the shell and file tools.
 
 The pane runs `%COMSPEC% /c <claudeCommand> --mcp-config … --settings …`. The command processor
@@ -688,11 +688,11 @@ session's screen. Code: `src/Quickshell.App/ClaudePane.cs`, `MainWindow.Claude.c
 
 **Written by the client, not published.** The plugin's MCP entry and its hook must name the
 `aduzi.exe` the person installed, by its full path, and a published plugin could not know it.
-So `ClaudePlugin.Write` writes a marketplace of its own, `quickshell-local`, into `claude-plugin` in
-quickshell's folder. It holds one plugin, `quickshell`:
-- the MCP server `quickshell`, running `<exe> --mcp --plugin-version <version>`;
+So `ClaudePlugin.Write` writes a marketplace of its own, `aduzi-local`, into `claude-plugin` in
+Aduzi's folder. It holds one plugin, `aduzi`:
+- the MCP server `aduzi`, running `<exe> --mcp --plugin-version <version>`;
 - a PreToolUse hook running `<exe> --agent-hook` for `Bash|PowerShell|Write|Edit|MultiEdit|NotebookEdit`;
-- the skill `quickshell-gateway`, built into the client (`claude-plugin-skill.md`). It says to pass
+- the skill `aduzi-gateway`, built into the client (`claude-plugin-skill.md`). It says to pass
   `exec` an argv, prefer `edit_file` to heredocs, expect asks on `prod`, and report a refusal
   instead of working around it.
 
@@ -701,11 +701,14 @@ No sandbox rules: Claude Code's sandbox does not run on native Windows.
 **Offered in Settings, never installed unasked.** Below the settings, *Install the Claude Code
 plugin…* is enabled where `claudeCommand` is found on the path. It first shows what it will change,
 including every `claude` command it will run:
-- `plugin marketplace remove quickshell-local` (a failure here means nothing was added before);
+- `plugin uninstall quickshell@quickshell-local -s user` and `plugin marketplace remove
+  quickshell-local`, which take off the plugin a version from before the rename wrote (QS384);
+- `plugin marketplace remove aduzi-local`;
 - `plugin marketplace add <folder>`;
-- `plugin install quickshell@quickshell-local -s user` (`-s` is `--scope`).
+- `plugin install aduzi@aduzi-local -s user` (`-s` is `--scope`).
 
-It stops at the first later step that fails and shows what Claude Code said.
+A failed removal means there was nothing to remove. It stops at the first later step that fails and
+shows what Claude Code said.
 
 **Tied to the client's version.** The manifest's version is the client's, and the MCP entry passes
 it. A gateway of another version exits 2 before reading anything, saying which version wrote the
@@ -713,5 +716,5 @@ plugin and to install it again, so a skill describing other tools is never serve
 
 Proven on the host: Claude Code 2.1.300's `claude plugin validate --strict` accepts both the
 marketplace and the plugin; the built `aduzi.exe` refuses a stale plugin; Settings asks before it
-runs anything, then writes and runs the three steps. Not yet proven: an install into a real Claude Code
+runs anything, then writes and runs the five steps. Not yet proven: an install into a real Claude Code
 followed by an agent's first `exec`, which needs Claude Code in the guest (QS362).

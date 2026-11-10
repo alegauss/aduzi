@@ -46,7 +46,7 @@ public static class ClaudePane
         {
             ["mcpServers"] = new JsonObject
             {
-                ["quickshell"] = new JsonObject { ["command"] = quickshell, ["args"] = new JsonArray("--mcp") },
+                [ClaudePlugin.Name] = new JsonObject { ["command"] = quickshell, ["args"] = new JsonArray("--mcp") },
             },
         }.ToJsonString(Indented), new UTF8Encoding(false));
 

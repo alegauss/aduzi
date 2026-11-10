@@ -12,7 +12,7 @@
 // would go, the relation the sentence actually has is written out.
 //
 // ---------------------------------------------------------------------------------------
-// WHAT THIS PAGE ASSUMES. The copy below describes Quickshell with every block of
+// WHAT THIS PAGE ASSUMES. The copy below describes Aduzi with every block of
 // docs/ROADMAP.md delivered: the transport, the key handling, the session tree, SFTP, the
 // forwards, the shell and the packaging. Blocks C and H are partly shipped today and the
 // rest is open, so this is the page the finished client gets rather than a report on the

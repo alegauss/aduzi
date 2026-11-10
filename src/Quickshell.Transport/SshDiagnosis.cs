@@ -52,7 +52,7 @@ internal static partial class SshDiagnosis
             SshFailureKind.Unrecognised,
             $"{endpoint} failed in a way this client does not recognise.",
             failure,
-            "This is a gap in quickshell rather than a diagnosis of the server.",
+            "This is a gap in Aduzi rather than a diagnosis of the server.",
             "The detail is in the log, and it belongs in a bug report."),
     };
 

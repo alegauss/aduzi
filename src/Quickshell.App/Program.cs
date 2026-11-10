@@ -979,7 +979,7 @@ public static class Entry
     /// <returns>Zero once the input ended; 2 where the gateway is not turned on.</returns>
     private static int ServeAgent(string? pluginVersion)
     {
-        // A plugin another version of quickshell wrote (QS343): its skill and hooks describe a gateway
+        // A plugin another version of Aduzi wrote (QS343): its skill and hooks describe a gateway
         // that is not this one, so it is refused in words rather than served half-right.
         if (ClaudePlugin.Mismatch(pluginVersion, Setup.Version) is { } stale)
         {

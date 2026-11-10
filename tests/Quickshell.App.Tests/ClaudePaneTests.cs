@@ -26,7 +26,7 @@ public sealed class ClaudePaneTests : IDisposable
     {
         (string mcp, string settings) = ClaudePane.Configure(_here, @"C:\Program Files\quickshell\quickshell.exe");
 
-        JsonNode server = JsonNode.Parse(File.ReadAllText(mcp))!["mcpServers"]!["quickshell"]!;
+        JsonNode server = JsonNode.Parse(File.ReadAllText(mcp))!["mcpServers"]!["aduzi"]!;
         JsonNode hook = JsonNode.Parse(File.ReadAllText(settings))!["hooks"]!["PreToolUse"]![0]!;
 
         Assert.Equal(@"C:\Program Files\quickshell\quickshell.exe", server["command"]!.GetValue<string>());

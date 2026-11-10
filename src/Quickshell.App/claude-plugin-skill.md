@@ -1,11 +1,11 @@
 ---
-name: quickshell-gateway
-description: Use when working on a remote server or SSH host that quickshell knows. Run commands, read and edit files, and run long jobs there through the quickshell MCP tools, never ssh, scp or a script with an SSH library.
+name: aduzi-gateway
+description: Use when working on a remote server or SSH host that Aduzi knows. Run commands, read and edit files, and run long jobs there through the aduzi MCP tools, never ssh, scp or a script with an SSH library.
 ---
 
-# Working on servers through quickshell
+# Working on servers through Aduzi
 
-The person's saved SSH sessions are reached through the `quickshell` MCP server, and only
+The person's saved SSH sessions are reached through the `aduzi` MCP server, and only
 through it. A plain `ssh`, `scp`, `sftp`, `rsync` over SSH or an SSH library in a script is
 turned back by a hook. Its message names the tool to use.
 

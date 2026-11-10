@@ -23,12 +23,19 @@
 .PARAMETER Archive
   The archive to install. The newest in artifacts\release unless given.
 
+.PARAMETER Former
+  An archive of the client from before it was renamed Aduzi (QS384), installed first with a saved
+  session in its data folder. The Aduzi install over it then has to take away the old program folder,
+  shortcut and entry, and its first start has to show that session, moved to %AppData%\Aduzi.
+
 .NOTES
   Credentials and the .vmx come from a file outside this tree. vm-guest.ps1 says which.
 #>
 [CmdletBinding()]
 param(
     [string] $Archive,
+
+    [string] $Former,
 
     [string] $Vmx
 )
@@ -49,6 +56,9 @@ if (-not $Archive) {
 if (-not $Archive -or -not (Test-Path -LiteralPath $Archive)) {
     Refuse 'there is no archive to install' 'Build one with release.cmd first.'
 }
+if ($Former -and -not (Test-Path -LiteralPath $Former)) {
+    Refuse "there is no former archive at $Former" 'Name a quickshell-<version>-win-x64 archive built before the rename.'
+}
 
 $vmxPath = Connect-Guest -Vmx $Vmx
 
@@ -57,7 +67,7 @@ if (Test-Path -LiteralPath $stage) { Remove-Item -LiteralPath $stage -Recurse -F
 $null = New-Item -ItemType Directory -Path $stage
 
 $null = Invoke-VmRun -Guest -Arguments @('createDirectoryInGuest', $vmxPath, $script:GuestSync)
-Clear-GuestFile -Names @('install.log', 'release.zip', 'install.ps1', 'install.cmd')
+Clear-GuestFile -Names @('install.log', 'release.zip', 'former.zip', 'install.ps1', 'install.cmd')
 
 # Everything the guest does is in one script, and it writes one log: a line per thing read back, each
 # saying ok or FAIL, and a verdict last. Single-quoted, so nothing in it is this host's to expand.
@@ -79,6 +89,39 @@ try {
     $level = switch ($sid) { '8192' { 'Medium' } '12288' { 'High' } '16384' { 'System' } default { "unknown (S-1-16-$sid)" } }
     Say "token $level"
     Check ($level -eq 'Medium') 'installed under a token with no administrator in it'
+
+    # QS384: a copy installed under the old name, with a saved session, for the Aduzi install to replace.
+    $formerZip = Join-Path $sync 'former.zip'
+    $upgrading = Test-Path -LiteralPath $formerZip
+    $formerData = Join-Path $env:APPDATA 'quickshell'
+    $formerFolder = Join-Path $env:LOCALAPPDATA 'Programs\quickshell'
+    $formerShortcut = Join-Path ([Environment]::GetFolderPath('Programs')) 'quickshell.lnk'
+    $formerKey = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Uninstall\quickshell'
+    $probe = 'qs384-upgrade-probe'
+
+    if ($upgrading) {
+        # A data folder under the new name already there is left alone by design, so none may be.
+        foreach ($stale in @($formerData, (Join-Path $env:APPDATA 'Aduzi'))) {
+            if (Test-Path -LiteralPath $stale) { Remove-Item -LiteralPath $stale -Recurse -Force }
+        }
+
+        $old = Join-Path $sync 'former'
+        if (Test-Path -LiteralPath $old) { Remove-Item -LiteralPath $old -Recurse -Force }
+        Add-Type -AssemblyName System.IO.Compression.FileSystem
+        [IO.Compression.ZipFile]::ExtractToDirectory($formerZip, $old)
+        $oldProgram = Join-Path $old 'quickshell\quickshell.exe'
+        Check (Test-Path -LiteralPath $oldProgram) 'the former archive unzips to quickshell\quickshell.exe'
+
+        $oldInstall = Start-Process -FilePath $oldProgram -ArgumentList '--install', '--quiet' -Wait -PassThru
+        Check ($oldInstall.ExitCode -eq 0) "the former copy installs under its own name (it exited $($oldInstall.ExitCode))"
+        Check ((Test-Path -LiteralPath $formerKey) -and (Test-Path -LiteralPath $formerShortcut) -and (Test-Path -LiteralPath $formerFolder)) 'the former copy has its folder, shortcut and entry'
+
+        $null = New-Item -ItemType Directory -Path $formerData -Force
+        # Without a byte-order mark, as the client writes it; Set-Content -Encoding UTF8 would add one.
+        [IO.File]::WriteAllText((Join-Path $formerData 'sessions.json'),
+            '{ "name": "", "children": [ { "name": "' + $probe + '", "host": "192.0.2.7", "settings": { "user": "probe" } } ] }',
+            (New-Object Text.UTF8Encoding($false)))
+    }
 
     $download = Join-Path $sync 'download'
     if (Test-Path -LiteralPath $download) { Remove-Item -LiteralPath $download -Recurse -Force }
@@ -112,6 +155,12 @@ try {
     Say "entry $($entry.DisplayName) $($entry.DisplayVersion), $($entry.EstimatedSize) KB, from $($entry.InstallLocation)"
     Check ($entry.DisplayName -eq 'Aduzi' -and $entry.InstallLocation -eq $folder) 'the list of installed apps names it and where it is'
 
+    if ($upgrading) {
+        Check (-not (Test-Path -LiteralPath $formerFolder)) "the former program folder is gone: $formerFolder"
+        Check (-not (Test-Path -LiteralPath $formerShortcut)) 'the former Start menu shortcut is gone'
+        Check (-not (Test-Path -LiteralPath $formerKey)) 'the former uninstall entry is gone, so one app is listed'
+    }
+
     # The installed copy has to start, and a start is a frame with the shell's prompt on it.
     $report = Join-Path $sync 'installed-start.json'
     if (Test-Path -LiteralPath $report) { Remove-Item -LiteralPath $report -Force }
@@ -120,6 +169,41 @@ try {
     while (-not (Test-Path -LiteralPath $report) -and (Get-Date) -lt $deadline) { Start-Sleep -Milliseconds 250 }
     Check (Test-Path -LiteralPath $report) 'the installed copy started and drew its first screen, Home or a shell'
     if (Test-Path -LiteralPath $report) { Say "start $((Get-Content -LiteralPath $report -Raw).Trim())" }
+
+    if ($upgrading) {
+        # The session saved under the old name, read by the new window: found by name in its
+        # accessibility tree, not inferred from a file having moved.
+        Add-Type -AssemblyName UIAutomationClient, UIAutomationTypes
+        $ae = [Windows.Automation.AutomationElement]
+        $byProcess = New-Object Windows.Automation.PropertyCondition($ae::ProcessIdProperty, $running.Id)
+        $byName = New-Object Windows.Automation.PropertyCondition($ae::NameProperty, $probe)
+        $seen = $null
+        $deadline = (Get-Date).AddSeconds(30)
+        while (-not $seen -and (Get-Date) -lt $deadline) {
+            $window = $ae::RootElement.FindFirst([Windows.Automation.TreeScope]::Children, $byProcess)
+            if ($window) { $seen = $window.FindFirst([Windows.Automation.TreeScope]::Descendants, $byName) }
+            if (-not $seen) { Start-Sleep -Milliseconds 500 }
+        }
+        Check ($null -ne $seen) "the new window shows the session saved under the old name ($probe)"
+        if (-not $seen) {
+            # What was there instead, so a miss says whether the window, the list or the row was absent.
+            $windows = $ae::RootElement.FindAll([Windows.Automation.TreeScope]::Children, $byProcess)
+            Say "      windows of pid $($running.Id): $(@($windows | ForEach-Object { $_.Current.Name }) -join ' | ')"
+            foreach ($w in $windows) {
+                $list = $w.FindFirst([Windows.Automation.TreeScope]::Descendants,
+                    (New-Object Windows.Automation.PropertyCondition($ae::AutomationIdProperty, 'SessionsList')))
+                if ($list) {
+                    $rows = $list.FindAll([Windows.Automation.TreeScope]::Children, [Windows.Automation.Condition]::TrueCondition)
+                    Say "      SessionsList rows: $(@($rows | ForEach-Object { $_.Current.Name }) -join ' | ')"
+                } else { Say '      no SessionsList in it' }
+            }
+        }
+        if ($seen) { Say "seen  $($seen.Current.ControlType.ProgrammaticName) '$($seen.Current.Name)'" }
+        Check (-not (Test-Path -LiteralPath $formerData)) "%AppData%\quickshell was moved, not copied"
+        Check ((Test-Path -LiteralPath (Join-Path $env:APPDATA 'Aduzi\sessions.json')) -and
+               ((Get-Content -LiteralPath (Join-Path $env:APPDATA 'Aduzi\sessions.json') -Raw) -match $probe)) '%AppData%\Aduzi holds the saved session'
+    }
+
     Stop-Process -Id $running.Id -Force -ErrorAction SilentlyContinue
     $running.WaitForExit()
 
@@ -160,6 +244,12 @@ Write-Host "  archive     $Archive"
 
 $sent = Invoke-VmRun -Guest -Arguments @('copyFileFromHostToGuest', $vmxPath, (Resolve-Path -LiteralPath $Archive).Path, "$script:GuestSync\release.zip")
 if (-not $sent.Ok) { Refuse "could not copy the archive into the guest: $($sent.Output)" }
+
+if ($Former) {
+    Write-Host "  former      $Former"
+    $sent = Invoke-VmRun -Guest -Arguments @('copyFileFromHostToGuest', $vmxPath, (Resolve-Path -LiteralPath $Former).Path, "$script:GuestSync\former.zip")
+    if (-not $sent.Ok) { Refuse "could not copy the former archive into the guest: $($sent.Output)" }
+}
 
 foreach ($file in @('install.ps1', 'install.cmd')) {
     $sent = Invoke-VmRun -Guest -Arguments @('copyFileFromHostToGuest', $vmxPath, (Join-Path $stage $file), "$script:GuestSync\$file")
