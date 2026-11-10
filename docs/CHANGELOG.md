@@ -391,6 +391,7 @@
 - ✅ **QS388** **A guest run that starts while the VM is still booting is refused as though the guest had no VMware Tools** — Connect-Guest waits up to ten minutes for VMware Tools whether it started the guest or found it still booting, instead of refusing a guest whose Tools say installed.
 - ✅ **QS390** **A UI case that sets no ADUZI_DATA reads the guest's real profile, so whatever was left there changes its verdict** — Every case fixture gives the client its own ADUZI_DATA folder, and a test refuses one that does not, so the guest profile no longer decides a verdict.
 - ✅ **QS391** **KeystrokePathTests' queue-full test sometimes throws ChannelClosedException within 3 ms** — A queue closed under the reader's write now ends the pipeline as a stop, not a throw from dispose; not reproduced, and 300 disposes on a full queue pass in the guest.
+- ✅ **QS392** **A UI case's client still outlives its case now and then, failing a run whose every assertion passed** — winwright.json gives a stop 15 s, so a killed client tearing down Direct3D on a busy guest exits in time; the vault-export case passed 20 of 20 guest soak runs.
 
 ## Block L — An agent at the controls, held to a policy it cannot edit
 

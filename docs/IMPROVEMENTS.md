@@ -493,25 +493,6 @@ both sides' algorithm lists.
 
 ## Block K — The build and the harness — what a green run is evidence of
 
-### §QS392 QS392 — A case's client that will not stop, again
-
-QS298 made a case whose client outlives it say which case, and stopped that from turning
-a green run red without a name. On 10/11/2026 it happened twice more in guest runs of
-the full suite. In the first, `EveryUiCaseOnAServerRuns` failed with an IOException:
-winwright's FixtureDeclaration.Stage could not write `quickshell.log` because a client
-from the case before still held it. In the second, every assertion of all 31 cases
-passed and the run failed anyway on "pid 912 aduzi.exe, launched for 'the vault export
-asks for a passphrase it can stand behind, and can be refused' - outlived its case and
-would not stop; gone by the time the run looked again".
-
-The second says the process did exit, only later than the runner waited. Either the
-client's shutdown after a dialog is refused takes longer than the stop allows, or the
-stop gives up too soon. Which it is decides whether this is the client's defect or the
-engine's: if it is the engine's wait, the line belongs in winwright's roadmap as well.
-
-Done when the vault-export case's client is shown to exit within the stop's wait over
-twenty guest runs, or the wait is shown to be what is short and filed with winwright.
-
 ## Block L — An agent at the controls, held to a policy it cannot edit
 
 ### §QS360 Windows Hello in front of the agent authority

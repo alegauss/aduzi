@@ -21,6 +21,10 @@
     "resolve": 5000,
     "act": 5000,
     "poll": 25,
-    "stop": 5000
+    // Half of it for the window to close, half for the kill after it. At 5000 a killed client on a
+    // busy guest was still tearing down its Direct3D device past the 2.5 s left to it, and was gone
+    // a moment later: a run whose every assertion passed, red over a slow exit (QS392). A client that
+    // closes when asked still costs nothing extra.
+    "stop": 15000
   }
 }

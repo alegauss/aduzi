@@ -29,8 +29,6 @@
 
 ## Block K — The build and the harness — what a green run is evidence of
 
-- 🛠 **QS392** (deps: —) **A UI case's client still outlives its case now and then, failing a run whose every assertion passed** — Seen twice in guest runs on 10/11/2026 after QS298 shipped: the vault-export case's client would not stop, and a held quickshell.log broke the next case's staging. → §QS392
-
 ## Block L — An agent at the controls, held to a policy it cannot edit
 
 ## Done when — Block A
