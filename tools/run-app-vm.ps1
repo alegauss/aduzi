@@ -131,7 +131,7 @@ exit /b 0
 
 @"
 @echo off
-taskkill /IM quickshell.exe /F >nul 2>&1
+taskkill /IM aduzi.exe /F >nul 2>&1
 taskkill /IM Quickshell.App.exe /F >nul 2>&1
 exit /b 0
 "@ | Set-Content -LiteralPath (Join-Path $stage 'stop.cmd') -Encoding ascii
@@ -189,8 +189,8 @@ Write-Host "  client      $exe"
 # the guest and not by vmrun, because %AppData% is that user's and this host does not know it.
 $placing = if ($Settings) {
     @"
-if not exist "%AppData%\quickshell" mkdir "%AppData%\quickshell"
-copy /y "$script:GuestSync\app-settings.json" "%AppData%\quickshell\settings.json" >nul
+if not exist "%AppData%\Aduzi" mkdir "%AppData%\Aduzi"
+copy /y "$script:GuestSync\app-settings.json" "%AppData%\Aduzi\settings.json" >nul
 "@
 }
 else { 'rem no settings file was supplied; the client uses whatever the guest already had' }

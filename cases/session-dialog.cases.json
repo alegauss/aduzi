@@ -8,11 +8,11 @@
 
   "fixtures": [
     {
-      // The palette's and the sidebar's store, staged by the engine and named by QUICKSHELL_DATA, so
+      // The palette's and the sidebar's store, staged by the engine and named by ADUZI_DATA, so
       // the folders the dialog offers are this repository's and not the desk's.
       "name": "a client to make a session in",
       "arguments": [],
-      "variables": { "QUICKSHELL_DATA": "{files}" },
+      "variables": { "ADUZI_DATA": "{files}" },
       "files": ["cases/fixtures/sessions.json"]
     }
   ],

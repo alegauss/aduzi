@@ -14,7 +14,7 @@ public sealed class PortableDataTests : IDisposable
 
     private string Portable => Path.Combine(_root, "portable", "data");
 
-    private string Installed => Path.Combine(_root, "AppData", "quickshell");
+    private string Installed => Path.Combine(_root, "AppData", "Aduzi");
 
     public PortableDataTests() => Directory.CreateDirectory(Portable);
 

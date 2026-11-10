@@ -144,7 +144,7 @@ if (Test-Native gh release view $tag --repo (Read-Git remote get-url $remote)) {
     Refuse "a GitHub release named $tag already exists" 'Raise <Version> in Directory.Build.props for a new release.'
 }
 
-Write-Host "publish  quickshell $version  ($tag on $($head.Substring(0, 9)), $upstream)" -ForegroundColor Cyan
+Write-Host "publish  Aduzi $version  ($tag on $($head.Substring(0, 9)), $upstream)" -ForegroundColor Cyan
 
 # A process of its own, because release.ps1 ends with exit and its exit code is the verdict.
 $build = @('-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', (Join-Path $PSScriptRoot 'release.ps1'))
@@ -156,7 +156,7 @@ if ($Gated) { $build += '-Gated' }
 if ($LASTEXITCODE -ne 0) { Refuse 'release.ps1 refused the build, so nothing was tagged or published' 'What it printed above says why.' }
 
 $suffix = if ($Unsigned) { '-unsigned' } else { '' }
-$zip = Join-Path $output "quickshell-$version-win-x64$suffix.zip"
+$zip = Join-Path $output "aduzi-$version-win-x64$suffix.zip"
 $sums = Join-Path $output 'SHA256SUMS.txt'
 foreach ($file in @($zip, $sums)) {
     if (-not (Test-Path -LiteralPath $file)) { Refuse "release.ps1 succeeded and $file is not there" }
@@ -172,7 +172,7 @@ if ($DryRun) {
     exit 0
 }
 
-& git -C $root tag -a $tag -m "quickshell $version" $head
+& git -C $root tag -a $tag -m "Aduzi $version" $head
 if ($LASTEXITCODE -ne 0) { Refuse "git could not create the tag $tag" }
 & git -C $root push --quiet $remote "refs/tags/$tag"
 if ($LASTEXITCODE -ne 0) {
@@ -181,7 +181,7 @@ if ($LASTEXITCODE -ne 0) {
 }
 Write-Host "  tagged     $tag, pushed to $remote"
 
-$create = @('release', 'create', $tag, $zip, $sums, '--verify-tag', '--title', "quickshell $version")
+$create = @('release', 'create', $tag, $zip, $sums, '--verify-tag', '--title', "Aduzi $version")
 if ($Notes) { $create += @('--notes-file', $Notes) } else { $create += '--generate-notes' }
 if ($Unsigned) { $create += '--prerelease' }
 if ($Draft) { $create += '--draft' }

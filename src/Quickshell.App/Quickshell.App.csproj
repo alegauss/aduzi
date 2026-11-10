@@ -5,7 +5,9 @@
     <OutputType>Exe</OutputType>
     <TargetFramework>net10.0-windows</TargetFramework>
     <RootNamespace>Quickshell.App</RootNamespace>
-    <AssemblyName>quickshell</AssemblyName>
+    <!-- QS384: the client's name since 2026-11-02, so the executable is aduzi.exe. The namespaces
+         and project names stay Quickshell, which no one downloading it reads. -->
+    <AssemblyName>aduzi</AssemblyName>
     <StartupObject>Quickshell.App.Entry</StartupObject>
     <RuntimeIdentifier>win-x64</RuntimeIdentifier>
     <SelfContained>false</SelfContained>

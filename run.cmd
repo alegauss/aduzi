@@ -5,13 +5,13 @@ rem Builds the client and starts it on this desk, for a person who wants to use 
 rem
 rem   run.cmd                              Debug, the build run-tests.cmd makes
 rem   run.cmd Release                      the configuration CI tests
-rem   run.cmd Release --session prod       anything after the configuration goes to quickshell.exe
+rem   run.cmd Release --session prod       anything after the configuration goes to aduzi.exe
 rem   run.cmd --tabs 3                     ... and with no configuration named, all of it does
 rem
 rem Only the client is built, so a change is seen in seconds rather than after the whole solution.
 rem The window opens and this returns: the client is a windowed program and nothing here waits on
 rem it. Settings and sessions are the ones %AppData% holds, as for an installed copy; set
-rem QUICKSHELL_DATA to a folder first to try something without touching them.
+rem ADUZI_DATA to a folder first to try something without touching them.
 rem
 rem This is the desk somebody is sitting at. Evidence for a change is a UI case in the guest
 rem (run-tests-vm.cmd), and a picture of it is run-app-vm.cmd - neither takes this screen.
@@ -37,7 +37,7 @@ if errorlevel 1 (
     exit /b 1
 )
 
-set "EXE=%~dp0src\Quickshell.App\bin\%CONFIG%\net10.0-windows\win-x64\quickshell.exe"
+set "EXE=%~dp0src\Quickshell.App\bin\%CONFIG%\net10.0-windows\win-x64\aduzi.exe"
 if not exist "%EXE%" (
     echo run: the build said it succeeded and %EXE% is not there 1>&2
     exit /b 2

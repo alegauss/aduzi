@@ -20,7 +20,7 @@ palette, or the card on Home). quickshell reads `MobaXterm.ini` from where MobaX
 Documents, OneDrive's Documents or AppData — and PuTTY's sessions from the registry, and shows what
 it would do before writing anything. A portable MobaXterm keeps its `MobaXterm.ini` beside
 `MobaXterm.exe`; where none is found in the usual places, the import asks you for the file. The
-same import runs from the command line as `quickshell.exe --import [file]`.
+same import runs from the command line as `aduzi.exe --import [file]`.
 
 What carries over, for every SSH session:
 
@@ -55,7 +55,7 @@ the session (`Credential`), where you can see and remove it with Windows' own to
 
 ## What quickshell does
 
-- **SSH sessions**, saved in one JSON file you can read and edit (`%AppData%\quickshell\sessions.json`,
+- **SSH sessions**, saved in one JSON file you can read and edit (`%AppData%\Aduzi\sessions.json`,
   or `data\` beside a portable copy), in folders that hand settings down — see [SESSIONS.md](SESSIONS.md).
 - **Sign-in** by key file, agent (the Windows OpenSSH agent and Pageant), password, or a server's
   own questions such as a one-time code.

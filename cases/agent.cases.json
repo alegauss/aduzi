@@ -8,7 +8,7 @@
   "fixtures": [
     {
       "name": "a client whose data folder holds an agent's feed",
-      "variables": { "QUICKSHELL_DATA": "{files}" },
+      "variables": { "ADUZI_DATA": "{files}" },
       "files": [
         { "from": "cases/fixtures/agent-feed.vt", "to": "agent-feeds/20261016T000000Z-0c4a1e.vt" }
       ]
@@ -17,7 +17,7 @@
       // QS337. A request the gateway left for the person: two calls, one on a prod session. The window
       // answers requests younger than the gateway's patience, which a copy staged now is.
       "name": "a client with an agent's request waiting for the person",
-      "variables": { "QUICKSHELL_DATA": "{files}" },
+      "variables": { "ADUZI_DATA": "{files}" },
       "files": [
         { "from": "cases/fixtures/agent-ask.json", "to": "agent-asks/ui0001.ask.json" }
       ]
@@ -25,7 +25,7 @@
     {
       // QS339. A policy some script widened outside quickshell, beside the version the person approved.
       "name": "a client whose agent policy was changed outside it",
-      "variables": { "QUICKSHELL_DATA": "{files}" },
+      "variables": { "ADUZI_DATA": "{files}" },
       "files": [
         { "from": "cases/fixtures/agent-policy-widened.json", "to": "agent-policy.json" },
         { "from": "cases/fixtures/agent-policy-approved.json", "to": "agent-policy.json.approved" }
@@ -37,7 +37,7 @@
       "name": "a client connected to prod, with a Claude Code pane to send to",
       "reaches": ["127.0.0.1:2240"],
       "arguments": ["--session", "Customer/probe"],
-      "variables": { "QUICKSHELL_DATA": "{files}" },
+      "variables": { "ADUZI_DATA": "{files}" },
       "files": [
         { "from": "cases/fixtures/tagged.json", "to": "sessions.json" },
         { "from": "cases/fixtures/claude-settings.json", "to": "settings.json" }

@@ -23,13 +23,13 @@
     {
       // A session store of the case's own, so the session it types for is one it knows is there
       // on every desk (QS217). Staged by the engine into a directory of this launch's own (WW509)
-      // and named by QUICKSHELL_DATA, because the client's usual store is under %AppData%, a known
+      // and named by ADUZI_DATA, because the client's usual store is under %AppData%, a known
       // folder no variable redirects (winwright WW519). Not lent: its store is not the other
       // cases' window.
       "name": "a client over a store of its own",
       // Two tabs only so the chord has a tab on the strip to be pressed at, as above.
       "arguments": ["--tabs", "2"],
-      "variables": { "QUICKSHELL_DATA": "{files}" },
+      "variables": { "ADUZI_DATA": "{files}" },
       "files": ["cases/fixtures/sessions.json"]
     },
     {
@@ -37,13 +37,13 @@
       // screen. Not the desk's own folder, whose settings may say otherwise.
       "name": "a client with the menu bar at its default",
       "arguments": ["--tabs", "2"],
-      "variables": { "QUICKSHELL_DATA": "{files}" }
+      "variables": { "ADUZI_DATA": "{files}" }
     },
     {
       // QS354 again, with the setting at Alt: hidden until an Alt tap.
       "name": "a client whose menu bar waits for an Alt tap",
       "arguments": ["--tabs", "2"],
-      "variables": { "QUICKSHELL_DATA": "{files}" },
+      "variables": { "ADUZI_DATA": "{files}" },
       "files": [
         { "from": "cases/fixtures/menu-alt-settings.json", "to": "settings.json" }
       ]

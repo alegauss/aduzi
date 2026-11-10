@@ -6,9 +6,9 @@ flag it acts on is on this page, and nothing else is — a test reads the client
 when the two differ.
 
 ```
-quickshell.exe --session Work/build-box --trace
-quickshell.exe --tabs 3 --panes 2
-quickshell.exe --install --all-users --quiet
+aduzi.exe --session Work/build-box --trace
+aduzi.exe --tabs 3 --panes 2
+aduzi.exe --install --all-users --quiet
 ```
 
 There is no `--help`. This is a windowed program with no console to print one into, and a help flag
@@ -65,7 +65,7 @@ the agent's `settings.json`:
   "hooks": {
     "PreToolUse": [
       { "matcher": "Bash|PowerShell|Write|Edit|MultiEdit|NotebookEdit",
-        "hooks": [ { "type": "command", "command": "quickshell.exe --agent-hook" } ] }
+        "hooks": [ { "type": "command", "command": "aduzi.exe --agent-hook" } ] }
     ]
   },
   "sandbox": { "enabled": true, "failIfUnavailable": true, "allowUnsandboxedCommands": false }
@@ -78,7 +78,7 @@ runs outside the sandbox, keeps its connections. Claude Code's sandbox runs on m
 not on native Windows, where the hook is the only measure on the agent's side.
 
 So on Windows, run the agent in WSL2 with the sandbox on and give it the Windows client as its MCP
-server: `"command": "/mnt/c/<where quickshell is>/quickshell.exe", "args": ["--mcp"]`. The gateway
+server: `"command": "/mnt/c/<where quickshell is>/aduzi.exe", "args": ["--mcp"]`. The gateway
 then runs on the Windows side with your sessions, keys and policy, and the agent's own shell cannot
 reach port 22 around it. A firewall rule per program blocks only the programs it names, and a second
 account for the agent would wall in the gateway too, which Claude Code starts as the agent; the design

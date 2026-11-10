@@ -3,8 +3,8 @@
 Every field a saved session can have, what it means, and what a folder hands down. If a field is not
 on this page it is not part of the store.
 
-**The file is yours.** It lives at `%AppData%\quickshell\sessions.json`, at `data\sessions.json`
-beside a portable copy, or in the folder `QUICKSHELL_DATA` names ([INSTALL.md](INSTALL.md)). It is
+**The file is yours.** It lives at `%AppData%\Aduzi\sessions.json`, at `data\sessions.json`
+beside a portable copy, or in the folder `ADUZI_DATA` names ([INSTALL.md](INSTALL.md)). It is
 indented JSON, it accepts comments and trailing commas, and when this client writes it back your
 comments stay beside the session or field they stood before. Field names are read in any case and
 written as this page spells them. **New session**, **Open session** and **Open session, recorded** in

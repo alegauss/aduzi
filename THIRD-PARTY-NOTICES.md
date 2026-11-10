@@ -33,7 +33,7 @@ System.Security.Cryptography.ProtectedData is referenced by the transport, and t
 is the Windows Desktop runtime's own, under that row.
 
 The client also carries one list that is not a library: the [EFF large wordlist for
-passphrases](https://www.eff.org/dice) (2016), 7,776 words, built into `quickshell.exe` and used to
+passphrases](https://www.eff.org/dice) (2016), 7,776 words, built into `aduzi.exe` and used to
 generate a vault passphrase. © Electronic Frontier Foundation, licensed under [Creative Commons
 Attribution 3.0 United States](https://creativecommons.org/licenses/by/3.0/us/); it is carried with
 the dice numbers removed and the words unchanged.

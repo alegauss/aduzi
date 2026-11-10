@@ -440,7 +440,7 @@ function Stop-LeftOver {
       run.cmd go on to the next assembly, which held the tree again. The guest's process list carries a
       name and not a path or a command line, so the batch is found as cmd.exe: the guest is a desk this
       project alone uses, and every cmd.exe on it is one of these scripts. Then this client's own
-      executables, quickshell.exe and every Quickshell.*.exe test or tool application. Listed again
+      executables, aduzi.exe and every Quickshell.*.exe test or tool application. Listed again
       until a pass finds nothing, since a batch ended mid-step can have started one more. Each is said
       by name and pid, and one that will not end is a refusal naming it.
     #>
@@ -455,7 +455,7 @@ function Stop-LeftOver {
             $id = $Matches[1]
             $name = [IO.Path]::GetFileName(($Matches[2] -split '\s+')[0].Trim('"'))
 
-            if ($name -match '^(cmd|quickshell|Quickshell\..+)\.exe$') {
+            if ($name -match '^(cmd|aduzi|quickshell|Quickshell\..+)\.exe$') {
                 [pscustomobject]@{ Id = $id; Name = $name; Batch = $name -eq 'cmd.exe' }
             }
         })

@@ -30,7 +30,7 @@ public sealed class InstallationTests : IDisposable
     public void AnInstallCopiesTheProgramAndPointsTheStartMenuAndTheAppListAtIt()
     {
         string download = Copy("download",
-                               ("quickshell.exe", "program"),
+                               ("aduzi.exe", "program"),
                                (@"runtimes\library.dll", "library"),
                                (Locations.Marker, string.Empty),
                                (@"data\settings.json", "{}"));
@@ -67,7 +67,7 @@ public sealed class InstallationTests : IDisposable
     [Fact]
     public void AnUninstallTakesAwayTheFolderTheShortcutAndTheEntry()
     {
-        string download = Copy("download", ("quickshell.exe", "program"), (@"data\sessions.json", "[]"));
+        string download = Copy("download", ("aduzi.exe", "program"), (@"data\sessions.json", "[]"));
         Installation installed = At();
 
         installed.Install(download, "1.0.0");
@@ -89,8 +89,8 @@ public sealed class InstallationTests : IDisposable
     {
         Installation installed = At();
 
-        installed.Install(Copy("first", ("quickshell.exe", "first"), ("retired.dll", "old")), "1.0.0");
-        installed.Install(Copy("second", ("quickshell.exe", "second"), ("added.dll", "new")), "2.0.0");
+        installed.Install(Copy("first", ("aduzi.exe", "first"), ("retired.dll", "old")), "1.0.0");
+        installed.Install(Copy("second", ("aduzi.exe", "second"), ("added.dll", "new")), "2.0.0");
 
         Assert.Equal("second", File.ReadAllText(installed.Program));
         Assert.False(File.Exists(Path.Combine(installed.Folder, "retired.dll")), "a file of the old version stayed");
@@ -112,7 +112,7 @@ public sealed class InstallationTests : IDisposable
     {
         Installation installed = At();
 
-        installed.Install(Copy("download", ("quickshell.exe", "program")), "1.0.0");
+        installed.Install(Copy("download", ("aduzi.exe", "program")), "1.0.0");
 
         File.Delete(installed.Shortcut);
         Registry.CurrentUser.DeleteSubKeyTree(_entry);
@@ -128,7 +128,7 @@ public sealed class InstallationTests : IDisposable
     /// A copy that is running from the folder is named rather than half-replaced: install and
     /// uninstall both refuse, and a refused uninstall has removed nothing.
     ///
-    /// <para>The running copy is a real process called <c>quickshell</c> — ping, renamed, so it has
+    /// <para>The running copy is a real process called <c>aduzi</c> — ping, renamed, so it has
     /// something to do for long enough to be found.</para>
     /// </summary>
     [Fact]
@@ -137,7 +137,7 @@ public sealed class InstallationTests : IDisposable
         string download = Path.Combine(_root, "download");
 
         Directory.CreateDirectory(download);
-        File.Copy(Path.Combine(Environment.SystemDirectory, "PING.EXE"), Path.Combine(download, "quickshell.exe"));
+        File.Copy(Path.Combine(Environment.SystemDirectory, "PING.EXE"), Path.Combine(download, "aduzi.exe"));
 
         Installation installed = At();
 
@@ -164,6 +164,81 @@ public sealed class InstallationTests : IDisposable
     }
 
     /// <summary>
+    /// QS384: installing over a copy installed under the earlier name leaves one app, not two: the
+    /// earlier program folder, its Start menu shortcut and its entry in the list are gone.
+    /// </summary>
+    [Fact]
+    public void AnInstallUnderTheEarlierNameIsReplacedByTheNewOne()
+    {
+        Installation installed = At();
+        string earlier = installed.FormerFolder!;
+        string shortcut = Path.Combine(_root, "Start Menu", "quickshell.lnk");
+
+        Copy(Path.Combine("Programs", "quickshell"), ("quickshell.exe", "earlier"), ("Quickshell.Terminal.dll", "earlier"));
+        Directory.CreateDirectory(Path.GetDirectoryName(shortcut)!);
+        ShellLinks.Write(shortcut, Path.Combine(earlier, "quickshell.exe"), "%USERPROFILE%", "earlier");
+
+        using (RegistryKey entry = Registry.CurrentUser.CreateSubKey(Earlier.Entry, writable: true))
+        {
+            entry.SetValue("DisplayName", "quickshell");
+        }
+
+        installed.Install(Copy("download", ("aduzi.exe", "program")), "2.0.0");
+
+        Assert.Equal("program", File.ReadAllText(installed.Program));
+        Assert.False(Directory.Exists(earlier), "the earlier program folder stayed beside the new one");
+        Assert.False(File.Exists(shortcut), "the Start menu still has the earlier shortcut");
+        Assert.Null(Registry.CurrentUser.OpenSubKey(Earlier.Entry));
+        Assert.NotNull(Registry.CurrentUser.OpenSubKey(_entry));
+    }
+
+    /// <summary>
+    /// A folder with the earlier name that never held the earlier program is somebody else's, and an
+    /// install leaves it alone.
+    /// </summary>
+    [Fact]
+    public void AFolderWithTheEarlierNameButNotItsProgramIsLeftAlone()
+    {
+        Installation installed = At();
+
+        Copy(Path.Combine("Programs", "quickshell"), ("notes.txt", "somebody's"));
+
+        installed.Install(Copy("download", ("aduzi.exe", "program")), "2.0.0");
+
+        Assert.True(File.Exists(Path.Combine(installed.FormerFolder!, "notes.txt")), "a folder that was not an install was removed");
+    }
+
+    /// <summary>
+    /// The earlier copy running is said before anything is replaced, since installing removes the
+    /// folder it runs from.
+    /// </summary>
+    [Fact]
+    public void TheEarlierCopyRunningIsNamedBeforeAnInstall()
+    {
+        Installation installed = At();
+        string earlier = installed.FormerFolder!;
+
+        Directory.CreateDirectory(earlier);
+        File.Copy(Path.Combine(Environment.SystemDirectory, "PING.EXE"), Path.Combine(earlier, "quickshell.exe"));
+
+        using Process running = Hold(Path.Combine(earlier, "quickshell.exe"), seconds: 60);
+
+        try
+        {
+            SetupException refused = Assert.Throws<SetupException>(
+                () => installed.Install(Copy("download", ("aduzi.exe", "program")), "2.0.0"));
+
+            Assert.StartsWith($"The copy installed as quickshell is running from {earlier}", refused.Message, StringComparison.Ordinal);
+            Assert.False(installed.Present, "the new copy was installed beside a running earlier one");
+        }
+        finally
+        {
+            running.Kill();
+            running.WaitForExit();
+        }
+    }
+
+    /// <summary>
     /// QS247: a copy asked about in the instant it starts is found, where reading its modules lost
     /// it while its loader was still building the list. Asked straight after the start, several
     /// times, since one try can land after the window.
@@ -174,7 +249,7 @@ public sealed class InstallationTests : IDisposable
         string download = Path.Combine(_root, "download");
 
         Directory.CreateDirectory(download);
-        File.Copy(Path.Combine(Environment.SystemDirectory, "PING.EXE"), Path.Combine(download, "quickshell.exe"));
+        File.Copy(Path.Combine(Environment.SystemDirectory, "PING.EXE"), Path.Combine(download, "aduzi.exe"));
 
         Installation installed = At();
 
@@ -205,9 +280,9 @@ public sealed class InstallationTests : IDisposable
     {
         Installation installed = At();
 
-        installed.Install(Copy("first", ("quickshell.exe", "first"), ("scanned.dll", "old")), "1.0.0");
+        installed.Install(Copy("first", ("aduzi.exe", "first"), ("scanned.dll", "old")), "1.0.0");
 
-        string second = Copy("second", ("quickshell.exe", "second"));
+        string second = Copy("second", ("aduzi.exe", "second"));
         Stopwatch clock = Stopwatch.StartNew();
 
         using (HoldFor(Path.Combine(installed.Folder, "scanned.dll"), TimeSpan.FromMilliseconds(800)))
@@ -229,7 +304,7 @@ public sealed class InstallationTests : IDisposable
     {
         Installation installed = At();
 
-        installed.Install(Copy("first", ("quickshell.exe", "first"), ("scanned.dll", "old")), "1.0.0");
+        installed.Install(Copy("first", ("aduzi.exe", "first"), ("scanned.dll", "old")), "1.0.0");
 
         Stopwatch clock = Stopwatch.StartNew();
 
@@ -253,9 +328,9 @@ public sealed class InstallationTests : IDisposable
     {
         Installation installed = At();
 
-        installed.Install(Copy("first", ("quickshell.exe", "first"), ("scanned.dll", "old")), "1.0.0");
+        installed.Install(Copy("first", ("aduzi.exe", "first"), ("scanned.dll", "old")), "1.0.0");
 
-        string second = Copy("second", ("quickshell.exe", "second"));
+        string second = Copy("second", ("aduzi.exe", "second"));
 
         using (HoldFor(Path.Combine(installed.Folder, "scanned.dll"), TimeSpan.FromSeconds(30)))
         {
@@ -349,6 +424,7 @@ public sealed class InstallationTests : IDisposable
     public void Dispose()
     {
         Registry.CurrentUser.DeleteSubKeyTree(_entry, throwOnMissingSubKey: false);
+        Registry.CurrentUser.DeleteSubKeyTree(Earlier.Entry, throwOnMissingSubKey: false);
 
         using (RegistryKey? tests = Registry.CurrentUser.OpenSubKey(Tests))
         {
@@ -366,8 +442,11 @@ public sealed class InstallationTests : IDisposable
 
     /// <summary>An installation of the test's own, under its temporary folder and its key.</summary>
     private Installation At() =>
-        new(Path.Combine(_root, "Programs", "quickshell"), Path.Combine(_root, "Start Menu"),
-            Registry.CurrentUser, _entry, everyone: false);
+        new(Path.Combine(_root, "Programs", "Aduzi"), Path.Combine(_root, "Start Menu"),
+            Registry.CurrentUser, _entry, everyone: false, Earlier);
+
+    /// <summary>What an install under the earlier name wrote, in the test's places.</summary>
+    private Former Earlier => new("quickshell", "quickshell.exe", _entry + "-earlier", "quickshell.lnk");
 
     /// <summary>A copy of the client, as a folder of the files named.</summary>
     private string Copy(string name, params (string Path, string Content)[] files)

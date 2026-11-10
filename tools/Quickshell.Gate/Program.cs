@@ -123,7 +123,7 @@ public static class Program
         Exec(root, "dotnet", "build", Path.Combine("tools", "Quickshell.Startup", "Quickshell.Startup.csproj"),
              "-c", "Release", "--nologo", "-v", "quiet");
 
-        client ??= Publish(root, Path.Combine("src", "Quickshell.App", "Quickshell.App.csproj"), "quickshell", "quickshell");
+        client ??= Publish(root, Path.Combine("src", "Quickshell.App", "Quickshell.App.csproj"), "client", ClientNames);
 
         if (!File.Exists(client))
         {
@@ -183,7 +183,7 @@ public static class Program
         try
         {
             string client = Publish(root, Path.Combine(source, "src", "Quickshell.App", "Quickshell.App.csproj"),
-                                    Path.Combine("reference", "quickshell"), "quickshell");
+                                    Path.Combine("reference", "client"), ClientNames);
             string harness = Publish(root, Path.Combine(source, "benchmarks", "Quickshell.Replay", "Quickshell.Replay.csproj"),
                                      Path.Combine("reference", "replay"), Bench.Harness);
 
@@ -498,8 +498,11 @@ public static class Program
     /// the gate times is the start of the thing people download, and the replay harness, so the arms
     /// laid over that client were compiled the same way it was.
     /// </summary>
-    /// <returns>The executable published, named for its assembly.</returns>
-    private static string Publish(string root, string project, string folder, string executable)
+    /// <returns>
+    /// The executable published, named for its assembly: the first of <paramref name="executables"/>
+    /// the publish wrote, or the first named where it wrote none.
+    /// </returns>
+    private static string Publish(string root, string project, string folder, params string[] executables)
     {
         string output = Path.Combine(root, "artifacts", "gate", folder);
 
@@ -513,8 +516,15 @@ public static class Program
              "--runtime", "win-x64", "--self-contained", "true", "-p:PublishReadyToRun=true", "--output", output,
              "--nologo", "-v", "quiet");
 
-        return Path.Combine(output, $"{executable}.exe");
+        return executables.Select(name => Path.Combine(output, $"{name}.exe")).FirstOrDefault(File.Exists)
+               ?? Path.Combine(output, $"{executables[0]}.exe");
     }
+
+    /// <summary>
+    /// The client's executable, by its name since QS384 and by the one before it: a baseline taken
+    /// before the rename names a commit whose client is still quickshell.exe.
+    /// </summary>
+    private static readonly string[] ClientNames = ["aduzi", "quickshell"];
 
     /// <summary>One row of the history, which is the only place drift shows.</summary>
     private static void Record(string history, string machine, string commit, bool dirty,

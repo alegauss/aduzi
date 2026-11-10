@@ -31,10 +31,17 @@ namespace Quickshell.App;
 public sealed class Installation
 {
     /// <summary>The program's file name, in every copy.</summary>
-    public const string ProgramName = "quickshell.exe";
+    public const string ProgramName = "aduzi.exe";
 
     /// <summary>Where an installed app's entry lives, under either hive.</summary>
-    public const string Entries = @"Software\Microsoft\Windows\CurrentVersion\Uninstall\quickshell";
+    public const string Entries = @"Software\Microsoft\Windows\CurrentVersion\Uninstall\Aduzi";
+
+    /// <summary>
+    /// What an install made before QS384 wrote, under the name the client had then: its program, its
+    /// entry and its shortcut, in the same places.
+    /// </summary>
+    public static readonly Former Earlier = new(
+        "quickshell", "quickshell.exe", @"Software\Microsoft\Windows\CurrentVersion\Uninstall\quickshell", "quickshell.lnk");
 
     /// <summary>What the Start menu shows when a pointer rests on the shortcut.</summary>
     private const string Description = "An SSH client for Windows";
@@ -48,12 +55,22 @@ public sealed class Installation
     private readonly string _shortcuts;
     private readonly RegistryKey _hive;
     private readonly string _entry;
+    private readonly Former? _former;
 
     /// <summary>
     /// An installation in the places given. The two factories are the real ones; a test gives its
     /// own, because an entry written under the real key is an app in somebody's list.
     /// </summary>
-    public Installation(string folder, string shortcuts, RegistryKey hive, string entry, bool everyone)
+    /// <param name="folder">The program files' folder.</param>
+    /// <param name="shortcuts">The Start menu folder the shortcut goes in.</param>
+    /// <param name="hive">The registry hive the entry goes under.</param>
+    /// <param name="entry">The entry's key under that hive.</param>
+    /// <param name="everyone">Whether this is the machine-wide installation.</param>
+    /// <param name="former">
+    /// What an install under an earlier name left in the same places, which installing removes. Its
+    /// folder sits beside <paramref name="folder"/>.
+    /// </param>
+    public Installation(string folder, string shortcuts, RegistryKey hive, string entry, bool everyone, Former? former = null)
     {
         ArgumentException.ThrowIfNullOrEmpty(folder);
         ArgumentException.ThrowIfNullOrEmpty(shortcuts);
@@ -64,21 +81,22 @@ public sealed class Installation
         _shortcuts = shortcuts;
         _hive = hive;
         _entry = entry;
+        _former = former;
         Everyone = everyone;
     }
 
     /// <summary>For the person running this: no elevation, nothing outside their profile.</summary>
     public static Installation ForUser() => new(
         Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-                     "Programs", "quickshell"),
+                     "Programs", "Aduzi"),
         Environment.GetFolderPath(Environment.SpecialFolder.Programs),
-        Registry.CurrentUser, Entries, everyone: false);
+        Registry.CurrentUser, Entries, everyone: false, Earlier);
 
     /// <summary>For every user of the machine, which only an administrator can write.</summary>
     public static Installation ForEveryone() => new(
-        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), "quickshell"),
+        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), "Aduzi"),
         Environment.GetFolderPath(Environment.SpecialFolder.CommonPrograms),
-        Registry.LocalMachine, Entries, everyone: true);
+        Registry.LocalMachine, Entries, everyone: true, Earlier);
 
     /// <summary>
     /// The installation a folder is, or null where it is not one — which is what a copy asks of
@@ -94,7 +112,13 @@ public sealed class Installation
     public string Program => Path.Combine(Folder, ProgramName);
 
     /// <summary>The Start menu's shortcut to it.</summary>
-    public string Shortcut => Path.Combine(_shortcuts, "quickshell.lnk");
+    public string Shortcut => Path.Combine(_shortcuts, "Aduzi.lnk");
+
+    /// <summary>
+    /// The folder an install under the earlier name used, beside this one, or null where there is no
+    /// earlier name.
+    /// </summary>
+    public string? FormerFolder => _former is null ? null : Path.Combine(Path.GetDirectoryName(Folder)!, _former.Folder);
 
     /// <summary>Whether this is the machine-wide installation.</summary>
     public bool Everyone { get; }
@@ -149,9 +173,12 @@ public sealed class Installation
         else
         {
             Refuse("install");
+            RefuseFormer();
 
             bytes = Replace(source);
         }
+
+        RetireFormer();
 
         Directory.CreateDirectory(_shortcuts);
 
@@ -270,18 +297,73 @@ public sealed class Installation
         }
     }
 
+    /// <summary>
+    /// Refuses where the copy installed under the earlier name is running, since installing removes
+    /// its folder.
+    /// </summary>
+    private void RefuseFormer()
+    {
+        if (_former is null || FormerFolder is not { } folder || !Directory.Exists(folder))
+        {
+            return;
+        }
+
+        int running = Running(folder, _former.Program);
+
+        if (running > 0)
+        {
+            throw new SetupException(
+                $"The copy installed as {_former.Folder} is running from {folder}, and installing Aduzi "
+                + "replaces it. Close it, and install again.");
+        }
+    }
+
+    /// <summary>
+    /// Removes what an install under the earlier name wrote: its entry, its shortcut and its program
+    /// folder. Settings are not among them; <see cref="Locations"/> moves those on first use.
+    ///
+    /// <para>Only a folder that holds the earlier program is removed, so a folder somebody made with
+    /// that name for something else is left alone. One that will not go now is left for the next
+    /// install, which is not a reason to fail this one: the entry and the shortcut are what would
+    /// show two copies, and those are gone.</para>
+    /// </summary>
+    private void RetireFormer()
+    {
+        if (_former is null)
+        {
+            return;
+        }
+
+        string shortcut = Path.Combine(_shortcuts, _former.Shortcut);
+
+        if (File.Exists(shortcut))
+        {
+            File.Delete(shortcut);
+        }
+
+        _hive.DeleteSubKeyTree(_former.Entry, throwOnMissingSubKey: false);
+
+        if (FormerFolder is { } folder && File.Exists(Path.Combine(folder, _former.Program)))
+        {
+            Leave(folder);
+        }
+    }
+
     /// <summary>The processes other than this one running a program from this folder.</summary>
-    private int Running()
+    private int Running() => Running(Folder, ProgramName);
+
+    /// <summary>The processes other than this one running <paramref name="program"/> from a folder.</summary>
+    private static int Running(string folder, string program)
     {
         int running = 0;
 
-        foreach (Process process in Process.GetProcessesByName(Path.GetFileNameWithoutExtension(ProgramName)))
+        foreach (Process process in Process.GetProcessesByName(Path.GetFileNameWithoutExtension(program)))
         {
             using (process)
             {
                 if (process.Id != Environment.ProcessId
                     && ImagePath(process.Id) is { } path
-                    && path.StartsWith(Folder + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase))
+                    && path.StartsWith(folder + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase))
                 {
                     running++;
                 }
@@ -412,6 +494,7 @@ public sealed class Installation
     /// </summary>
     private static bool Portable(string relative) =>
         relative.Equals(Locations.Marker, StringComparison.OrdinalIgnoreCase)
+        || relative.Equals(Locations.FormerMarker, StringComparison.OrdinalIgnoreCase)
         || relative.StartsWith("data" + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase);
 
     private static long Measure(string folder) =>
@@ -484,6 +567,15 @@ public sealed class Installation
 
     private static string Full(string folder) => Path.TrimEndingDirectorySeparator(Path.GetFullPath(folder));
 }
+
+/// <summary>
+/// What an install under an earlier name of this client wrote, which a new install removes (QS384).
+/// </summary>
+/// <param name="Folder">The program folder's name, beside the current one.</param>
+/// <param name="Program">The program's file name in it.</param>
+/// <param name="Entry">The installed app's entry, under the same hive.</param>
+/// <param name="Shortcut">The Start menu shortcut's file name, in the same folder.</param>
+public sealed record Former(string Folder, string Program, string Entry, string Shortcut);
 
 /// <summary>
 /// An install or uninstall that did not happen, and the sentence saying why — written for the

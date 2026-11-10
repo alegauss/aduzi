@@ -6,8 +6,8 @@
 
 .DESCRIPTION
   QS77. One archive, and it is both editions. Unzipped and started, it is a portable copy that keeps
-  its settings beside itself and writes nothing to the profile; `quickshell --install`, or "Install
-  quickshell for this user" in its palette, installs it for the person running it, with no
+  its settings beside itself and writes nothing to the profile; `aduzi --install`, or "Install
+  Aduzi for this user" in its palette, installs it for the person running it, with no
   administrator prompt.
 
   The build is the one QS75 measured - Release, self-contained, ReadyToRun - so the start-up figure
@@ -64,7 +64,7 @@ $ErrorActionPreference = 'Stop'
 
 $root = Split-Path -Parent $PSScriptRoot
 $project = Join-Path $root 'src\Quickshell.App\Quickshell.App.csproj'
-$publish = Join-Path $root 'artifacts\publish\quickshell'
+$publish = Join-Path $root 'artifacts\publish\aduzi'
 if (-not $Output) { $Output = Join-Path $root 'artifacts\release' }
 
 function Refuse {
@@ -113,7 +113,7 @@ if ($Certificate) {
 $version = (& dotnet msbuild $project -nologo -getProperty:Version | Out-String).Trim()
 if ($LASTEXITCODE -ne 0 -or -not $version) { Refuse 'the version could not be read from the project' }
 
-Write-Host "release  quickshell $version" -ForegroundColor Cyan
+Write-Host "release  Aduzi $version" -ForegroundColor Cyan
 
 # Wiped, never published over: a file the last build had and this one does not would otherwise ride
 # into the archive as part of a version it is not.
@@ -126,7 +126,7 @@ if ($LASTEXITCODE -ne 0) { Refuse 'the publish failed' }
 # Before the gate's ten minutes: the notices are the claim that every shipped component is
 # OSI-licensed, and it is read against what this publish resolved (QS378).
 & powershell -NoProfile -ExecutionPolicy Bypass -File (Join-Path $PSScriptRoot 'check-notices.ps1') `
-    -Deps (Join-Path $publish 'quickshell.deps.json') -Notices (Join-Path $root 'THIRD-PARTY-NOTICES.md')
+    -Deps (Join-Path $publish 'aduzi.deps.json') -Notices (Join-Path $root 'THIRD-PARTY-NOTICES.md')
 if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
 if (-not $Gated) {
@@ -142,7 +142,7 @@ else {
     if ($LASTEXITCODE -ne 0) { Refuse 'the performance gate did not build, so this build was not judged' }
 
     & (Join-Path $root 'tools\Quickshell.Gate\bin\Release\net10.0-windows\Quickshell.Gate.exe') `
-        --client (Join-Path $publish 'quickshell.exe')
+        --client (Join-Path $publish 'aduzi.exe')
     switch ($LASTEXITCODE) {
         0 { }
         1 { Refuse 'the performance gate found a figure worse than its baseline allows' 'Find what cost it, or say in the commit that made it: Performance-Moved: <figure> - <what it bought>.' }
@@ -154,7 +154,7 @@ else {
 if ($Certificate) {
     # This client's own files. The runtime's are Microsoft's, already signed by Microsoft.
     $ours = @(Get-ChildItem -LiteralPath $publish -File |
-        Where-Object { $_.Name -eq 'quickshell.exe' -or $_.Name -like 'Quickshell.*.dll' })
+        Where-Object { $_.Name -eq 'aduzi.exe' -or $_.Name -like 'Quickshell.*.dll' })
 
     & $signtool sign /sha1 $Certificate /fd sha256 /tr $Timestamp /td sha256 /q @($ours | ForEach-Object { $_.FullName })
     if ($LASTEXITCODE -ne 0) { Refuse 'signtool could not sign the build' }
@@ -177,10 +177,10 @@ foreach ($notice in @('LICENSE', 'THIRD-PARTY-NOTICES.md')) {
 }
 
 # The marker that makes an unzipped copy portable. Installing it leaves the marker behind.
-$null = New-Item -ItemType File -Path (Join-Path $publish 'quickshell.portable') -Force
+$null = New-Item -ItemType File -Path (Join-Path $publish 'aduzi.portable') -Force
 
 $suffix = if ($Unsigned) { '-unsigned' } else { '' }
-$name = "quickshell-$version-win-x64$suffix.zip"
+$name = "aduzi-$version-win-x64$suffix.zip"
 $null = New-Item -ItemType Directory -Path $Output -Force
 $zip = Join-Path $Output $name
 if (Test-Path -LiteralPath $zip) { Remove-Item -LiteralPath $zip -Force }

@@ -25,7 +25,7 @@ public static class PortHolder
     private const int TcpTableOwnerPidListener = 3;
 
     /// <summary>
-    /// A clause naming what listens on <paramref name="port"/> — "quickshell (another window, process
+    /// A clause naming what listens on <paramref name="port"/> — "Aduzi (another window, process
     /// 4120)" or "node (process 9000)" — or null where nothing can be named.
     /// </summary>
     public static string? Describe(int port)
@@ -43,11 +43,11 @@ public static class PortHolder
 
                 if (process == Environment.ProcessId)
                 {
-                    return $"this quickshell window (process {process}), from another session's forward";
+                    return $"this Aduzi window (process {process}), from another session's forward";
                 }
 
-                return holding.ProcessName.Equals("quickshell", StringComparison.OrdinalIgnoreCase)
-                    ? $"another quickshell window (process {process})"
+                return (holding.ProcessName.Equals("aduzi", StringComparison.OrdinalIgnoreCase) || holding.ProcessName.Equals("quickshell", StringComparison.OrdinalIgnoreCase))
+                    ? $"another Aduzi window (process {process})"
                     : $"{holding.ProcessName} (process {process})";
             }
             catch (ArgumentException)

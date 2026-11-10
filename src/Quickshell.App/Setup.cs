@@ -153,7 +153,7 @@ public static class Setup
         target.Uninstall();
 
         // The installed copy's own, which is never a portable copy's data folder — whichever copy
-        // was asked to do the uninstalling. Nor a folder QUICKSHELL_DATA names for this launch, which
+        // was asked to do the uninstalling. Nor a folder ADUZI_DATA names for this launch, which
         // is not the installed copy's to offer to delete.
         string settings = Locations.Discover(target.Folder, named: string.Empty).Root;
 

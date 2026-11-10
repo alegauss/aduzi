@@ -44,7 +44,7 @@ public sealed class SettingsWindow : Window
         ("startWith", "Start with", "What a new window opens on: Home, or a local shell."),
         ("vaultFile", "Vault kept up to date", "The KeePass vault the saved passwords are written to again whenever one changes. Empty, the default, keeps none."),
         ("tagColours", "Tag colours", "Which tags a tab shows besides prod, and in which colour, as staging=caution, db=accent. Empty, the default, shows prod alone."),
-        ("agentGateway", "Agent gateway", "Whether an agent such as Claude Code may run commands on your saved sessions through quickshell --mcp. Off by default. What it may run on each is the agent policy's to say."),
+        ("agentGateway", "Agent gateway", "Whether an agent such as Claude Code may run commands on your saved sessions through aduzi --mcp. Off by default. What it may run on each is the agent policy's to say."),
         ("claudeCommand", "Claude Code command", "What Open Claude Code runs in its pane, found on the path: claude by default."),
         ("agentCertificateHello", "Windows Hello before an agent signs in", "Whether Windows Hello asks for you before Aduzi signs an agent a certificate. Off by default; on, an agent signs in only while you are at the desk to answer."),
         ("menuBar", "Menu bar", "When the menu bar of every action is on screen: Hidden, Alt (shown by pressing and releasing Alt) or Always (the default)."),
@@ -154,7 +154,7 @@ public sealed class SettingsWindow : Window
             return [];
         }
 
-        string quickshell = Environment.ProcessPath ?? Path.Combine(AppContext.BaseDirectory, "quickshell.exe");
+        string quickshell = Environment.ProcessPath ?? Path.Combine(AppContext.BaseDirectory, Installation.ProgramName);
         string folder = PluginFolder ?? Path.Combine(Locations.Current.Root, "claude-plugin");
         string changes =
             $"This writes a Claude Code plugin into {folder}, and asks Claude Code ({claude}) to install it for your user:\n\n"
@@ -232,7 +232,7 @@ public sealed class SettingsWindow : Window
             return [];
         }
 
-        string quickshell = Environment.ProcessPath ?? Path.Combine(AppContext.BaseDirectory, "quickshell.exe");
+        string quickshell = Environment.ProcessPath ?? Path.Combine(AppContext.BaseDirectory, Installation.ProgramName);
         string folder = PluginFolder ?? Path.Combine(Locations.Current.Root, "claude-plugin");
         string changes =
             $"This writes a Claude Code plugin into {folder}-wsl-…, naming {quickshell} by the path {picked} starts it by, and asks the "

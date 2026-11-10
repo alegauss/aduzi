@@ -398,7 +398,7 @@ public sealed class SshNetTransport : ISshTransport, ICommandChannel
         throw new SshException(
             SshFailureKind.ShellRefused,
             $"Forwarding to {host}:{port} is not implemented yet.",
-            "quickshell has not built the channel, which is QS42.");
+            "Aduzi has not built the channel, which is QS42.");
     }
 
     /// <inheritdoc/>

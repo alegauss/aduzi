@@ -785,7 +785,7 @@ public sealed class WindowTests : IDisposable
             // Through the command the entry holds, which is the path picking it takes.
             window.Actions.Single(entry => entry.Name == "Write a diagnostic report").Run();
 
-            return Directory.GetFiles(_directory, "quickshell-diagnostics-*.txt").Single();
+            return Directory.GetFiles(_directory, "aduzi-diagnostics-*.txt").Single();
         });
 
         string bundle = File.ReadAllText(written);
@@ -829,7 +829,7 @@ public sealed class WindowTests : IDisposable
 
             // A folder nothing was written to may not exist at all, which is also nothing written.
             int written = Directory.Exists(_directory)
-                ? Directory.GetFiles(_directory, "quickshell-diagnostics-*.txt").Length
+                ? Directory.GetFiles(_directory, "aduzi-diagnostics-*.txt").Length
                 : 0;
 
             return (shown, keyed, written);

@@ -1,4 +1,4 @@
-﻿// System.IO is not in a WPF project's implicit usings, and turning WPF on is what made this
+// System.IO is not in a WPF project's implicit usings, and turning WPF on is what made this
 // file name it.
 using System.Diagnostics;
 using System.IO;
@@ -983,14 +983,14 @@ public static class Entry
         // that is not this one, so it is refused in words rather than served half-right.
         if (ClaudePlugin.Mismatch(pluginVersion, Setup.Version) is { } stale)
         {
-            Console.Error.WriteLine("quickshell --mcp: " + stale);
+            Console.Error.WriteLine("aduzi --mcp: " + stale);
 
             return 2;
         }
 
         if (!SettingsFile.ReadFrom(Locations.Current.Settings).AgentGateway)
         {
-            Console.Error.WriteLine("quickshell --mcp: the agent gateway is off. Turn on agentGateway in Aduzi's "
+            Console.Error.WriteLine("aduzi --mcp: the agent gateway is off. Turn on agentGateway in Aduzi's "
                                     + "settings to let an agent run commands on your saved sessions.");
 
             return 2;
@@ -1056,7 +1056,7 @@ public static class Entry
 
         if (AuditLog.Read(folder, run) is not { } summary)
         {
-            Console.Error.WriteLine($"quickshell --audit: no run {run} is recorded in {folder}. quickshell --audit alone lists them.");
+            Console.Error.WriteLine($"aduzi --audit: no run {run} is recorded in {folder}. aduzi --audit alone lists them.");
 
             return 2;
         }

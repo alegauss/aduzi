@@ -69,11 +69,11 @@ public sealed class ClaudePluginTests : IDisposable
                      ClaudePlugin.Mismatch("1.2.2", "1.2.3"));
     }
 
-    /// <summary>The built quickshell.exe, started by a stale plugin, refuses on standard error and exits 2 before reading anything.</summary>
+    /// <summary>The built aduzi.exe, started by a stale plugin, refuses on standard error and exits 2 before reading anything.</summary>
     [Fact]
     public void TheBuiltGatewaySaysWhyItRefusesAStalePlugin()
     {
-        string exe = Path.Combine(AppContext.BaseDirectory, "quickshell.exe");
+        string exe = Path.Combine(AppContext.BaseDirectory, Installation.ProgramName);
 
         using Process gateway = Process.Start(new ProcessStartInfo(exe)
         {
@@ -82,7 +82,7 @@ public sealed class ClaudePluginTests : IDisposable
             CreateNoWindow = true,
             RedirectStandardInput = true,
             RedirectStandardError = true,
-            Environment = { ["QUICKSHELL_DATA"] = _here },
+            Environment = { [Locations.Variable] = _here },
         })!;
 
         string said = gateway.StandardError.ReadToEnd();

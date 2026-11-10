@@ -62,7 +62,7 @@ public sealed partial class MainWindow
             return null;
         }
 
-        string offered = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "quickshell-sessions.kdbx");
+        string offered = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "aduzi-sessions.kdbx");
 
         if ((AsksVaultExport ?? AskedVaultExport)(offered, sessions) is not { } answer)
         {

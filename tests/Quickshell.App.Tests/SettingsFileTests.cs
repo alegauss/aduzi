@@ -279,15 +279,94 @@ public sealed class SettingsFileTests : IDisposable
     {
         Directory.CreateDirectory(_here);
 
-        Locations installed = Locations.Discover(_here, named: string.Empty);
+        // A profile of the test's own: discovering against the real one would move a real
+        // %AppData%\quickshell on whatever desk ran the suite.
+        string profile = Path.Combine(_here, "profile");
+        Locations installed = Locations.Discover(_here, named: string.Empty, profile: profile);
 
         Assert.False(installed.Portable);
-        Assert.Equal(
-            Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-                         "quickshell"),
-            installed.Root);
+        Assert.Equal(Path.Combine(profile, "Aduzi"), installed.Root);
 
         Assert.Contains("AppData", installed.Means, StringComparison.Ordinal);
+    }
+
+    /// <summary>
+    /// QS384: a profile an install under the earlier name wrote is moved whole to the new folder the
+    /// first time it is found, so an upgrade keeps every session, and says that it moved.
+    /// </summary>
+    [Fact]
+    public void AProfileUnderTheEarlierNameMovesToTheNewOne()
+    {
+        string profile = Path.Combine(_here, "profile");
+        string former = Path.Combine(profile, "quickshell");
+
+        Directory.CreateDirectory(Path.Combine(former, "agent-keys"));
+        File.WriteAllText(Path.Combine(former, "sessions.json"), "the person's sessions");
+        File.WriteAllText(Path.Combine(former, "agent-keys", "key"), "a key");
+
+        Locations installed = Locations.Discover(_here, named: string.Empty, profile: profile);
+
+        Assert.Equal(Path.Combine(profile, "Aduzi"), installed.Root);
+        Assert.Equal("the person's sessions", File.ReadAllText(installed.Sessions));
+        Assert.Equal("a key", File.ReadAllText(Path.Combine(installed.AgentKeys, "key")));
+        Assert.False(Directory.Exists(former), "the earlier folder stayed beside the new one");
+        Assert.Contains("moved there from %AppData%\\quickshell", installed.Means, StringComparison.Ordinal);
+    }
+
+    /// <summary>A profile that already has the new folder is not touched by the earlier one beside it.</summary>
+    [Fact]
+    public void AnEarlierProfileBesideTheNewOneIsLeftAlone()
+    {
+        string profile = Path.Combine(_here, "profile");
+
+        Directory.CreateDirectory(Path.Combine(profile, "Aduzi"));
+        Directory.CreateDirectory(Path.Combine(profile, "quickshell"));
+        File.WriteAllText(Path.Combine(profile, "Aduzi", "sessions.json"), "new");
+        File.WriteAllText(Path.Combine(profile, "quickshell", "sessions.json"), "earlier");
+
+        Locations installed = Locations.Discover(_here, named: string.Empty, profile: profile);
+
+        Assert.Equal("new", File.ReadAllText(installed.Sessions));
+        Assert.Equal("earlier", File.ReadAllText(Path.Combine(profile, "quickshell", "sessions.json")));
+        Assert.DoesNotContain("moved", installed.Means, StringComparison.Ordinal);
+    }
+
+    /// <summary>
+    /// An earlier folder something holds open cannot move, and is then used where it is rather than
+    /// left half in each folder.
+    /// </summary>
+    [Fact]
+    public void AnEarlierProfileHeldOpenIsUsedWhereItIs()
+    {
+        string profile = Path.Combine(_here, "profile");
+        string former = Path.Combine(profile, "quickshell");
+
+        Directory.CreateDirectory(former);
+        File.WriteAllText(Path.Combine(former, "sessions.json"), "earlier");
+
+        Locations installed;
+
+        using (new FileStream(Path.Combine(former, "sessions.json"), FileMode.Open, FileAccess.Read, FileShare.Read))
+        {
+            installed = Locations.Discover(_here, named: string.Empty, profile: profile);
+        }
+
+        Assert.Equal(former, installed.Root);
+        Assert.False(Directory.Exists(Path.Combine(profile, "Aduzi")), "half the profile moved");
+        Assert.Contains("could not be moved", installed.Means, StringComparison.Ordinal);
+    }
+
+    /// <summary>A portable copy unzipped before QS384 carries the earlier marker, and is still portable.</summary>
+    [Fact]
+    public void TheEarlierMarkerStillMakesACopyPortable()
+    {
+        Directory.CreateDirectory(_here);
+        File.WriteAllText(Path.Combine(_here, Locations.FormerMarker), string.Empty);
+
+        Locations portable = Locations.Discover(_here, named: string.Empty);
+
+        Assert.True(portable.Portable);
+        Assert.Equal(Path.Combine(_here, "data"), portable.Root);
     }
 
     /// <summary>

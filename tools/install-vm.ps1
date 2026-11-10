@@ -84,8 +84,8 @@ try {
     if (Test-Path -LiteralPath $download) { Remove-Item -LiteralPath $download -Recurse -Force }
     Add-Type -AssemblyName System.IO.Compression.FileSystem
     [IO.Compression.ZipFile]::ExtractToDirectory((Join-Path $sync 'release.zip'), $download)
-    $portable = Join-Path $download 'quickshell\quickshell.exe'
-    Check (Test-Path -LiteralPath $portable) "the archive unzips to one folder with quickshell.exe in it"
+    $portable = Join-Path $download 'aduzi\aduzi.exe'
+    Check (Test-Path -LiteralPath $portable) "the archive unzips to one folder with aduzi.exe in it"
 
     $everyone = Start-Process -FilePath $portable -ArgumentList '--install', '--all-users', '--quiet' -Wait -PassThru
     Check ($everyone.ExitCode -eq 740) "--install --all-users without an administrator exits 740 (it exited $($everyone.ExitCode))"
@@ -93,24 +93,24 @@ try {
     $installing = Start-Process -FilePath $portable -ArgumentList '--install', '--quiet' -Wait -PassThru
     Check ($installing.ExitCode -eq 0) "--install --quiet exits 0 (it exited $($installing.ExitCode))"
 
-    $folder = Join-Path $env:LOCALAPPDATA 'Programs\quickshell'
-    $program = Join-Path $folder 'quickshell.exe'
+    $folder = Join-Path $env:LOCALAPPDATA 'Programs\Aduzi'
+    $program = Join-Path $folder 'aduzi.exe'
     $files = @(Get-ChildItem -LiteralPath $folder -File -Recurse -ErrorAction SilentlyContinue).Count
-    $archived = @(Get-ChildItem -LiteralPath (Join-Path $download 'quickshell') -File -Recurse).Count
+    $archived = @(Get-ChildItem -LiteralPath (Join-Path $download 'aduzi') -File -Recurse).Count
     Check (Test-Path -LiteralPath $program) "the program is at $program"
     Check ($files -eq $archived - 1) "every file but the marker was installed ($files of $archived)"
-    Check (-not (Test-Path -LiteralPath (Join-Path $folder 'quickshell.portable'))) 'the installed copy is not portable'
+    Check (-not (Test-Path -LiteralPath (Join-Path $folder 'aduzi.portable'))) 'the installed copy is not portable'
 
-    $shortcut = Join-Path ([Environment]::GetFolderPath('Programs')) 'quickshell.lnk'
+    $shortcut = Join-Path ([Environment]::GetFolderPath('Programs')) 'Aduzi.lnk'
     $link = (New-Object -ComObject WScript.Shell).CreateShortcut($shortcut)
     Check (Test-Path -LiteralPath $shortcut) "the Start menu has $shortcut"
     Check ($link.TargetPath -eq $program) "it starts $($link.TargetPath)"
     Check ($link.WorkingDirectory -eq '%USERPROFILE%') "it starts in $($link.WorkingDirectory)"
 
-    $key = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Uninstall\quickshell'
+    $key = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Uninstall\Aduzi'
     $entry = Get-ItemProperty -LiteralPath $key
     Say "entry $($entry.DisplayName) $($entry.DisplayVersion), $($entry.EstimatedSize) KB, from $($entry.InstallLocation)"
-    Check ($entry.DisplayName -eq 'quickshell' -and $entry.InstallLocation -eq $folder) 'the list of installed apps names it and where it is'
+    Check ($entry.DisplayName -eq 'Aduzi' -and $entry.InstallLocation -eq $folder) 'the list of installed apps names it and where it is'
 
     # The installed copy has to start, and a start is a frame with the shell's prompt on it.
     $report = Join-Path $sync 'installed-start.json'
@@ -124,7 +124,7 @@ try {
     $running.WaitForExit()
 
     # Standing in for somebody's saved sessions, which an uninstall must not reach.
-    $settings = Join-Path $env:APPDATA 'quickshell'
+    $settings = Join-Path $env:APPDATA 'Aduzi'
     $null = New-Item -ItemType Directory -Path $settings -Force
     $kept = Join-Path $settings 'install-vm-kept.txt'
     Set-Content -LiteralPath $kept -Value 'an uninstall leaves this'

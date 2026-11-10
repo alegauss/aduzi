@@ -210,6 +210,6 @@ internal static class SharedSftpSession
         new(SshFailureKind.Unrecognised,
             "This build of SSH.NET cannot share a connection with a file transfer.",
             string.Create(CultureInfo.InvariantCulture, $"{what}."),
-            "quickshell will not open a second connection instead, because that would cost a second "
+            "Aduzi will not open a second connection instead, because that would cost a second "
             + "authentication without saying so. Report this with the SSH.NET version.");
 }

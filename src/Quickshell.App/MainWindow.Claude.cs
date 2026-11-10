@@ -52,7 +52,7 @@ public sealed partial class MainWindow
             return null;
         }
 
-        string quickshell = Environment.ProcessPath ?? Path.Combine(AppContext.BaseDirectory, "quickshell.exe");
+        string quickshell = Environment.ProcessPath ?? Path.Combine(AppContext.BaseDirectory, Installation.ProgramName);
         (string mcp, string settings) = ClaudePane.Configure(ClaudeConfigFolder ?? Locations.Current.Root, quickshell);
 
         TerminalTab? tab = opens(ClaudePane.Title, ClaudePane.CommandLine(LocalSession.Shell, Settings.ClaudeCommand, mcp, settings));

@@ -22,7 +22,7 @@
       "name": "a client connected to the guest's server, beside an Explorer folder",
       "reaches": ["127.0.0.1:2240"],
       "arguments": ["--session", "probe"],
-      "variables": { "QUICKSHELL_DATA": "{files}" },
+      "variables": { "ADUZI_DATA": "{files}" },
       "files": [
         { "from": "cases/fixtures/connected.json", "to": "sessions.json" }
       ],

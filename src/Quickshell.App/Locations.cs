@@ -13,10 +13,15 @@ namespace Quickshell.App;
 /// setting for it would have to live somewhere, and where it lives is the question being
 /// answered.</para>
 ///
-/// <para><b>Otherwise it follows the platform.</b> <c>%AppData%\quickshell</c>, which is where a
+/// <para><b>Otherwise it follows the platform.</b> <c>%AppData%\Aduzi</c>, which is where a
 /// Windows program's data goes and where a user's own backup already looks.</para>
 ///
 /// <para><b>And <see cref="Variable"/> overrides both</b> for the launch that sets it.</para>
+///
+/// <para><b>The name before Aduzi still answers</b> (QS384): <see cref="FormerMarker"/> still makes a
+/// copy portable, <see cref="FormerVariable"/> still names a folder, and an <c>%AppData%\quickshell</c>
+/// is moved to the new folder the first time a copy finds the new one absent, so an upgrade keeps
+/// every session, key and setting.</para>
 ///
 /// <para><b>Discovered once and cached</b>, because the answer cannot change while the process runs
 /// — a marker file created underneath a running client is not a layout change, it is a layout change
@@ -27,10 +32,22 @@ namespace Quickshell.App;
 public sealed class Locations
 {
     /// <summary>The file whose presence beside the executable chooses portable mode.</summary>
-    public const string Marker = "quickshell.portable";
+    public const string Marker = "aduzi.portable";
+
+    /// <summary>The marker a portable copy made before QS384 carries, which still makes it one.</summary>
+    public const string FormerMarker = "quickshell.portable";
 
     /// <summary>The environment variable that names a data folder for this launch, over both layouts.</summary>
-    public const string Variable = "QUICKSHELL_DATA";
+    public const string Variable = "ADUZI_DATA";
+
+    /// <summary>Its name before QS384, still read where the new one is not set.</summary>
+    public const string FormerVariable = "QUICKSHELL_DATA";
+
+    /// <summary>The data folder's name under %AppData%.</summary>
+    public const string Folder = "Aduzi";
+
+    /// <summary>Its name before QS384, which a first use under the new name moves.</summary>
+    public const string FormerFolder = "quickshell";
 
     private static Locations? _current;
 
@@ -128,7 +145,11 @@ public sealed class Locations
     /// <param name="named">
     /// The folder <see cref="Variable"/> names, or null to read it from this process's environment.
     /// </param>
-    public static Locations Discover(string? beside = null, string? named = null)
+    /// <param name="profile">
+    /// The folder the installed layout lives under: %AppData% unless a test says otherwise, so the
+    /// move from the earlier name can be checked without touching the real one.
+    /// </param>
+    public static Locations Discover(string? beside = null, string? named = null, string? profile = null)
     {
         string here = beside ?? Beside();
 
@@ -136,28 +157,56 @@ public sealed class Locations
         // this copy: a second profile beside the first, or a store kept on another drive. It is
         // also the only way to hand the client a store from outside it, since %AppData% is a known
         // folder no variable redirects (QS217; winwright WW519).
-        if ((named ?? Environment.GetEnvironmentVariable(Variable)) is { Length: > 0 } chosen)
+        (string Name, string? Value) said = named is not null ? (Variable, named) : Said();
+
+        if (said.Value is { Length: > 0 } chosen)
         {
             string root = Path.GetFullPath(chosen);
 
             return new Locations(portable: false, root,
-                                 $"named: {Variable} is set, so everything is under {root}");
+                                 $"named: {said.Name} is set, so everything is under {root}");
         }
 
-        if (File.Exists(Path.Combine(here, Marker)))
+        if (new[] { Marker, FormerMarker }.FirstOrDefault(marker => File.Exists(Path.Combine(here, marker))) is { } found)
         {
             return new Locations(portable: true, Path.Combine(here, "data"),
-                                 $"portable: {Marker} is beside the executable, so everything is "
+                                 $"portable: {found} is beside the executable, so everything is "
                                  + "under data\\ next to it and nothing is written to your profile");
         }
 
-        return new Locations(
-            portable: false,
-            Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-                         "quickshell"),
-            $"installed: there is no {Marker} beside the executable, so files follow the platform "
-            + "into %AppData%\\quickshell");
+        string under = profile ?? Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+        string installed = Path.Combine(under, Folder);
+        string means = $"installed: there is no {Marker} beside the executable, so files follow the platform "
+                       + $"into %AppData%\\{Folder}";
+
+        string former = Path.Combine(under, FormerFolder);
+
+        if (!Directory.Exists(installed) && Directory.Exists(former))
+        {
+            // One rename on one volume, so the folder moves whole or not at all. A copy of the old
+            // client still running holds files in it open, and then the old folder is used as it is
+            // and the move is tried again next start, rather than leaving half of it in each.
+            try
+            {
+                Directory.Move(former, installed);
+                means += $", moved there from %AppData%\\{FormerFolder} (QS384)";
+            }
+            catch (Exception held) when (held is IOException or UnauthorizedAccessException)
+            {
+                return new Locations(portable: false, former,
+                                     $"installed: %AppData%\\{FormerFolder} could not be moved to %AppData%\\{Folder} "
+                                     + $"({held.Message}), so files stay in the old folder until a start can move it");
+            }
+        }
+
+        return new Locations(portable: false, installed, means);
     }
+
+    /// <summary>The variable this process's environment names a folder by: the new name first, then the earlier one.</summary>
+    private static (string Name, string? Value) Said() =>
+        Environment.GetEnvironmentVariable(Variable) is { Length: > 0 } current
+            ? (Variable, current)
+            : (FormerVariable, Environment.GetEnvironmentVariable(FormerVariable));
 
     /// <summary>
     /// The folder the executable is in.

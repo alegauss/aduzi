@@ -80,7 +80,7 @@ public static class DiagnosticBundle
 
         string path = Path.Combine(
             folder,
-            $"quickshell-diagnostics-{when.ToString("yyyyMMdd-HHmmss", CultureInfo.InvariantCulture)}.txt");
+            $"aduzi-diagnostics-{when.ToString("yyyyMMdd-HHmmss", CultureInfo.InvariantCulture)}.txt");
 
         File.WriteAllText(path, Compose(from, when, adapter ?? Graphics()));
 

@@ -171,7 +171,7 @@ too: it cannot be a standing level. An expired grant is ignored, not deleted, so
 can still say what it allowed.
 
 **Only the person writes it.** The policy is `agent-policy.json` in quickshell's own folder
-(`%AppData%\quickshell`, or `data\` in a portable copy), outside any repository the agent works in,
+(`%AppData%\Aduzi`, or `data\` in a portable copy), outside any repository the agent works in,
 and is edited through quickshell's own window. The plugin's hook denies a write to that path
 (QS339). quickshell watches the file as it watches its settings: a change it did not make suspends
 the policy (every call asks) until the person confirms the change in a dialog that shows it. So an
@@ -324,7 +324,7 @@ client decides.
 1. **Off until the user turns it on.** A default installation exposes nothing, starts nothing and
    listens on nothing for an agent. Turning it on is a deliberate act in the settings, and turning
    it off again stops it.
-2. **Its own process.** The gateway runs as `quickshell --mcp`, started by the agent's host over
+2. **Its own process.** The gateway runs as `aduzi --mcp`, started by the agent's host over
    standard input and output, never inside the window's process. The window's start time, memory
    and idle figures in [PERFORMANCE.md](../../PERFORMANCE.md) are measured with it off and must not
    move with it on; Block L's criteria hold that figure.
@@ -343,7 +343,7 @@ those remain non-goals, and the gateway's existence is not an argument for them.
 
 What shipped first, before any policy, and off unless the `agentGateway` setting is on.
 
-**The process.** `quickshell --mcp` is a Model Context Protocol server on standard input and output,
+**The process.** `aduzi --mcp` is a Model Context Protocol server on standard input and output,
 one JSON-RPC message a line, started by the agent's host. It branches off before anything the window
 needs is made, so it costs the window nothing (QS321's second condition). With the setting off it
 writes why to standard error and exits with 2. Code: `src/Quickshell.App/AgentGateway.cs`.
@@ -448,7 +448,7 @@ the verdict stubbed. The real prompt waits on a desk with Windows Hello and a pe
 test raises it on a desk somebody is using.
 
 **A policy the agent cannot widen (QS339).** Three measures. The policy lives in quickshell's folder,
-outside any repository an agent is pointed at. `quickshell --agent-hook` denies the agent's `Write`,
+outside any repository an agent is pointed at. `aduzi --agent-hook` denies the agent's `Write`,
 `Edit`, `MultiEdit` and `NotebookEdit` any path at or under the files that limit or watch it: the
 policy and its approved copy, `agent-taints`, `agent-asks` (or an agent could write its own approval),
 `agents-stopped` and `audit`. It also denies its shell any command naming them. Reading them is left
@@ -553,15 +553,15 @@ edited, rotated at 16 MB into `<run>.1.jsonl` and on with the chain unbroken. A 
 call's number, the tool and what kind of call it is (read, changed, ran), the session and its tags,
 the arguments redacted as answers are, the verdict, the rule and the approval, whether it failed, the
 exit code, the SHA-256 of the whole answer, and the SHA-256 of the line before it. Until the policy
-exists (QS336) the verdict is `allowed` by `no policy yet` and the approval `none`. `quickshell --audit`
-lists the runs and `quickshell --audit <run>` prints one as a change summary, changed, ran, refused and
+exists (QS336) the verdict is `allowed` by `no policy yet` and the approval `none`. `aduzi --audit`
+lists the runs and `aduzi --audit <run>` prints one as a change summary, changed, ran, refused and
 read, saying first whether every line follows the one before it; a broken chain names the line and
 exits 1. The chain shows a slip or a casual edit, not a determined one: a process running as the same
 user can rewrite every line and every hash, which is the server-side log's to answer. Code:
 `src/Quickshell.App/AuditLog.cs`.
 
 **Closing the side doors (QS332).** Two measures of different strength. *Steering:*
-`quickshell --agent-hook` is a `PreToolUse` hook on the agent's `Bash` and `PowerShell` tools; the
+`aduzi --agent-hook` is a `PreToolUse` hook on the agent's `Bash` and `PowerShell` tools; the
 client is the hook, so it needs no runtime and matches the gateway's version. It reads the command line
 and denies, through `permissionDecision: "deny"` whose reason the agent reads, `ssh`, `scp`, `sftp`,
 `slogin`, PuTTY's tools, mosh, autossh, sshpass, rsync to a host, git with an SSH address, PowerShell
@@ -577,9 +577,9 @@ credential-isolation work the threat model names.
 
 **The wall on Windows is WSL2 (QS358).** On a Windows desk, the recommendation is to run the agent in
 WSL2 with the sandbox on and to point its MCP configuration at the Windows client:
-`"command": "/mnt/c/…/quickshell.exe", "args": ["--mcp"]`. Measured: from inside a WSL2 distribution,
-the Windows `quickshell.exe --mcp` answers `initialize` and `tools/list` over its standard streams, and
-`WSLENV` carries a `QUICKSHELL_DATA` across with its path translated. The gateway is a Windows process
+`"command": "/mnt/c/…/aduzi.exe", "args": ["--mcp"]`. Measured: from inside a WSL2 distribution,
+the Windows `aduzi.exe --mcp` answers `initialize` and `tools/list` over its standard streams, and
+`WSLENV` carries a `ADUZI_DATA` across with its path translated. The gateway is a Windows process
 started by Claude Code, outside the sandbox. It keeps its saved sessions, keys, known hosts, policy and
 approval dialog, while the agent's own shell, inside the sandbox, has no route to port 22 at all. A
 script the hook cannot see then fails, and nothing has to be built.
@@ -590,7 +590,7 @@ Two other walls were weighed and lost:
   the agent can reach still gets out, so the rule is a longer list of the hook's kind, below the shell
   but not around it.
 - *A rule by user*, with the agent as a second local account that a WFP filter denies the sessions'
-  ports, fails on how the gateway is started. Claude Code starts `quickshell --mcp` as its own child,
+  ports, fails on how the gateway is started. Claude Code starts `aduzi --mcp` as its own child,
   as the agent's account, so the filter would wall in the gateway with the agent. Keeping the gateway
   as the person would take a broker across accounts, a service and a pipe, for a boundary WSL2 already
   gives.
@@ -601,7 +601,7 @@ configuration.
 *Install into WSL…* in Settings (QS363) writes the plugin for a Claude Code inside WSL2. It looks for
 one only when asked, since asking starts every stopped distribution: it lists the distributions and,
 in each, asks a login shell `command -v claude`. In the one picked, it writes a copy of the
-marketplace beside the Windows one, naming this `quickshell.exe` by that distribution's
+marketplace beside the Windows one, naming this `aduzi.exe` by that distribution's
 `wslpath -u`. It installs that copy with the distribution's own `claude plugin`, after saying what
 it will run. The plugin does not touch Claude Code's settings there, so the offer says to turn the
 sandbox on, which is the part that makes WSL2 the wall. Measured on a desk with WSL: the `claude`
@@ -662,7 +662,7 @@ anywhere against the same gateway. What would reopen this is a task a pane canno
 for a nicer one.
 
 **Wired to the gateway from its first command.** Each time the pane opens, it writes two files into
-quickshell's folder, naming this copy of `quickshell.exe`:
+quickshell's folder, naming this copy of `aduzi.exe`:
 - `claude-mcp.json` starts the gateway as the MCP server `quickshell` (`--mcp`);
 - `claude-settings.json` installs `--agent-hook` for the shell and file tools.
 
@@ -687,7 +687,7 @@ session's screen. Code: `src/Quickshell.App/ClaudePane.cs`, `MainWindow.Claude.c
 ## Shipped as a Claude Code plugin (QS343)
 
 **Written by the client, not published.** The plugin's MCP entry and its hook must name the
-`quickshell.exe` the person installed, by its full path, and a published plugin could not know it.
+`aduzi.exe` the person installed, by its full path, and a published plugin could not know it.
 So `ClaudePlugin.Write` writes a marketplace of its own, `quickshell-local`, into `claude-plugin` in
 quickshell's folder. It holds one plugin, `quickshell`:
 - the MCP server `quickshell`, running `<exe> --mcp --plugin-version <version>`;
@@ -712,6 +712,6 @@ it. A gateway of another version exits 2 before reading anything, saying which v
 plugin and to install it again, so a skill describing other tools is never served.
 
 Proven on the host: Claude Code 2.1.300's `claude plugin validate --strict` accepts both the
-marketplace and the plugin; the built `quickshell.exe` refuses a stale plugin; Settings asks before it
+marketplace and the plugin; the built `aduzi.exe` refuses a stale plugin; Settings asks before it
 runs anything, then writes and runs the three steps. Not yet proven: an install into a real Claude Code
 followed by an agent's first `exec`, which needs Claude Code in the guest (QS362).

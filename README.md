@@ -8,9 +8,8 @@
 
 Windows 10 and 11 · no account, no telemetry, no update check · pre-release 0.1.0
 
-Formerly quickshell. The executable, the release archive, the install folder and this repository
-still carry the old name until the rename reaches them; the window and everything it says already
-use the new one.
+Formerly quickshell. An install under the old name upgrades in place, settings and sessions
+included ([Upgrading from quickshell](docs/INSTALL.md#upgrading-from-quickshell)).
 
 **[alegauss.github.io/aduzi](https://alegauss.github.io/aduzi/)** ·
 [Install](docs/INSTALL.md) ·
@@ -41,11 +40,11 @@ Until the first release:
 - **Build it**: needs Windows x64 and the [.NET 10 SDK](https://dotnet.microsoft.com/download).
   `run-tests.cmd` builds everything and runs the tests; `run.cmd Release` builds the client and
   starts it.
-- **CI builds** an unsigned `quickshell-<version>-win-x64.zip` on every push, kept for five days
+- **CI builds** an unsigned `aduzi-<version>-win-x64.zip` on every push, kept for five days
   under the workflow run's artifacts.
 
 The archive carries its own .NET runtime. Unzip it anywhere and it runs as a portable copy, or
-install it for yourself with `quickshell.exe --install` (no administrator prompt) or for every
+install it for yourself with `aduzi.exe --install` (no administrator prompt) or for every
 user with `--install --all-users`. [INSTALL.md](docs/INSTALL.md) lists everything it does to
 your machine, which is not much.
 
@@ -54,7 +53,7 @@ your machine, which is not much.
 Import your sessions once and keep working:
 
 ```
-quickshell.exe --import
+aduzi.exe --import
 ```
 
 Or `Ctrl+Shift+I` inside the client. MobaXterm session files and PuTTY's saved sessions are

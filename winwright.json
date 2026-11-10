@@ -9,7 +9,7 @@
 
   // The Debug output and the RID, because Quickshell.App sets RuntimeIdentifier unconditionally and
   // run-tests.cmd builds Debug.
-  "executable": "src/Quickshell.App/bin/Debug/net10.0-windows/win-x64/quickshell.exe",
+  "executable": "src/Quickshell.App/bin/Debug/net10.0-windows/win-x64/aduzi.exe",
 
   "sourceRoot": "src",
 

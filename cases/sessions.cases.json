@@ -9,11 +9,11 @@
   "fixtures": [
     {
       // The same store the palette case opens over, staged by the engine and named by
-      // QUICKSHELL_DATA, so the rows read are the ones this repository wrote and not the desk's.
+      // ADUZI_DATA, so the rows read are the ones this repository wrote and not the desk's.
       // Not lent: the fold case writes the window's settings file.
       "name": "a client with its sessions beside it",
       "arguments": [],
-      "variables": { "QUICKSHELL_DATA": "{files}" },
+      "variables": { "ADUZI_DATA": "{files}" },
       "files": ["cases/fixtures/sessions.json"]
     },
     {
@@ -21,7 +21,7 @@
       // left chosen, or a folder left open, for the cases that read this sidebar from the top.
       "name": "a client whose sessions are chosen several at once",
       "arguments": [],
-      "variables": { "QUICKSHELL_DATA": "{files}" },
+      "variables": { "ADUZI_DATA": "{files}" },
       "files": ["cases/fixtures/sessions.json"]
     }
   ],

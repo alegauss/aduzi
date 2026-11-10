@@ -3,7 +3,7 @@
 Everything this client can be configured to do, and nothing it cannot. If a key is not on this page
 it is not a setting — it is a decision, and changing it takes an argument rather than a preference.
 
-**The file is the setting.** It lives at `%AppData%\quickshell\settings.json`, or at
+**The file is the setting.** It lives at `%AppData%\Aduzi\settings.json`, or at
 `data\settings.json` beside the executable in portable mode. It is text, you may edit it by hand, and
 you may put it under version control — which is the point. When this client writes it back it edits
 the values in place, so your comments, your blank lines and your spacing survive.
@@ -208,9 +208,9 @@ settings window and ignored.
 
 ### `agentGateway`
 
-Whether an agent such as Claude Code may run commands on your saved sessions through quickshell --mcp. Off by default. What it may run on each is the agent policy's to say.
+Whether an agent such as Claude Code may run commands on your saved sessions through aduzi --mcp. Off by default. What it may run on each is the agent policy's to say.
 
-With it on, an agent's host can start `quickshell --mcp` ([COMMAND-LINE.md](COMMAND-LINE.md#serving-an-agent))
+With it on, an agent's host can start `aduzi --mcp` ([COMMAND-LINE.md](COMMAND-LINE.md#serving-an-agent))
 and call four tools: `hosts_list`, which names your saved sessions and never a password or a key;
 `exec`, which runs a program with its arguments on one of them over a connection the gateway keeps
 for the next call, and answers its exit code, output and errors apart, with nothing in it able to wait
@@ -223,7 +223,7 @@ A long output comes back as its first and last lines within a budget, and `outpu
 `output_grep` reach the rest without running the command again. Passwords, tokens, keys and the like in
 anything a tool returns are replaced with `«redacted:…»` before the agent sees them; that guards against
 a slip, not a determined command, which can always encode a value past it. Every call is recorded in
-`audit` in quickshell's folder, and `quickshell --audit` prints what a run changed, ran, refused and
+`audit` in quickshell's folder, and `aduzi --audit` prints what a run changed, ran, refused and
 read ([COMMAND-LINE.md](COMMAND-LINE.md#serving-an-agent)). Each run also appears in quickshell, while it is open, as a read-only tab badged `agent` that shows every
 call and what came back. `Ctrl+Shift+F12` stops every agent at once,
 cancelling the jobs they started, until *Let agents run again* in the palette ([KEYS.md](KEYS.md)). It signs in with the session's

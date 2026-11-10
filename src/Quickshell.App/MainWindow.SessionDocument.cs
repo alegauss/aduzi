@@ -54,7 +54,7 @@ public sealed partial class MainWindow
             return null;
         }
 
-        string offered = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "quickshell-sessions.pdf");
+        string offered = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "aduzi-sessions.pdf");
 
         if ((AsksDocumentFile ?? AskedDocumentFile)(offered, sessions.Count) is not { Length: > 0 } file)
         {
