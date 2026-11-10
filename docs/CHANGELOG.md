@@ -294,6 +294,7 @@
 - ✅ **QS378** **Nobody has checked that every component the archive ships is under an OSI-approved licence** — All 18 shipped packages are MIT or ISC, and release.cmd refuses an archive whose notices do not list each at its version under an OSI licence (design recorded in `tools/check-notices.ps1`).
 - ✅ **QS384** **A search for the name finds the Linux Quickshell and winget's Quick Shell, not this client** — Aduzi is the exe, archive, install, data folder, Claude plugin and docs; installing over quickshell removes it and moves its data, sessions included (design superseded: /quickshell/ not redirected).
 - ✅ **QS385** **The description and the site promise a live prompt under 400 ms, while the published measurement is 612 to 647 ms** — The GitHub description now states start-up as measured, 647 ms against a 400 ms budget, as the site and llms.txt already did, so no public text claims under 400 ms.
+- ✅ **QS387** **A reader who looks the name up finds Portuguese dictionaries and a bean, never why the client is called Aduzi** — The README, the site's footer and llms.txt say Aduzi is Portuguese for "I brought", from the Latin adducere, as an SSH client brings a remote machine.
 
 ## Block I — An error a user can act on
 

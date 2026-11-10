@@ -497,25 +497,6 @@ application need to exist.
 Done when GitHub's latest release carries the archive under the new name, and the README
 and the site link to it instead of to building from source.
 
-### §QS387 The name explains itself to whoever looks it up
-
-Aduzi is a formal Portuguese verb that most Portuguese speakers do not know and no one
-else does, and that is the intent (decided by the author on 02/11/2026): the name tells
-a reader nothing at first, and has a meaning for whoever looks it up. *Aduzi* is "I
-brought", from the Latin *adducere*, to lead something toward you, which is what an SSH
-client does with a remote machine.
-
-That only works if the lookup lands on the product. On 02/11/2026 a search for "aduzi"
-returned Portuguese dictionaries and the adzuki bean, never the client. What it should
-do: one short "About the name" passage in the README and on the site, in English, along
-the lines of
-
-> *Aduzi* is Portuguese for "I brought": from the Latin *adducere*, to lead something toward you.
-> That is what an SSH client does with a remote machine.
-
-and the same sentence in `llms.txt`, so an assistant asked what the name means answers
-from the source.
-
 ## Block I — An error a user can act on
 
 ### §QS128 A trace that carries both sides of the negotiation

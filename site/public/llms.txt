@@ -11,6 +11,9 @@
 > .NET 10, WPF host with a child HWND per pane. Per-user install, no service, no telemetry,
 > no account.
 
+*Aduzi* is Portuguese for "I brought": from the Latin *adducere*, to lead something toward you.
+That is what an SSH client does with a remote machine.
+
 Formerly quickshell. The executable is `aduzi.exe` and the archive `aduzi-<version>-win-x64.zip`;
 an install under the old name upgrades in place, with its settings and saved sessions.
 

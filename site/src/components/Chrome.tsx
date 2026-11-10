@@ -62,7 +62,7 @@ export function Footer() {
       }
       disclaimer={
         <>
-          {footer.disclaimer} <ConsentSettings />
+          {footer.name} {footer.disclaimer} <ConsentSettings />
         </>
       }
     >

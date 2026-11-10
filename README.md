@@ -185,6 +185,11 @@ For Windows developers:
 
 All of them: [alegauss.github.io](https://alegauss.github.io/)
 
+## About the name
+
+*Aduzi* is Portuguese for "I brought": from the Latin *adducere*, to lead something toward you.
+That is what an SSH client does with a remote machine.
+
 ## Licence
 
 MIT: see [LICENSE](LICENSE). The libraries the release carries beside it, each under MIT or ISC, are
