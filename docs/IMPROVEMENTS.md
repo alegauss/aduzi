@@ -382,23 +382,6 @@ or hides the bar immediately.
 Falsified when the guest's interactive median with the fix is not back near fe69a45's,
 or when the gate on the reference desk still fails on start.
 
-### §QS377 A release archive built by GitHub Actions from a tag
-
-The free route to a certificate a clean Windows trusts is the SignPath Foundation, which
-signs open-source projects at no cost. Its condition is that the binary it signs is the
-one built from the checked-in source: the signing request comes from a CI run, and
-SignPath checks the artifact's origin against the repository, the commit and the
-workflow that made it. An archive zipped on this desk and uploaded cannot meet that,
-however reproducible it is.
-
-So a workflow triggered by a version tag runs tools\release.ps1 -Unsigned -Ungated on a
-GitHub runner and uploads the archive as a workflow artifact. The performance gate stays
-where it is meaningful, on this desk against its baseline (QS79): the gate is run on the
-same commit before the tag is pushed, and the tag is the statement that it passed.
-
-Done when a pushed tag produces quickshell-<version>-unsigned.zip as an artifact of that
-run, its SHA256SUMS.txt beside it.
-
 ### §QS379 A published code signing policy
 
 SignPath Foundation requires the project's home page to carry a code signing policy
@@ -477,25 +460,6 @@ stays for a certificate on this desk, should the fallback of QS381 be taken.
 
 Done when a pushed tag ends in a GitHub release whose quickshell.exe and assemblies
 verify Valid and timestamped under Get-AuthenticodeSignature on the guest.
-
-### §QS386 QS386 — The first release
-
-From the portfolio review of 30/10/2026 (visibility, `produtos/quickshell.md` and
-`estrategia/portfolio.md`). There is no release and no tag: the README says "No release
-has been published yet", and the only download is a CI artefact that expires in five
-days. Every channel in the plan (alternativeto, r/sysadmin, winget, Show HN) waits for
-this, because a link today sends a reader to something they must build. QS371 already
-makes a release archive reach GitHub; it has never been run for real.
-
-The first release waits for the new name (it is the first thing anyone downloads, and a
-rename after it splits the history), and then ships unsigned, as 0.1.0, with the
-README's SmartScreen note, `SHA256SUMS` and notes that say what works and what does not
-yet (local shells beyond `cmd.exe`, agent forwarding, X11, the MobaXterm key import
-defect QS276). It is also the release the Store submission (QS380) and any certificate
-application need to exist.
-
-Done when GitHub's latest release carries the archive under the new name, and the README
-and the site link to it instead of to building from source.
 
 ## Block I — An error a user can act on
 

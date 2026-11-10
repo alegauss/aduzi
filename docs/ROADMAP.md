@@ -19,11 +19,9 @@
 ## Block H — The reason to leave the incumbent
 
 - ⏳ **QS77** (deps: an update signing key, QS380) **There is no way to install this client, so it can only be run from a build directory** — Signing with a real certificate and an update check verified against a pinned key are still owed, and the machine-wide install has not run elevated. → §QS77
-- ⏳ **QS377** (deps: QS386) **The release archive is built only on this desk, so no signing service can prove it came from the source** — No tag has been pushed yet, so GitHub has not shown that release.yml produces the archive. → §QS377
-- 📋 **QS380** (deps: QS386, visibility VS58) **Every release still ships unsigned, so SmartScreen warns on the first download and managed machines refuse it** — The Store signs the MSIX itself, and claude-tray tests that path first (VS58); SignPath and Certum become the fallback. → §QS380
+- 📋 **QS380** (deps: QS386 ✅, visibility VS58) **Every release still ships unsigned, so SmartScreen warns on the first download and managed machines refuse it** — The Store signs the MSIX itself, and claude-tray tests that path first (VS58); SignPath and Certum become the fallback. → §QS380
 - 💭 **QS381** (deps: QS380) **If SignPath Foundation declines the project, there is no affordable certificate lined up** — Certum's Open Source Code Signing certificate is issued to individuals anywhere for tens of euros a year, and release.ps1 -Certificate can use it. → §QS381
 - 📋 **QS382** (deps: QS380) **Once a certificate exists, nothing sends the tagged build to SignPath and publishes what comes back** — With SignPath the key never reaches this desk, so the tag workflow submits its archive, waits for the maintainer's approval and publishes the signed result. → §QS382
-- 🛠 **QS386** (deps: QS384 ✅) **There is nothing to download: no release or tag, only a CI artefact that expires in five days** — Every channel waits for a first release, and the Store and any certificate application need one to exist. → §QS386
 
 ## Block I — An error a user can act on
 
@@ -309,12 +307,6 @@
 - **The gate holds start on the reference desk** release.cmd, or run-perf-gate.cmd, run
   on xps at the commit with the fix judges start as held beside 40fb448, and the row it
   appends to benchmarks/results/gate-xps.md says so.
-
-## Done when — QS377
-
-- **A pushed tag's run keeps the unsigned archive and its checksum** Settled by the
-  first v<version> tag pushed (QS386): its Release archive run on GitHub is green and
-  lists quickshell-<version>-win-x64-unsigned.zip and SHA256SUMS.txt as an artifact.
 
 ## Non-goals
 
