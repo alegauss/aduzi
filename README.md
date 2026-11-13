@@ -11,7 +11,7 @@ Windows 10 and 11 · no account, no telemetry, no update check · pre-release 0.
 Formerly quickshell. An install under the old name upgrades in place, settings and sessions
 included ([Upgrading from quickshell](docs/INSTALL.md#upgrading-from-quickshell)).
 
-**[alegauss.github.io/aduzi](https://alegauss.github.io/aduzi/)** ·
+**[alegauss.com/aduzi](https://alegauss.com/aduzi/)** ·
 [Install](docs/INSTALL.md) ·
 [Switching from MobaXterm](docs/SWITCHING.md) ·
 [Sessions](docs/SESSIONS.md) ·
@@ -172,17 +172,17 @@ asked for, fails a build that regresses one. The roadmap, changelog and decision
 
 For Claude Code:
 
-- **[Claude Code Tray](https://alegauss.github.io/claude-tray/)**: your rate-limit usage as a Windows tray icon that turns red before you run out.
-- **[roadkeep](https://alegauss.github.io/roadkeep/)**: keeps ROADMAP, CHANGELOG and IMPROVEMENTS to one format, as a CLI and a Claude Code plugin.
-- **[commitclerk](https://alegauss.github.io/commitclerk/)**: Conventional Commits messages from your staged diff, in a single-file Python CLI.
-- **[polyweave](https://alegauss.github.io/polyweave/)**: a Claude Code plugin that makes a game's 3D assets, sounds and names by declaring what each has to satisfy.
+- **[Claude Code Tray](https://alegauss.com/claude-tray/)**: your rate-limit usage as a Windows tray icon that turns red before you run out.
+- **[roadkeep](https://alegauss.com/roadkeep/)**: keeps ROADMAP, CHANGELOG and IMPROVEMENTS to one format, as a CLI and a Claude Code plugin.
+- **[commitclerk](https://alegauss.com/commitclerk/)**: Conventional Commits messages from your staged diff, in a single-file Python CLI.
+- **[polyweave](https://alegauss.com/polyweave/)**: a Claude Code plugin that makes a game's 3D assets, sounds and names by declaring what each has to satisfy.
 
 For Windows developers:
 
-- **[winwright](https://alegauss.github.io/winwright/)**: drives a Windows desktop app from a test and reports what was actually observed.
-- **[FreeHarbor](https://alegauss.github.io/freeharbor/)**: Docker on Windows without Docker Desktop, with no admin prompt and no telemetry.
+- **[winwright](https://alegauss.com/winwright/)**: drives a Windows desktop app from a test and reports what was actually observed.
+- **[FreeHarbor](https://alegauss.com/freeharbor/)**: Docker on Windows without Docker Desktop, with no admin prompt and no telemetry.
 
-All of them: [alegauss.github.io](https://alegauss.github.io/)
+All of them: [alegauss.com](https://alegauss.com/)
 
 ## About the name
 

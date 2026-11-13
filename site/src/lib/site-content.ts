@@ -46,12 +46,12 @@ export const meta = {
     title: "Aduzi",
     description:
       "The terminal grid on the GPU, one draw call a frame and none while you read. Sessions, keys, SFTP and forwards on Windows, with a stated list of what it will never grow.",
-    url: "https://alegauss.github.io/aduzi/",
+    url: "https://alegauss.com/aduzi/",
   },
 } as const;
 
 export const repoUrl = "https://github.com/alegauss/aduzi";
-export const parentUrl = "https://alegauss.github.io/";
+export const parentUrl = "https://alegauss.com/";
 
 // The releases page rather than a file: the installer carries its version in its name, so
 // there is no version-independent URL for the asset itself. Not `releases/latest` either: that
@@ -85,7 +85,7 @@ export const footer = {
 
 /* --------------------------------------------------------------- sponsor */
 
-// Mirrors alegauss.github.io/sponsor.json, the canonical sponsor declaration for these
+// Mirrors alegauss.com/sponsor.json, the canonical sponsor declaration for these
 // projects. Transcribed here rather than fetched at runtime: this site is prerendered, and
 // the whole point of naming a sponsor is that crawlers and LLMs read it in the served HTML.
 // Shaped as the design system's SponsorDeclaration, which SiteSponsor renders.
