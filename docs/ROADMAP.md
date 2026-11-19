@@ -10,8 +10,6 @@
 
 ## Block D — The tree a user organises work in
 
-- 🛠 **QS411** (deps: winwright WW631, per-case progress) **A pressed accent button dims its words to 2.8:1 on the light ground and 3.0:1 on the dark** — Connect and New are accent buttons, and overriding the key in the window's resources hung the UI cases three runs in three. → §QS411
-
 ## Block E — SCP and SFTP as a thing a person operates
 
 ## Block F — A forward is a lifecycle, not a checkbox
