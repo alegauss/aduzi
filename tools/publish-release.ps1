@@ -16,8 +16,10 @@
   that name already on GitHub. Bump <Version> in Directory.Build.props for a new one.
 
   Then release.ps1 runs with the same flags, HEAD is tagged v<version> and the tag pushed, and the
-  GitHub release is created with the setup and SHA256SUMS.txt. An unsigned setup is published
-  as a pre-release, so the listing says what the file name already says.
+  GitHub release is created with the setup and SHA256SUMS.txt, and marked the latest one (QS396).
+  An unsigned build is a release like any other: its file name says it is unsigned. Marking every
+  unsigned build a pre-release left GitHub with no latest release at all, so the repository page
+  offered only tags and releases/latest answered 404.
 
 .PARAMETER Certificate
   Passed to release.ps1: the thumbprint of the code-signing certificate.
@@ -26,7 +28,11 @@
   Passed to release.ps1: the RFC 3161 timestamp server.
 
 .PARAMETER Unsigned
-  Passed to release.ps1. The setup is named ...-setup-unsigned.exe and the release is a pre-release.
+  Passed to release.ps1. The setup is named ...-setup-unsigned.exe.
+
+.PARAMETER Prerelease
+  Publish it as a pre-release, which GitHub never offers as the latest: for a build meant for
+  testers and not for everybody.
 
 .PARAMETER Gated
   Passed to release.ps1: run the performance gate on the build before it is tagged.
@@ -55,6 +61,8 @@ param(
     [string] $Notes,
 
     [switch] $Draft,
+
+    [switch] $Prerelease,
 
     [switch] $DryRun
 )
@@ -94,7 +102,7 @@ function Test-Native {
 
 # release.ps1 makes this refusal too, but only after it has been asked; asked here it costs nothing.
 if (-not $Certificate -and -not $Unsigned) {
-    Refuse 'a release is signed, and no certificate was given' 'Pass -Certificate <thumbprint>, or -Unsigned for a pre-release whose name says it is not signed.'
+    Refuse 'a release is signed, and no certificate was given' 'Pass -Certificate <thumbprint>, or -Unsigned for a release whose name says it is not signed.'
 }
 if ($Certificate -and $Unsigned) {
     Refuse '-Certificate and -Unsigned were both given' 'A release is one or the other.'
@@ -184,7 +192,7 @@ Write-Host "  tagged     $tag, pushed to $remote"
 # The setup is the release (QS393); there is no zip beside it.
 $create = @('release', 'create', $tag, $setup, $sums, '--verify-tag', '--title', "Aduzi $version")
 if ($Notes) { $create += @('--notes-file', $Notes) } else { $create += '--generate-notes' }
-if ($Unsigned) { $create += '--prerelease' }
+if ($Prerelease) { $create += '--prerelease' } else { $create += '--latest' }
 if ($Draft) { $create += '--draft' }
 
 Push-Location $root

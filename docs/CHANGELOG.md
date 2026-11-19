@@ -299,6 +299,7 @@
 - ✅ **QS393** **A release offers only a zip, so a person expecting Setup.exe gets a folder and no guided install** — A release is one Setup.exe: a bilingual wizard that says what goes where, runs the build's own --install, offers to start Aduzi, and runs silently for deployments; the zip is gone.
 - ✅ **QS394** **release.cmd refuses on a desk whose SDK publishes runtime 10.0.15, because the notices list 10.0.14** — global.json pins SDK 10.0.404 and CI reads it, so desk and runner publish runtime 10.0.15, which the notices now list; release.cmd builds again.
 - ✅ **QS395** **Starting Aduzi opens an empty console beside its window, and closing that console closes Aduzi** — aduzi.exe is WinExe, so Aduzi opens with no console beside it; --audit attaches to its caller's console, and install-vm fails a start that brings a conhost.
+- ✅ **QS396** **Every release is a pre-release, so GitHub shows no latest release and the repository page offers only tags** — publish-release marks each release the latest, signed or not, with -Prerelease for builds meant for testers; the site's download button goes to releases/latest.
 
 ## Block I — An error a user can act on
 
