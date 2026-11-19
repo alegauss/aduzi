@@ -251,7 +251,8 @@ public sealed class SessionsSidebar : Border
             }
             else
             {
-                opening.Handled = true;
+                // Below the rows, or in an empty store: what is made at the top level (QS398).
+                _list.ContextMenu = TopMenu();
             }
         };
 
@@ -489,7 +490,8 @@ public sealed class SessionsSidebar : Border
                 e.Handled = true;
                 break;
 
-            case Key.Delete when !row.IsFolder:
+            // A folder too, with everything in it, after the question says how much that is (QS399).
+            case Key.Delete:
                 _window.DeleteSessionOrSay(row.Path);
                 e.Handled = true;
                 break;
@@ -681,7 +683,7 @@ public sealed class SessionsSidebar : Border
 
     /// <summary>
     /// What a right-click offers. A session connects, is edited, duplicated, moved to another folder or
-    /// deleted; a folder takes a new session.
+    /// deleted; a folder takes a new session or a new folder, and is deleted with what it holds.
     /// </summary>
     public ContextMenu Menu(SessionRow row)
     {
@@ -692,7 +694,10 @@ public sealed class SessionsSidebar : Border
         if (row.IsFolder)
         {
             menu.Items.Add(Entry("New session here", () => _window.NewSessionOrSay(row.Path)));
+            menu.Items.Add(Entry("New folder here…", () => _window.NewFolderOrSay(row.Path)));
             menu.Items.Add(Entry("Document as PDF…", () => _window.DocumentSessionsAt(row.Path)));
+            menu.Items.Add(new Separator());
+            menu.Items.Add(Entry("Delete folder…", () => _window.DeleteSessionOrSay(row.Path)));
 
             return menu;
         }
@@ -747,6 +752,17 @@ public sealed class SessionsSidebar : Border
 
         menu.Items.Add(new Separator());
         menu.Items.Add(Entry("Delete…", () => _window.DeleteSessionOrSay(row.Path)));
+
+        return menu;
+    }
+
+    /// <summary>The menu off every row: what is made at the top level of the store (QS398).</summary>
+    public ContextMenu TopMenu()
+    {
+        ContextMenu menu = new();
+
+        menu.Items.Add(Entry("New session", () => _window.NewSessionOrSay()));
+        menu.Items.Add(Entry("New folder…", () => _window.NewFolderOrSay()));
 
         return menu;
     }

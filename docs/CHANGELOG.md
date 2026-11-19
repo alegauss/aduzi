@@ -161,6 +161,10 @@
 - ✅ **QS315** **How a set of sessions is configured, with jump hosts, keys and forwards, can be documented only by copying it by hand** — Document as PDF, in the sidebar's menu and the palette, writes the chosen sessions with every value's origin, jump hops, forwards and key fingerprints, and no secret.
 - ✅ **QS365** **The palette's Document sessions as PDF writes only the connected session instead of every saved one** — Document all sessions as PDF, in the palette, writes every saved session whatever the sidebar selected; the sidebar's own menus still document the session, folder or rows chosen there.
   checked **The palette's document holds every saved session with a row selected** Settled by SessionDocumentTests selecting one row and reading all four sessions of the fixture store back out of the PDF.
+- ✅ **QS398** **The sessions sidebar has no way to create a folder** — A folder's menu has New folder here…, and a right-click below the rows makes a session or a folder at the top level; a slash or a name already there is refused and said.
+- ✅ **QS399** **A folder in the sessions sidebar cannot be deleted, such as one a MobaXterm import made** — Delete folder… and the Delete key remove a folder with everything in it, after a question that says how many sessions go; its recents go with it.
+- ✅ **QS400** **The sidebar marks a session Connected while its tab holds a connection that failed or ended** — A row says Connected only while a tab holding the session has a live link; a refused, unreachable or ended one keeps the tab for Go to tab but not the mark.
+- ✅ **QS401** **Closing the tab of a session whose connection failed stops the client with a KeyNotFoundException** — A tab is taken out of the window before it is ended, so closing one whose connection already failed no longer reads its emptied panes and stops the client.
 
 ## Block E — SCP and SFTP as a thing a person operates
 

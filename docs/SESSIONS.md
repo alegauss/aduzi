@@ -11,11 +11,16 @@ written as this page spells them. **New session**, **Open session** and **Open s
 the palette ([KEYS.md](KEYS.md)) are ways into it; editing it by hand is equally first-class.
 
 **The sessions sidebar** down the left of the window lists the store as its tree: a folder with what
-it hands down beside it, a session with its address, and **Connected** on each one a tab holds.
+it hands down beside it, a session with its address, and **Connected** on each one a tab holds a live
+connection to. A tab whose connection was refused, could not reach the host or ended keeps the
+session, so **Go to tab** still finds it, but the row is not marked.
 Folders start folded, so the tree opens on its top level. Double-click or Enter connects; one
 click, Enter or the arrows open or fold a folder; the search box finds a session by name,
-host or tag, as **Open session** does. Right-click a session to edit, duplicate, move or delete it,
-and a folder to make a session in it. Ctrl+click adds or removes a row, Shift+click takes the rows
+host or tag, as **Open session** does. Right-click a session to edit, duplicate, move or delete it.
+Right-click a folder to make a session or another folder in it, or to delete it: **Delete folder…**
+says how many sessions are in it and asks before it removes the folder and everything inside.
+Right-click below the rows to make a session or a folder at the top level. Delete does the same as
+the menu's delete, for a session or a folder. Ctrl+click adds or removes a row, Shift+click takes the rows
 between, and Ctrl+A takes every row listed; a chosen folder stands for every session under it, at
 any depth, for anything that acts on a set of sessions, such as **Document as PDF…** in the menu
 ([below](#documenting-sessions)). A plain click goes back to one row. The fold at its top narrows it to a rail

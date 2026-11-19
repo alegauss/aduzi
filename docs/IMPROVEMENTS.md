@@ -202,6 +202,28 @@ the per-frame cost is the wake and the present, which is a different line.
 
 ## Block D — The tree a user organises work in
 
+### §QS402 Noto Sans Mono, shipped with the client
+
+Asked by the owner on 2026-11-19, after reading MobaXterm's terminal font dialog:
+MobaFont, size 10. The name table of the face embedded in MobaXterm.exe says it is based
+on Bitstream Vera Sans Mono, edited in FontForge in 2012.
+
+Vera and DejaVu, its continuation, were ruled out by their licence. Bitstream-Vera is
+free but not OSI-approved, and QS378 keeps every shipped component under an OSI licence
+for the SignPath grant; a derivative, however reworked, keeps that licence. Noto Sans
+Mono is the nearest OSI-licensed face: the same humanist shapes, a large x-height and a
+0.6 em advance, under OFL-1.1, with the coverage a terminal needs. The owner chose it as
+it is, unmodified; a renamed AduziFont fork is for later, only if something about it
+grates.
+
+The renderer refuses a family that is not installed, on purpose, so the face has to be
+there on every machine. The design: the hinted Regular and Bold ship embedded in
+Quickshell.Render, as the shader is. The rasteriser's collection is the system's font
+set with those two added from memory through IDWriteFactory5, so the bundled family is
+found by name as an installed one is. fontFamily defaults to Noto Sans Mono; a value
+already written in a settings file is left alone. The licence goes in
+THIRD-PARTY-NOTICES.md, and OFL-1.1 joins the check's list.
+
 ## Block E — SCP and SFTP as a thing a person operates
 
 ## Block F — A forward is a lifecycle, not a checkbox

@@ -10,6 +10,8 @@
 
 ## Block D — The tree a user organises work in
 
+- 🛠 **QS402** (deps: —) **The terminal's default face is Cascadia Mono, not the Vera-based face MobaXterm users read all day** — MobaFont is Vera, whose licence is not OSI's; Noto Sans Mono (OFL-1.1) is the nearest OSI-licensed face, and Windows lacks it. → §QS402
+
 ## Block E — SCP and SFTP as a thing a person operates
 
 ## Block F — A forward is a lifecycle, not a checkbox

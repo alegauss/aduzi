@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Text;
 using System.Windows;
+using System.Windows.Automation;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Interop;
@@ -2956,8 +2957,10 @@ public sealed partial class MainWindow : Window
         TerminalTab? staying = index != _active && _active >= 0 && _active < _open.Count ? _open[_active] : null;
         bool home = _homeShowing;
 
-        Ends?.Invoke(going);
+        // Out of the window before it is ended (QS401): a tab whose connection already failed ends at
+        // once, its panes gone before Remove could take them off the screen, and that threw.
         Remove(index);
+        Ends?.Invoke(going);
 
         // The last tab going closes the window, because a window with no terminal in it is not
         // something this client has a name for — unless Home is open, which is that name (QS272).
@@ -3026,8 +3029,8 @@ public sealed partial class MainWindow : Window
 
         foreach (TerminalTab tab in going)
         {
-            Ends?.Invoke(tab);
             Remove(_open.IndexOf(tab));
+            Ends?.Invoke(tab);
         }
 
         if (_open.Count == 0)
@@ -3280,7 +3283,9 @@ public sealed partial class MainWindow : Window
         _terminalInset.Background is System.Windows.Media.SolidColorBrush brush ? brush.Color : System.Windows.Media.Colors.Transparent;
 
     /// <summary>Whether a tab in this window holds a saved session.</summary>
-    private bool Holds(string path) => TabsHolding(path) > 0;
+    /// <summary>Whether a tab holds a live connection to the saved session (QS400), which "Connected now" says.</summary>
+    private bool Holds(string path) =>
+        _open.Any(tab => string.Equals(tab.Saved, path, StringComparison.OrdinalIgnoreCase) && IsConnected(tab));
 
     /// <summary>
     /// The sessions the sidebar's selection stands for (QS314): each selected session, and every
@@ -4098,7 +4103,12 @@ public sealed partial class MainWindow : Window
             return;
         }
 
-        HashSet<string> open = new(_open.Select(tab => tab.Saved).OfType<string>(), StringComparer.OrdinalIgnoreCase);
+        // Connected where a tab's link is up, not merely where a tab holds the session (QS400).
+        HashSet<string> open = LiveSaved();
+
+        _liveSaved.Clear();
+        _liveSaved.UnionWith(open);
+
         string typed = _sessionsQuery.Trim();
 
         string empty = _storeRefused
@@ -4319,8 +4329,8 @@ public sealed partial class MainWindow : Window
     public Func<string, bool>? AsksToDelete { get; set; }
 
     /// <summary>
-    /// Deletes a saved session from the store, after asking: nothing in the client brings one back,
-    /// and a store is years of somebody's work.
+    /// Deletes a saved session from the store, or a folder with everything in it (QS399), after
+    /// asking: nothing in the client brings one back, and a store is years of somebody's work.
     /// </summary>
     /// <returns>Whether it was deleted.</returns>
     /// <exception cref="SessionStoreException">The store is there and cannot be read.</exception>
@@ -4339,18 +4349,141 @@ public sealed partial class MainWindow : Window
         }
 
         store.Without(path).WriteTo(StoreFile);
+
+        // Every recent under a folder goes with it, and the folder and those in it are no longer open.
         Recents().Dropped(path);
+        _opened.RemoveWhere(open => string.Equals(open, path, StringComparison.OrdinalIgnoreCase)
+                                    || open.StartsWith(path + "/", StringComparison.OrdinalIgnoreCase));
         RefreshSessions();
 
         return true;
     }
 
-    private bool AskedToDelete(string path) =>
-        Choice.Ask(this, "Delete session",
-                   $"Delete {path} from your saved sessions?\n\nThe file keeps no copy, and nothing in "
-                   + "Aduzi brings it back. An open tab stays connected.",
-                   new ChoiceButton("Delete it", "delete"),
-                   new ChoiceButton("Keep it", "keep")) == "delete";
+    private bool AskedToDelete(string path)
+    {
+        if (_store?.Find(path) is { IsSession: false } folder)
+        {
+            // How much goes with it is the question, so it is said (QS399).
+            int sessions = _store.Group(path).Count;
+            string holds = sessions switch
+            {
+                0 => "It holds no sessions.",
+                1 => "The one session in it goes with it.",
+                _ => $"The {sessions} sessions in it, and every folder inside it, go with it.",
+            };
+
+            return Choice.Ask(this, "Delete folder",
+                              $"Delete the folder {path} from your saved sessions?\n\n{holds} The file keeps no "
+                              + "copy, and nothing in Aduzi brings it back. An open tab stays connected.",
+                              new ChoiceButton("Delete it", "delete"),
+                              new ChoiceButton("Keep it", "keep")) == "delete";
+        }
+
+        return Choice.Ask(this, "Delete session",
+                          $"Delete {path} from your saved sessions?\n\nThe file keeps no copy, and nothing in "
+                          + "Aduzi brings it back. An open tab stays connected.",
+                          new ChoiceButton("Delete it", "delete"),
+                          new ChoiceButton("Keep it", "keep")) == "delete";
+    }
+
+    /// <summary>
+    /// Asks what to call a new folder, given the folder it goes in, and answers null where the person
+    /// declined. A dialog unless a caller says otherwise — which is how a test answers it.
+    /// </summary>
+    public Func<string, string?>? AsksFolderName { get; set; }
+
+    /// <summary>
+    /// Makes an empty folder in the store, inside <paramref name="parent"/> or at the top level for the
+    /// empty path, and selects it (QS398). Refused, and said, where the name holds a slash or the
+    /// folder already holds something by that name.
+    /// </summary>
+    /// <returns>Where the folder is, or null where none was made.</returns>
+    /// <exception cref="SessionStoreException">The store is there and cannot be read, or the parent is not a folder in it.</exception>
+    public string? NewFolder(string parent = "")
+    {
+        parent = parent.Trim('/');
+
+        if ((AsksFolderName ?? AskedFolderName)(parent)?.Trim() is not { Length: > 0 } named)
+        {
+            return null;
+        }
+
+        if (named.Contains('/', StringComparison.Ordinal))
+        {
+            Sessionally($"A folder's name cannot hold a /, which is what separates folders in a path, so {named} was not made.");
+
+            return null;
+        }
+
+        SessionTree store = SessionTree.ReadFrom(StoreFile);
+
+        if (parent.Length > 0 && store.Find(parent) is not { IsSession: false })
+        {
+            throw Missing(parent);
+        }
+
+        string at = parent.Length == 0 ? named : $"{parent}/{named}";
+
+        if (store.Find(at) is not null)
+        {
+            Sessionally($"{(parent.Length == 0 ? "The top level" : parent)} already holds something called {named}, "
+                        + "so no folder was made.");
+
+            return null;
+        }
+
+        store.With(at, new SessionNode { Name = named }).WriteTo(StoreFile);
+        RefreshSessions();
+        Reveal(at);
+
+        return at;
+    }
+
+    /// <summary><see cref="NewFolder"/>, with a store that will not read said rather than thrown.</summary>
+    public void NewFolderOrSay(string parent = "") => Sessionally(() => NewFolder(parent));
+
+    private string? AskedFolderName(string parent)
+    {
+        Window dialog = new()
+        {
+            Title = "New folder",
+            Owner = this,
+            SizeToContent = SizeToContent.WidthAndHeight,
+            ResizeMode = ResizeMode.NoResize,
+            WindowStartupLocation = WindowStartupLocation.CenterOwner,
+            ShowInTaskbar = false,
+            ThemeMode = ThemeMode,
+        };
+
+        AutomationProperties.SetAutomationId(dialog, "NewFolder");
+
+        StackPanel body = new() { Margin = new Thickness(18) };
+        TextBox name = new() { MinWidth = 320, Name = "FolderName" };
+
+        AutomationProperties.SetName(name, "Folder name");
+
+        body.Children.Add(new TextBlock
+        {
+            Text = parent.Length == 0 ? "Name of the new folder:" : $"Name of the new folder in {parent}:",
+            Margin = new Thickness(0, 0, 0, 8),
+        });
+        body.Children.Add(name);
+
+        StackPanel row = new() { Orientation = Orientation.Horizontal, HorizontalAlignment = HorizontalAlignment.Right, Margin = new Thickness(0, 16, 0, 0) };
+        Button make = new() { Content = "Create", IsDefault = true, Padding = new Thickness(14, 4, 14, 4) };
+        Button cancel = new() { Content = "Cancel", IsCancel = true, Padding = new Thickness(14, 4, 14, 4), Margin = new Thickness(8, 0, 0, 0) };
+
+        make.Click += (_, _) => dialog.DialogResult = true;
+
+        row.Children.Add(make);
+        row.Children.Add(cancel);
+        body.Children.Add(row);
+
+        dialog.Content = body;
+        dialog.Loaded += (_, _) => name.Focus();
+
+        return dialog.ShowDialog() == true ? name.Text : null;
+    }
 
     /// <summary><see cref="NewSession"/>, with a store that will not read said rather than thrown.</summary>
     public void NewSessionOrSay(string folder = "") => Sessionally(() => NewSession(folder));

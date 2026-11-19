@@ -245,7 +245,7 @@ public sealed class SessionsSidebarTests : IDisposable
         Assert.Null(newPaneWears);
     }
 
-    /// <summary>A tab opened from a saved session marks its row Connected, and closing it takes the mark away.</summary>
+    /// <summary>A tab connected to a saved session marks its row Connected, and closing it takes the mark away.</summary>
     [Fact]
     public void ATabOpenFromASessionMarksItsRowAndClosingItClearsTheMark()
     {
@@ -253,7 +253,7 @@ public sealed class SessionsSidebarTests : IDisposable
 
         (string[] whileOpen, string[] afterClose) = Sta.Run(() =>
         {
-            MainWindow window = new() { SessionsFile = file };
+            MainWindow window = new() { SessionsFile = file, Linked = _ => true };
 
             window.RefreshSessions();
             window.ToggleFolder("Work");
@@ -272,6 +272,185 @@ public sealed class SessionsSidebarTests : IDisposable
 
         Assert.Equal(["Work/db-primary"], whileOpen);
         Assert.Empty(afterClose);
+    }
+
+    /// <summary>
+    /// QS400: a tab that holds a saved session whose connection never came up (refused, unreachable,
+    /// dropped) leaves the row unmarked, and the mark arrives on the next look at the tabs once the link
+    /// is up and goes again when it falls.
+    /// </summary>
+    [Fact]
+    public void ATabWhoseConnectionIsNotUpDoesNotMarkItsRow()
+    {
+        string file = Stored();
+
+        (string[] failed, string[] up, string[] down) = Sta.Run(() =>
+        {
+            bool linked = false;
+            MainWindow window = new() { SessionsFile = file, Linked = _ => linked };
+
+            window.RefreshSessions();
+            window.ToggleFolder("Work");
+
+            TerminalTab tab = TerminalTab.Open(Settings.Default, Shared, "db1.example.com");
+
+            tab.Saved = "Work/db-primary";
+            window.Add(tab);
+
+            string[] Marked() => [.. window.Sidebar.Rows.Where(row => row.Connected).Select(row => row.Path)];
+
+            string[] before = Marked();
+
+            linked = true;
+            window.Retitle();
+
+            string[] after = Marked();
+
+            linked = false;
+            window.Retitle();
+
+            return (before, after, Marked());
+        });
+
+        Assert.Empty(failed);
+        Assert.Equal(["Work/db-primary"], up);
+        Assert.Empty(down);
+    }
+
+    /// <summary>
+    /// QS400: with no stand-in, a tab whose pane holds no live connection — what a refused or
+    /// unreachable host leaves — is not Connected, though it still holds the session for Go to tab.
+    /// </summary>
+    [Fact]
+    public void ATabWithNoLiveLinkIsNotConnectedButStillHoldsTheSession()
+    {
+        string file = Stored();
+
+        (string[] marked, int holding) = Sta.Run(() =>
+        {
+            MainWindow window = new() { SessionsFile = file };
+
+            window.RefreshSessions();
+            window.ToggleFolder("Work");
+
+            TerminalTab tab = TerminalTab.Open(Settings.Default, Shared, "db1.example.com");
+
+            tab.Saved = "Work/db-primary";
+            window.Add(tab);
+            window.Retitle();
+
+            return (window.Sidebar.Rows.Where(row => row.Connected).Select(row => row.Path).ToArray(),
+                    window.TabsHolding("Work/db-primary"));
+        });
+
+        Assert.Empty(marked);
+        Assert.Equal(1, holding);
+    }
+
+    /// <summary>
+    /// QS401: closing a tab whose session already ended, with the program's own ending — which empties
+    /// such a tab at once — takes the tab out and throws nothing. It used to end it first and then
+    /// read its panes, which were gone, and the client stopped.
+    /// </summary>
+    [Fact]
+    public void ClosingATabThatEndsAtOnceDoesNotThrow()
+    {
+        (bool closed, int left) = Sta.Run(() =>
+        {
+            MainWindow window = new()
+            {
+                Ends = tab => tab.DisposeAsync().AsTask().GetAwaiter().GetResult(),
+            };
+
+            window.Add(TerminalTab.Open(Settings.Default, Shared, "local"));
+            window.Add(TerminalTab.Open(Settings.Default, Shared, "unreachable.example.invalid"));
+
+            return (window.CloseTab(1), window.Held.Count);
+        });
+
+        Assert.True(closed);
+        Assert.Equal(1, left);
+    }
+
+    /// <summary>
+    /// QS398: New folder makes an empty folder at the top level or inside another, opened to and
+    /// selected, and refuses a name with a slash or one the folder already holds.
+    /// </summary>
+    [Fact]
+    public void NewFolderMakesAnEmptyFolderAndRefusesANameThatIsThere()
+    {
+        string file = Stored();
+
+        (string? top, string? inside, string? taken, string? slashed, string? selected, List<string> said, string[] topMenu) = Sta.Run(() =>
+        {
+            List<string> told = [];
+            Queue<string?> names = new(["Clients", "Acme", "Work", "a/b"]);
+            MainWindow window = new() { SessionsFile = file, Tells = told.Add, AsksFolderName = _ => names.Dequeue() };
+
+            window.RefreshSessions();
+
+            string? made = window.NewFolder();
+            string? nested = window.NewFolder("Clients");
+            string? shown = window.Sidebar.Selected?.Path;
+
+            string[] offered = [.. window.Sidebar.TopMenu().Items.OfType<MenuItem>().Select(entry => (string)entry.Header)];
+
+            return (made, nested, window.NewFolder(), window.NewFolder(), shown, told, offered);
+        });
+
+        SessionTree store = SessionTree.ReadFrom(file);
+
+        Assert.Equal("Clients", top);
+        Assert.Equal("Clients/Acme", inside);
+        Assert.Equal("Clients/Acme", selected);
+        Assert.NotNull(store.Find("Clients/Acme"));
+        Assert.False(store.Find("Clients/Acme")!.IsSession);
+        Assert.Null(taken);
+        Assert.Null(slashed);
+        Assert.Equal(2, said.Count);
+        Assert.Contains("already holds something called Work", said[0], StringComparison.Ordinal);
+        Assert.Contains("cannot hold a /", said[1], StringComparison.Ordinal);
+        Assert.Equal(["New session", "New folder…"], topMenu);
+
+        // An empty folder survives being written and read, and the sidebar lists it.
+        Assert.Contains(SessionsView.Rows(store, string.Empty, NoneOpened, _ => false), row => row is { Path: "Clients", IsFolder: true });
+    }
+
+    /// <summary>
+    /// QS399: a folder's menu offers Delete folder…, and deleting it asks first, then takes it out with
+    /// every session in it and its recents, leaving the rest of the store as it was.
+    /// </summary>
+    [Fact]
+    public void DeletingAFolderAsksFirstAndTakesItOutWithEverythingInIt()
+    {
+        string file = Stored();
+
+        (string[] menu, bool kept, bool deleted) = Sta.Run(() =>
+        {
+            bool answer = false;
+            MainWindow window = new() { SessionsFile = file, AsksToDelete = _ => answer };
+
+            window.RefreshSessions();
+            window.SessionWentLive("Work/db-primary");
+
+            SessionRow folder = window.Sidebar.Rows.Single(row => row.Path == "Work");
+            string[] headers = [.. window.Sidebar.Menu(folder).Items.OfType<MenuItem>().Select(entry => (string)entry.Header)];
+
+            bool first = window.DeleteSession("Work");
+
+            answer = true;
+
+            return (headers, first, window.DeleteSession("Work"));
+        });
+
+        SessionTree store = SessionTree.ReadFrom(file);
+
+        Assert.Equal(["New session here", "New folder here…", "Document as PDF…", "Delete folder…"], menu);
+        Assert.False(kept);
+        Assert.True(deleted);
+        Assert.Null(store.Find("Work"));
+        Assert.Equal(["Home lab/nas", "pi"], store.Sessions().Select(each => each.Path));
+        Assert.DoesNotContain("Work/db-primary", File.ReadAllText(Path.Combine(_directory, "recent.json")), StringComparison.Ordinal);
     }
 
     /// <summary>

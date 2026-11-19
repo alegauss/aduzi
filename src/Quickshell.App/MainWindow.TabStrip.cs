@@ -526,9 +526,35 @@ public sealed partial class MainWindow
             }
         }
 
+        // A link that came up or went down changes the sidebar's Connected marks (QS400), which are
+        // redrawn only then rather than twice a second.
+        if (!_liveSaved.SetEquals(LiveSaved()))
+        {
+            ShowSessions();
+        }
+
         Number();
         DressHome();
     }
+
+    /// <summary>The saved sessions marked Connected when the sidebar was last drawn (QS400).</summary>
+    private readonly HashSet<string> _liveSaved = new(StringComparer.OrdinalIgnoreCase);
+
+    /// <summary>
+    /// The saved sessions a tab holds a live connection to (QS400): a tab whose connection failed, was
+    /// refused or ended holds the session without being connected to it.
+    /// </summary>
+    private HashSet<string> LiveSaved() =>
+        new(_open.Where(IsConnected).Select(tab => tab.Saved).OfType<string>(), StringComparer.OrdinalIgnoreCase);
+
+    /// <summary>
+    /// Whether a tab has a connection up now: any of its panes, unless a caller says otherwise — which
+    /// is how a test stands a tab up as connected without a server (QS400).
+    /// </summary>
+    public Func<TerminalTab, bool>? Linked { get; set; }
+
+    private bool IsConnected(TerminalTab tab) =>
+        (Linked ?? (held => held.Leaves.Any(leaf => ConnectionView.Of(leaf)?.State == ConnectionState.Connected)))(tab);
 
     /// <summary>The accent underline: 3 high, rounded at 2, 10 in from each side and 1 over the divider.</summary>
     private static Border Underlined()
