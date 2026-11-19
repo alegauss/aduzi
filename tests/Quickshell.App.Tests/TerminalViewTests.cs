@@ -189,11 +189,18 @@ public sealed class TerminalViewTests
     /// <para>Both halves are the test. A loop that never woke would leave a window stale, and a loop
     /// that woke on its own would spend a battery on a screen nobody is changing — and only one of
     /// those two is visible from a screenshot.</para>
+    ///
+    /// <para><b>Opening is allowed a second frame only for a resize (QS407).</b> On a loaded desk a
+    /// late layout pass can resize the pane after its first frame, and a resize is a signal of its
+    /// own; it once failed a full run that way, and passed alone straight after. So opening is waited
+    /// out until the count stops moving, a frame beyond the first is accepted only where the grid
+    /// changed, and the signal is then held to exactly one frame and the silence to none. Every count
+    /// is in the message, so a failure says which of those it was.</para>
     /// </summary>
     [Fact]
     public void TheLoopDrawsWhatTheSignalSaysAndNothingElse()
     {
-        (long afterFirst, long afterPrint, long afterSilence) = OnPane(pane =>
+        (long opened, string gridAtFirst, string gridSettled, long afterPrint, long afterSilence) = OnPane(pane =>
         {
             // The share owns the loop since QS49, so this is the client's own arrangement rather
             // than one built for the test: one thread, one signal, and a view registered on it.
@@ -207,24 +214,51 @@ public sealed class TerminalViewTests
 
             share.Draw(view, emulator);
 
-            long first = Settled(view, atLeast: 1);
+            Settled(view, atLeast: 1);
+
+            string atFirst = $"{view.Columns}x{view.Rows}";
+            long settled = Quiet(view);
+            string afterOpening = $"{view.Columns}x{view.Rows}";
 
             // What a pipeline does: parse a batch, then say so once.
             emulator.Feed(Encoding.UTF8.GetBytes("the host said something"));
             share.Damage.Set();
 
-            long printed = Settled(view, atLeast: first + 1);
+            long printed = Settled(view, atLeast: settled + 1);
 
             // And now nothing at all, which the loop must sleep through. Half a second is longer
             // than any wake-up a clock-driven loop would take.
             Thread.Sleep(500);
 
-            return (first, printed, view.Draws);
+            return (settled, atFirst, afterOpening, printed, view.Draws);
         });
 
-        Assert.Equal(1, afterFirst);
-        Assert.Equal(2, afterPrint);
-        Assert.Equal(afterPrint, afterSilence);
+        string counts = $"opening drew {opened} (grid {gridAtFirst} then {gridSettled}), the signal took it to {afterPrint}, the silence to {afterSilence}";
+
+        Assert.True(opened == 1 || gridAtFirst != gridSettled, $"opening drew more than one frame with no resize: {counts}");
+        Assert.True(afterPrint == opened + 1, $"one signal did not draw exactly one frame: {counts}");
+        Assert.True(afterSilence == afterPrint, $"the loop drew with nothing to draw: {counts}");
+    }
+
+    /// <summary>The count once it has stopped moving for 300 ms, which is when opening has finished drawing (QS407).</summary>
+    private static long Quiet(TerminalView view)
+    {
+        Stopwatch waited = Stopwatch.StartNew();
+        long seen = view.Draws;
+        Stopwatch still = Stopwatch.StartNew();
+
+        while (still.ElapsedMilliseconds < 300 && waited.Elapsed < Patience)
+        {
+            Thread.Sleep(10);
+
+            if (view.Draws != seen)
+            {
+                seen = view.Draws;
+                still.Restart();
+            }
+        }
+
+        return seen;
     }
 
     /// <summary>

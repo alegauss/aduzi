@@ -10,7 +10,6 @@
 
 ## Block D — The tree a user organises work in
 
-- 📋 **QS407** (deps: —) **TheLoopDrawsWhatTheSignalSaysAndNothingElse failed once in a full guest run and passed alone straight after** — A test that goes red at random is one a real regression in the render loop can hide behind, and the actual count it saw was not kept. → §QS407
 - 📋 **QS410** (deps: —) **The contrast audit cannot read a hovered or pressed control, so those colours have never been measured** — WPF sets IsMouseOver only under a real pointer, and nothing in this desk both moves one and reads the colours it draws. → §QS410
 
 ## Block E — SCP and SFTP as a thing a person operates

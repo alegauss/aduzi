@@ -202,28 +202,6 @@ the per-frame cost is the wake and the present, which is a different line.
 
 ## Block D — The tree a user organises work in
 
-### §QS407 A render-loop test that fails at random
-
-Seen on 2026-11-19 while validating QS404, in a full guest run:
-TerminalViewTests.TheLoopDrawsWhatTheSignalSaysAndNothingElse failed with
-"Assert.Equal() Failure: Values differ, Expected: 2", the assertion that the loop drew
-exactly twice after one damage signal. The same class run alone straight after passed 10
-of 10, and the full run before it, with the same code under test, passed too. QS404
-touched only dialog text colours, nothing the render loop reads.
-
-The actual value was not kept: the summary prints only the expected one, and the
-filtered rerun replaced the guest's TRX. So whether the loop drew a third frame (a wake
-the signal did not ask for) or the test read the count before the second frame had
-landed is not known, and the two mean different things: the first is the defect the test
-exists to catch, the second is the test's own wait.
-
-To do: keep the TRX of a red full run under its own name before any rerun writes over
-it, so the actual value survives; then run the class in a loop inside a full suite's
-load until it fails, and read which. If Settled returns before the frame it waits for
-has been counted, the wait is what to fix; if a third frame appears, find what woke the
-loop. The QS402 face is built lazily on first use, which is a new first-frame cost worth
-ruling out.
-
 ### §QS410 Hovered and pressed, unmeasured
 
 Split from QS405 on 2026-11-19. The contrast audit reads every window and dialog the
