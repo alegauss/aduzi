@@ -202,27 +202,6 @@ the per-frame cost is the wake and the present, which is a different line.
 
 ## Block D — The tree a user organises work in
 
-### §QS410 Hovered and pressed, unmeasured
-
-Split from QS405 on 2026-11-19. The contrast audit reads every window and dialog the
-client draws, at rest, with a menu open, with boxes checked and with a field focused. A
-hovered row, a hovered button and a pressed one are not read, and cannot be from where
-the audit stands: WPF's IsMouseOver is read-only, set only by a pointer actually over
-the element, and Fluent's templates switch their colours on it in triggers no code can
-drive.
-
-Two ways in, neither available now. A pointer moved over the control on the guest's
-desk, which winwright can do, followed by a reading of the colours drawn; but winwright
-reads the accessibility tree, which carries no colour, so the reading would need a
-capture of the pixels under the control, which the evidence rule keeps for a person to
-look at rather than as proof. Or the hover colours read from the theme's own keys
-(ButtonBackgroundPointerOver and its kin) and measured against the ground, which says
-what Fluent would draw without showing that it does.
-
-Until one of those is chosen, the hovered state is the one this client has not measured.
-QS406 gave a button's edge the strong stroke at rest, hovered and pressed alike, so the
-edge is not what is at risk; the hovered fill behind a button's words is.
-
 ### §QS411 Pressed accent words, and the override that hung the cases
 
 Found by QS410 on 2026-11-19, reading Fluent's hovered and pressed keys against the

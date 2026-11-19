@@ -173,6 +173,7 @@
 - ✅ **QS406** **Buttons and combo boxes show an edge of 1.3:1 in the dark theme and 1.5:1 in the light, so they read as labels** — Buttons and combo boxes in the theme's own look take Fluent's strong stroke, 3.3:1 on the light ground and 5.8:1 on the dark, and the audit now holds them to 3:1.
 - ✅ **QS409** **Home's quick connect cuts its Address placeholder short, the field sharing one row with Sign in with and Connect** — The address has the card's full width on a row of its own, so its whole placeholder shows; Sign in with and Connect share the row below.
 - ✅ **QS407** **TheLoopDrawsWhatTheSignalSaysAndNothingElse failed once in a full guest run and passed alone straight after** — The test waits opening out, accepts a second opening frame only for a resize, and prints every count, so a failure now names its cause; it passed a full run.
+- ✅ **QS410** **The contrast audit cannot read a hovered or pressed control, so those colours have never been measured** — Hovered and pressed text is read from the theme's own keys for buttons, combo boxes, toggles and hovered accent, and passes in both themes; pressed accent is QS411.
 
 ## Block E — SCP and SFTP as a thing a person operates
 
