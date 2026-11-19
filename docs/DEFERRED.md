@@ -42,6 +42,8 @@
 
 ## Block J — Leaving MobaXterm, proven by the switch
 
+- ⏸ **QS397** (deps: —) **A MobaXterm import brings sessions but not their saved passwords, so each one is typed again on the new machine** — set aside (Store and format verified; decryption step is the blocker.): Reading them needs MobaXterm's own undocumented cipher reproduced, which this desk will not do. → §QS397
+
 ## Block K — The build and the harness — what a green run is evidence of
 
 ## Block L — An agent at the controls, held to a policy it cannot edit

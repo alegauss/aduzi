@@ -491,6 +491,31 @@ both sides' algorithm lists.
 
 ## Block J — Leaving MobaXterm, proven by the switch
 
+### §QS397 QS397 — the MobaXterm import carries saved passwords
+
+The MobaXterm import carries sessions, folders, jump hosts and tunnels; it leaves the
+saved passwords, which SWITCHING.md says plainly. A user who relied on MobaXterm
+remembering a password types it again on every session.
+
+The destination already exists: VaultImport matches a KeePass vault's passwords to
+sessions and writes them to the SecretStore, asking before it overwrites a different
+one. A MobaXterm source would reuse that match-and-save half.
+
+What was verified against a real installed MobaXterm (snapshot/diff of a throwaway
+credential, no real secret read): passwords live in the registry under
+HKCU\Software\Mobatek\MobaXterm, subkeys P (per session) and C (named credentials), as
+"user:base64"; WhenToPromptForMasterPassword=0, so no master password is in force and
+the key is bound to account and machine; the ciphertext is the password's own length, so
+a byte stream, and its keystream has feedback — byte i depends on position and the
+previous byte, not a fixed stream.
+
+The blocker: reading the passwords means reproducing MobaXterm's own undocumented
+cipher, which a safety classifier refused and which must not be reproduced here. So this
+is not buildable by this desk as a store reader. The honest paths are a source that
+gives plaintext — MobaXterm shows a session's password on request — into the existing
+KeePass import, or saving each password once on first connect, which Aduzi already
+offers.
+
 ## Block K — The build and the harness — what a green run is evidence of
 
 ## Block L — An agent at the controls, held to a policy it cannot edit
