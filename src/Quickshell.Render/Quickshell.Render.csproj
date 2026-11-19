@@ -14,6 +14,12 @@
   <ItemGroup>
     <!-- Compiled at startup from this source, so what is in the repository is what ran. -->
     <EmbeddedResource Include="Grid.hlsl" LogicalName="Quickshell.Render.Grid.hlsl" />
+
+    <!-- The default terminal face, carried because Windows does not have it (QS402). Noto Sans Mono
+         2.014, hinted, unmodified, under OFL-1.1: the licence is beside them and in
+         THIRD-PARTY-NOTICES.md. -->
+    <EmbeddedResource Include="Fonts\NotoSansMono-Regular.ttf" LogicalName="Quickshell.Render.Fonts.NotoSansMono-Regular.ttf" />
+    <EmbeddedResource Include="Fonts\NotoSansMono-Bold.ttf" LogicalName="Quickshell.Render.Fonts.NotoSansMono-Bold.ttf" />
   </ItemGroup>
 
   <ItemGroup>

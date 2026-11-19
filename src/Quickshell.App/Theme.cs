@@ -21,4 +21,23 @@ public static class Theme
         ChromeTheme.Dark => ThemeMode.Dark,
         _ => ThemeMode.System,
     };
+
+    /// <summary>
+    /// Gives a window the theme's own solid ground (QS403), which every window this client opens takes
+    /// in its constructor.
+    ///
+    /// <para><b>Not Mica.</b> A window with no background of its own is drawn over the backdrop WPF's
+    /// Fluent theme asks for, which is the wallpaper seen through a tint: a settings window on a warm
+    /// wallpaper came out brown, and its fields and boxes, whose fills are a few per cent of white or
+    /// black over whatever is behind them, nearly vanished. A contrast measured against a picture
+    /// somebody else chose is not one this client can promise, so the ground is the base fill Home
+    /// already used, light or dark with the theme, and every ratio in the contrast audit is against
+    /// it.</para>
+    /// </summary>
+    public static void Ground(Window window)
+    {
+        ArgumentNullException.ThrowIfNull(window);
+
+        window.SetResourceReference(Window.BackgroundProperty, "SolidBackgroundFillColorBaseBrush");
+    }
 }

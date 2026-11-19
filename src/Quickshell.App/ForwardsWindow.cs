@@ -42,6 +42,7 @@ public sealed class ForwardsWindow : Window
         _read = read;
 
         Title = "Forwards";
+        Theme.Ground(this);
         AutomationProperties.SetAutomationId(this, "Forwards");
 
         Width = 640;

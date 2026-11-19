@@ -44,6 +44,7 @@ public sealed class AgentSetupDialog : Window
         _from = from;
 
         Title = $"Set up an agent account on {host}";
+        Theme.Ground(this);
         AutomationProperties.SetAutomationId(this, "AgentSetup");
 
         SizeToContent = SizeToContent.WidthAndHeight;

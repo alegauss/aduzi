@@ -36,6 +36,7 @@ public sealed class Choice : Window
     private Choice(string title, string message, IReadOnlyList<ChoiceButton> buttons)
     {
         Title = title;
+        Theme.Ground(this);
 
         // Found by these, in every language, by a UI case reading the accessibility tree.
         AutomationProperties.SetAutomationId(this, "Choice");

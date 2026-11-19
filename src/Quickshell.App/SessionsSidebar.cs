@@ -172,7 +172,7 @@ public sealed class SessionsSidebar : Border
             VerticalAlignment = VerticalAlignment.Center,
         };
 
-        hint.SetResourceReference(TextBlock.ForegroundProperty, "TextFillColorTertiaryBrush");
+        hint.SetResourceReference(TextBlock.ForegroundProperty, "TextFillColorSecondaryBrush");
         _query.TextChanged += (_, _) => hint.Visibility = _query.Text.Length == 0 ? Visibility.Visible : Visibility.Collapsed;
 
         TextBlock magnifier = Glyph("\uE721", 14);
@@ -202,10 +202,12 @@ public sealed class SessionsSidebar : Border
             Child = field,
         };
 
+        // Fluent's strong stroke at rest, as its check box has (QS403): the default stroke was 1.1:1 on
+        // either ground, a box found only by its hint.
         _search.SetResourceReference(BackgroundProperty, "ControlFillColorDefaultBrush");
-        _search.SetResourceReference(BorderBrushProperty, "ControlStrokeColorDefaultBrush");
+        _search.SetResourceReference(BorderBrushProperty, "ControlStrongStrokeColorDefaultBrush");
         _query.IsKeyboardFocusWithinChanged += (_, _) => _search.SetResourceReference(
-            BorderBrushProperty, _query.IsKeyboardFocusWithin ? "AccentFillColorDefaultBrush" : "ControlStrokeColorDefaultBrush");
+            BorderBrushProperty, _query.IsKeyboardFocusWithin ? "AccentFillColorDefaultBrush" : "ControlStrongStrokeColorDefaultBrush");
 
         StackPanel head = new() { Margin = new Thickness(16, 16, 16, 10) };
 

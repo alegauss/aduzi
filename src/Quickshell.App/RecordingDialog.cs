@@ -32,6 +32,7 @@ public sealed class RecordingDialog : Window
         ArgumentException.ThrowIfNullOrWhiteSpace(folder);
 
         Title = "Record a session";
+        Theme.Ground(this);
         AutomationProperties.SetAutomationId(this, "Recording");
 
         SizeToContent = SizeToContent.WidthAndHeight;

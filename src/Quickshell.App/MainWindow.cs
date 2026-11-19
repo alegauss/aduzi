@@ -121,6 +121,7 @@ public sealed partial class MainWindow : Window
         Chrome = chrome ?? Chrome.Default;
 
         Title = "Aduzi";
+        Theme.Ground(this);
         Width = 960;
         Height = 600;
         MinWidth = 320;
@@ -2569,6 +2570,8 @@ public sealed partial class MainWindow : Window
             WindowStartupLocation = WindowStartupLocation.CenterOwner,
         };
 
+        Theme.Ground(asking);
+
         bool pasting = false;
 
         send.Click += (_, _) =>
@@ -2822,6 +2825,8 @@ public sealed partial class MainWindow : Window
             ShowInTaskbar = false,
             WindowStartupLocation = WindowStartupLocation.CenterOwner,
         };
+
+        Theme.Ground(asking);
 
         // Cancel is the default, so Enter and Escape both leave the sessions alone. Closing is the
         // irreversible half of this question and is never one keypress away from a person who was
@@ -4455,6 +4460,7 @@ public sealed partial class MainWindow : Window
             ThemeMode = ThemeMode,
         };
 
+        Theme.Ground(dialog);
         AutomationProperties.SetAutomationId(dialog, "NewFolder");
 
         StackPanel body = new() { Margin = new Thickness(18) };

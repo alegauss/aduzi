@@ -165,6 +165,8 @@
 - ✅ **QS399** **A folder in the sessions sidebar cannot be deleted, such as one a MobaXterm import made** — Delete folder… and the Delete key remove a folder with everything in it, after a question that says how many sessions go; its recents go with it.
 - ✅ **QS400** **The sidebar marks a session Connected while its tab holds a connection that failed or ended** — A row says Connected only while a tab holding the session has a live link; a refused, unreachable or ended one keeps the tab for Go to tab but not the mark.
 - ✅ **QS401** **Closing the tab of a session whose connection failed stops the client with a KeyNotFoundException** — A tab is taken out of the window before it is ended, so closing one whose connection already failed no longer reads its emptied panes and stops the client.
+- ✅ **QS402** **The terminal's default face is Cascadia Mono, not the Vera-based face MobaXterm users read all day** — Noto Sans Mono, the nearest OSI-licensed face to MobaFont, ships inside the client and is the default fontFamily, found by name with nothing installed.
+- ✅ **QS403** **In the dark theme the settings window's empty fields and unchecked boxes barely stand out from its background** — Every window takes the theme's solid ground instead of Mica, and an audit of fifteen windows in both themes finds no text under 4.5:1 and no field under 3:1.
 
 ## Block E — SCP and SFTP as a thing a person operates
 

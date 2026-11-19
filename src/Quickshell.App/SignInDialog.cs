@@ -30,6 +30,7 @@ public sealed class SignInDialog : Window
         _question = question;
 
         Title = "Sign in";
+        Theme.Ground(this);
         AutomationProperties.SetAutomationId(this, "SignIn");
 
         SizeToContent = SizeToContent.WidthAndHeight;

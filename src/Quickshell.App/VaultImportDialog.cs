@@ -23,6 +23,7 @@ public sealed class VaultImportDialog : Window
     public VaultImportDialog(string suggested)
     {
         Title = "Import saved passwords";
+        Theme.Ground(this);
         AutomationProperties.SetAutomationId(this, "ImportVault");
 
         SizeToContent = SizeToContent.WidthAndHeight;
@@ -170,6 +171,7 @@ public sealed class VaultImportPreview : Window
         ArgumentNullException.ThrowIfNull(plan);
 
         Title = "Import saved passwords";
+        Theme.Ground(this);
         AutomationProperties.SetAutomationId(this, "ImportPreview");
 
         SizeToContent = SizeToContent.WidthAndHeight;

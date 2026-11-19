@@ -46,6 +46,7 @@ public sealed class FileBrowser : Window
         ArgumentNullException.ThrowIfNull(local);
 
         Title = remote is null ? "Files — Aduzi" : $"Files on {remote.Title} — Aduzi";
+        Theme.Ground(this);
 
         // A window of its own beside the main one, so a case reading "the rightmost text" names this
         // window and not whichever of the two happens to reach further right (QS390).
@@ -519,17 +520,24 @@ public sealed class FileBrowser : Window
     }
 
     /// <summary>A small window over this one, sized to what it says.</summary>
-    private Window Shell(string title, StackPanel body) => new()
+    private Window Shell(string title, StackPanel body)
     {
-        Title = title,
-        Content = body,
-        Owner = this,
-        ThemeMode = ThemeMode,
-        SizeToContent = SizeToContent.WidthAndHeight,
-        ResizeMode = ResizeMode.NoResize,
-        ShowInTaskbar = false,
-        WindowStartupLocation = WindowStartupLocation.CenterOwner,
-    };
+        Window shell = new()
+        {
+            Title = title,
+            Content = body,
+            Owner = this,
+            ThemeMode = ThemeMode,
+            SizeToContent = SizeToContent.WidthAndHeight,
+            ResizeMode = ResizeMode.NoResize,
+            ShowInTaskbar = false,
+            WindowStartupLocation = WindowStartupLocation.CenterOwner,
+        };
+
+        Theme.Ground(shell);
+
+        return shell;
+    }
 
     /// <summary>The right-hand side when there is nothing to put there, saying why rather than being blank.</summary>
     private static TextBlock Absent() => new()

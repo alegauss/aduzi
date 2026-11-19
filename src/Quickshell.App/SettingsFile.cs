@@ -29,7 +29,7 @@ public sealed record Settings
     public ChromeTheme Theme { get; init; } = ChromeTheme.System;
 
     /// <summary>The terminal's typeface.</summary>
-    public string FontFamily { get; init; } = "Cascadia Mono";
+    public string FontFamily { get; init; } = Quickshell.Render.BundledFonts.Family;
 
     /// <summary>Its point size.</summary>
     public double FontSize { get; init; } = 12;

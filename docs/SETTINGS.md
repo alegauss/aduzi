@@ -34,7 +34,7 @@ and the chord works whether the watch armed or not.
 
   // A dark terminal under light chrome is a perfectly reasonable thing to want.
   "theme": "System",
-  "fontFamily": "Cascadia Mono",
+  "fontFamily": "Noto Sans Mono",
   "fontSize": 12,
   "scrollback": 10000,
   "ligatures": true,
@@ -68,7 +68,13 @@ conflating the two is how a client throws away a choice somebody made deliberate
 
 ### `fontFamily`
 
-The terminal's typeface, by name. Anything installed on the machine.
+The terminal's typeface, by name: Noto Sans Mono, which Aduzi carries, or anything installed on the machine.
+
+Noto Sans Mono is the default. It is the nearest openly licensed face to the one MobaXterm draws its
+terminal in, so a session looks the way it did there, and it is built into Aduzi, so it is there on a
+machine that has never installed it. Any family Windows has installed can be named instead, Cascadia
+Mono and Consolas among them. A name that is neither is refused with the name in the message, rather
+than drawn in some other face.
 
 A face without a fixed advance will still render, and every cell will still be the same width,
 because a terminal's grid is a grid. Choosing a proportional font is choosing to have it look wrong.

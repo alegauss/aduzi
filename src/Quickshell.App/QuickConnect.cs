@@ -97,7 +97,7 @@ public sealed class QuickConnect : Border
             IsHitTestVisible = false,
         };
 
-        hint.SetResourceReference(TextBlock.ForegroundProperty, "TextFillColorTertiaryBrush");
+        hint.SetResourceReference(TextBlock.ForegroundProperty, "TextFillColorSecondaryBrush");
 
         _address.AddHandler(System.Windows.Controls.Primitives.TextBoxBase.TextChangedEvent,
                             new TextChangedEventHandler((_, _) => hint.Visibility = _address.Text.Length == 0 ? Visibility.Visible : Visibility.Collapsed));
@@ -354,6 +354,7 @@ public sealed class QuickConnectWindow : Window
 
         Quick = quick;
         Title = "Connect to an address";
+        Theme.Ground(this);
         Width = 760;
         SizeToContent = SizeToContent.Height;
         ResizeMode = ResizeMode.NoResize;

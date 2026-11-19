@@ -32,7 +32,7 @@ public sealed class SettingsWindow : Window
     public static readonly IReadOnlyList<(string Key, string Label, string Means)> Keys =
     [
         ("theme", "Theme", "How the chrome is painted — the title bar, the tab strip, the dialogs."),
-        ("fontFamily", "Font", "The terminal's typeface, by name. Anything installed on the machine."),
+        ("fontFamily", "Font", "The terminal's typeface, by name: Noto Sans Mono, which Aduzi carries, or anything installed on the machine."),
         ("fontSize", "Font size", "Its size in points. The grid follows: a bigger font in the same window is fewer columns, and the program on the far end is told."),
         ("scrollback", "Scrollback", "How many lines each session keeps once they have left the screen. Ten thousand by default."),
         ("ligatures", "Ligatures", "Whether the font's ligatures are formed — whether != is drawn as two characters or as one."),
@@ -65,6 +65,7 @@ public sealed class SettingsWindow : Window
         _path = path;
 
         Title = "Settings";
+        Theme.Ground(this);
         Width = 560;
         SizeToContent = SizeToContent.Height;
         ResizeMode = ResizeMode.NoResize;
@@ -97,12 +98,18 @@ public sealed class SettingsWindow : Window
 
             body.Children.Add(new TextBlock { Text = label, FontWeight = FontWeights.SemiBold, Margin = new Thickness(0, 6, 0, 2) });
             body.Children.Add(control);
-            body.Children.Add(new TextBlock { Text = means, TextWrapping = TextWrapping.Wrap, Opacity = 0.75, Margin = new Thickness(0, 2, 0, 6) });
+            // The theme's own secondary text, as Home and the session dialog use, rather than the primary
+            // at three quarters (QS403): a colour the theme chose for both grounds, not one derived here.
+            TextBlock said = new() { Text = means, TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 2, 0, 6) };
+
+            said.SetResourceReference(TextBlock.ForegroundProperty, "TextFillColorSecondaryBrush");
+            body.Children.Add(said);
         }
 
         // The Claude Code plugin (QS343): offered where claude is on the path, never installed unasked.
         _plugin = new Button { Content = "Install the Claude Code plugin…", HorizontalAlignment = HorizontalAlignment.Left, Padding = new Thickness(12, 3, 12, 3) };
-        _pluginSaid = new TextBlock { TextWrapping = TextWrapping.Wrap, Opacity = 0.75, Margin = new Thickness(0, 4, 0, 6) };
+        _pluginSaid = new TextBlock { TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 4, 0, 6) };
+        _pluginSaid.SetResourceReference(TextBlock.ForegroundProperty, "TextFillColorSecondaryBrush");
 
         AutomationProperties.SetAutomationId(_plugin, "InstallClaudePlugin");
         AutomationProperties.SetAutomationId(_pluginSaid, "ClaudePluginSaid");

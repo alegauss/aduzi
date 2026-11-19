@@ -17,6 +17,7 @@ public sealed class PolicyChangeDialog : Window
         ArgumentException.ThrowIfNullOrWhiteSpace(policyFile);
 
         Title = "The agent policy changed";
+        Theme.Ground(this);
         AutomationProperties.SetAutomationId(this, "PolicyChanged");
 
         SizeToContent = SizeToContent.WidthAndHeight;

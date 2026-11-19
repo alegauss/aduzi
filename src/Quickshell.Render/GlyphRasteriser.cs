@@ -884,7 +884,7 @@ public sealed class GlyphRasteriser : IDisposable
     /// </summary>
     private string FamilyFor(string preferred, FontWeight weight, FontStyle slant, int codepoint)
     {
-        if (!_installed.FindFamilyName(preferred, out _))
+        if (Lookup(preferred) is not { } found)
         {
             // A family nobody has is a configuration error and not a fallback: the user asked for a
             // font, and quietly drawing in a different one is how somebody spends an afternoon
@@ -892,6 +892,8 @@ public sealed class GlyphRasteriser : IDisposable
             // the chosen face lacks, which is a different thing entirely.
             throw new InvalidOperationException($"no font family named '{preferred}' is installed");
         }
+
+        found.Dispose();
 
         if (HasCharacter(preferred, codepoint))
         {
@@ -923,14 +925,30 @@ public sealed class GlyphRasteriser : IDisposable
         return preferred;
     }
 
+    /// <summary>
+    /// A family by name: the client's own faces first (QS402), then what is installed. Null where
+    /// neither has it. The caller disposes what comes back.
+    /// </summary>
+    private IDWriteFontFamily? Lookup(string family)
+    {
+        IDWriteFontCollection1 bundled = BundledFonts.Collection;
+
+        if (bundled.FindFamilyName(family, out uint carried))
+        {
+            return bundled.GetFontFamily(carried);
+        }
+
+        return _installed.FindFamilyName(family, out uint index) ? _installed.GetFontFamily(index) : null;
+    }
+
     private bool HasCharacter(string family, int codepoint)
     {
-        if (!_installed.FindFamilyName(family, out uint index))
+        if (Lookup(family) is not { } matched)
         {
             return false;
         }
 
-        using IDWriteFontFamily matched = _installed.GetFontFamily(index);
+        using IDWriteFontFamily owned = matched;
         using IDWriteFont font = matched.GetFirstMatchingFont(FontWeight.Normal, FontStretch.Normal, FontStyle.Normal);
 
         return font.HasCharacter((uint)codepoint);
@@ -948,14 +966,10 @@ public sealed class GlyphRasteriser : IDisposable
             return cached;
         }
 
-        if (!_installed.FindFamilyName(family, out uint index))
-        {
-            // The message names the family because that string came from a settings file somebody
-            // typed, and "font not found" without it is a bug report nobody can act on.
-            throw new InvalidOperationException($"no font family named '{family}' is installed");
-        }
-
-        using IDWriteFontFamily matched = _installed.GetFontFamily(index);
+        // The message names the family because that string came from a settings file somebody
+        // typed, and "font not found" without it is a bug report nobody can act on.
+        using IDWriteFontFamily matched = Lookup(family)
+                                          ?? throw new InvalidOperationException($"no font family named '{family}' is installed");
         using IDWriteFont font = matched.GetFirstMatchingFont(weight, FontStretch.Normal, slant);
 
         IDWriteFontFace face = font.CreateFontFace();

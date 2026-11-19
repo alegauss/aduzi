@@ -55,6 +55,7 @@ public sealed class CommandPalette : Window
         _recent = recent ?? [];
 
         Title = title;
+        Theme.Ground(this);
         Width = 560;
         SizeToContent = SizeToContent.Height;
         ResizeMode = ResizeMode.NoResize;
@@ -196,7 +197,9 @@ public sealed class CommandPalette : Window
         chord.SetBinding(TextBlock.TextProperty, new System.Windows.Data.Binding(nameof(Command.Chord)));
         chord.SetValue(DockPanel.DockProperty, Dock.Right);
         chord.SetValue(FrameworkElement.MarginProperty, new Thickness(12, 0, 0, 0));
-        chord.SetValue(TextBlock.OpacityProperty, 0.6);
+        // Quieter than the name and still read on a selected row in either theme (QS403): at 0.6 it was
+        // 3.5:1 on the dark selection and 4.4:1 on the light.
+        chord.SetValue(TextBlock.OpacityProperty, 0.75);
         chord.SetValue(TextBlock.FontFamilyProperty, new FontFamily("Consolas, Cascadia Mono, monospace"));
 
         FrameworkElementFactory name = new(typeof(TextBlock));

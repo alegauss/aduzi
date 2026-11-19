@@ -57,6 +57,7 @@ public sealed class SessionDialog : Window
         _editor = editor;
 
         Title = editor.IsNew ? "New session" : $"Session: {editor.Path}";
+        Theme.Ground(this);
         SizeToContent = SizeToContent.Height;
         Width = 620;
         WindowStartupLocation = WindowStartupLocation.CenterOwner;
@@ -553,7 +554,8 @@ public sealed class SessionDialog : Window
             Margin = new Thickness(12, 0, 0, 0),
         };
 
-        hint.SetResourceReference(TextBlock.ForegroundProperty, "TextFillColorTertiaryBrush");
+        // Secondary, not tertiary (QS403): the inherited value is read, and tertiary text is 3.3:1 on the light ground.
+        hint.SetResourceReference(TextBlock.ForegroundProperty, "TextFillColorSecondaryBrush");
 
         Grid boxed = new();
 

@@ -39,6 +39,7 @@ public sealed class ApprovalDialog : Window
         Answer = new ApprovalAnswer(Decision.Refuse, request.Hash, "closed without an answer");
 
         Title = "An agent asks to run this";
+        Theme.Ground(this);
         AutomationProperties.SetAutomationId(this, "AgentApproval");
 
         SizeToContent = SizeToContent.WidthAndHeight;

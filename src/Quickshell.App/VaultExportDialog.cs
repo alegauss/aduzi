@@ -50,6 +50,7 @@ public sealed class VaultExportDialog : Window
         ArgumentException.ThrowIfNullOrWhiteSpace(suggested);
 
         Title = "Export saved passwords";
+        Theme.Ground(this);
         AutomationProperties.SetAutomationId(this, "ExportVault");
 
         SizeToContent = SizeToContent.WidthAndHeight;

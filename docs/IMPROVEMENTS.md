@@ -202,27 +202,51 @@ the per-frame cost is the wake and the present, which is a different line.
 
 ## Block D — The tree a user organises work in
 
-### §QS402 Noto Sans Mono, shipped with the client
+### §QS404 Secondary text from the theme, everywhere
 
-Asked by the owner on 2026-11-19, after reading MobaXterm's terminal font dialog:
-MobaFont, size 10. The name table of the face embedded in MobaXterm.exe says it is based
-on Bitstream Vera Sans Mono, edited in FontForge in 2012.
+Found while fixing QS403 on 2026-11-19. Home, the session dialog, the sidebar, the
+session bar and now the settings window take TextFillColorSecondaryBrush for quieter
+text. Six places derive it instead, by putting the primary at an opacity: SignInDialog's
+two notes (0.7), VaultExportDialog's two notes (0.7) and its labels (0.8),
+VaultImportDialog's labels (0.8), and ApprovalDialog's plan hash (0.75) and rule line
+(0.7).
 
-Vera and DejaVu, its continuation, were ruled out by their licence. Bitstream-Vera is
-free but not OSI-approved, and QS378 keeps every shipped component under an OSI licence
-for the SignPath grant; a derivative, however reworked, keeps that licence. Noto Sans
-Mono is the nearest OSI-licensed face: the same humanist shapes, a large x-height and a
-0.6 em advance, under OFL-1.1, with the coverage a terminal needs. The owner chose it as
-it is, unmodified; a renamed AduziFont fork is for later, only if something about it
-grates.
+They pass the audit on the solid ground QS403 gives every window, so this is not a
+contrast failure. It is two greys for one meaning: an opacity on the primary is a colour
+the theme never chose, it changes with the primary, and it is the same text one window
+says in another shade. The fix is the one QS403 made in the settings window, one
+SetResourceReference each, and the audit's readings for those windows should not move
+below 4.5:1.
 
-The renderer refuses a family that is not installed, on purpose, so the face has to be
-there on every machine. The design: the hinted Regular and Bold ship embedded in
-Quickshell.Render, as the shader is. The rasteriser's collection is the system's font
-set with those two added from memory through IDWriteFactory5, so the bundled family is
-found by name as an installed one is. fontFamily defaults to Noto Sans Mono; a value
-already written in a settings file is left alone. The licence goes in
-THIRD-PARTY-NOTICES.md, and OFL-1.1 joins the check's list.
+### §QS405 What the contrast audit does not open yet
+
+The audit QS403 added opens fifteen windows at rest. Left out, on 2026-11-19:
+
+- the main window with tabs open: the tab strip with its status dots and tag chips, the session bar, the connection status bar, a split's divider, the search bar over a pane;
+- the menu bar, its menus, and the sidebar's context menus;
+- the vault import preview, the MobaXterm import preview, the paste confirmation, the New folder dialog, and the file browser's own small dialogs;
+- every state but rest: a focused field (its accent underline), a hovered and a selected row, a checked box, a disabled control, and the palette with a row selected, where QS403's chord failure was.
+
+Each is a window or state the audit can build as it builds the others, through the same
+seams the tests use. The tab status ring, drawn in tertiary text as a non-text graphic,
+is the first reading this would give that nothing measures now.
+
+### §QS406 Buttons and combo boxes that look like labels
+
+Found by the contrast audit of QS403 on 2026-11-19. Fluent's standard button and combo
+box draw a fill a few per cent off the ground and an elevation border whose strongest
+stop is #353535 on #202020 in the dark theme (1.33:1) and #CCCCCC on #F3F3F3 in the
+light (1.45:1). The audit exempts them, as WCAG 1.4.11 does a component its own words
+identify, so QS403 does not fix them.
+
+The owner's screenshot is the case against leaving it there: in the settings window,
+Install the Claude Code plugin… and Install into WSL… read as two lines of text, and the
+theme and cursor boxes as values rather than choices.
+
+To decide: a stroke at ControlStrongStrokeColorDefault on these controls, which is what
+Fluent gives a check box and passes 3:1 on both grounds, or an accent fill on the one
+default button of each dialog only. Whichever, the audit then measures buttons and combo
+boxes at 3:1 instead of exempting them.
 
 ## Block E — SCP and SFTP as a thing a person operates
 

@@ -10,7 +10,9 @@
 
 ## Block D — The tree a user organises work in
 
-- 🛠 **QS402** (deps: —) **The terminal's default face is Cascadia Mono, not the Vera-based face MobaXterm users read all day** — MobaFont is Vera, whose licence is not OSI's; Noto Sans Mono (OFL-1.1) is the nearest OSI-licensed face, and Windows lacks it. → §QS402
+- 📋 **QS404** (deps: —) **Several dialogs dim text with an opacity of 0.7 or 0.8 instead of the theme's secondary text colour** — Sign in, both vault dialogs and agent approval derive grey from the primary, which drifts from the colour every other window takes. → §QS404
+- 📋 **QS405** (deps: —) **The contrast audit leaves out a third of what the client draws: open tabs, the session bar, menus and five dialogs** — A window the audit never opens is one whose contrast nobody measured; the tab strip and session bar are on screen all day. → §QS405
+- 📋 **QS406** (deps: —) **Buttons and combo boxes show an edge of 1.3:1 in the dark theme and 1.5:1 in the light, so they read as labels** — WCAG excuses a component its words identify, but Install into WSL… and the theme box looked like labels in the owner's settings screenshot. → §QS406
 
 ## Block E — SCP and SFTP as a thing a person operates
 
