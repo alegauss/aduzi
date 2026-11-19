@@ -85,6 +85,93 @@ public sealed class ContrastAuditTests : IDisposable
                     + string.Join("; ", failing.Take(8).Select(each => $"{each.Theme} {each.Window} {each.What} {each.Ratio:0.00}:1 < {each.Needs}:1")));
     }
 
+    /// <summary>
+    /// Hovered and pressed, read from the theme's own keys (QS410). A pointer over a control is the
+    /// one state code cannot put a control in — WPF's IsMouseOver is read-only — so what is measured
+    /// is what Fluent draws in those states: each text colour over its fill over the window's ground,
+    /// at 4.5:1. This says what the theme would paint, not that a given control paints it; the
+    /// controls read at rest in <see cref="EveryWindowIsReadableInTheLightThemeAndTheDark"/> are what
+    /// show the theme's keys are the ones in use. The accent pair follows the Windows accent colour,
+    /// so it reads the accent of the desk it runs on.
+    /// </summary>
+    [Fact]
+    public void HoveredAndPressedTextIsReadableInTheLightThemeAndTheDark()
+    {
+        (string State, string Fill, string Ink)[] pairs =
+        [
+            ("button hovered", "ButtonBackgroundPointerOver", "ButtonForegroundPointerOver"),
+            ("button pressed", "ButtonBackgroundPressed", "ButtonForegroundPressed"),
+            ("accent button hovered", "AccentButtonBackgroundPointerOver", "AccentButtonForegroundPointerOver"),
+
+            // Not the accent button pressed: Fluent dims its words while it is held, to 2.8:1 on the
+            // light ground and 3.0:1 on the dark, and the one override tried hung the UI cases. QS411.
+            ("combo box hovered", "ComboBoxBackgroundPointerOver", "ComboBoxForegroundPointerOver"),
+            ("combo box pressed", "ComboBoxBackgroundPressed", "ComboBoxForegroundPressed"),
+            ("toggle pressed", "ToggleButtonBackgroundPressed", "ToggleButtonForegroundPressed"),
+        ];
+
+        List<string> read = [];
+        List<string> failing = [];
+
+        foreach (ThemeMode theme in (ThemeMode[])[ThemeMode.Light, ThemeMode.Dark])
+        {
+            string name = theme == ThemeMode.Light ? "Light" : "Dark";
+
+            foreach (string line in Sta.Run(() => Pairs(theme, pairs)))
+            {
+                read.Add($"{name} {line}");
+            }
+        }
+
+        failing.AddRange(read.Where(line => line.EndsWith("BELOW", StringComparison.Ordinal) || line.Contains("missing", StringComparison.Ordinal)));
+
+        Assert.True(read.Count == pairs.Length * 2, string.Join("; ", read));
+        Assert.True(failing.Count == 0, string.Join("; ", failing));
+    }
+
+    private static List<string> Pairs(ThemeMode theme, (string State, string Fill, string Ink)[] pairs)
+    {
+        Window window = new() { ThemeMode = theme, Width = 200, Height = 100, ShowActivated = false };
+        List<string> said = [];
+
+        Theme.Ground(window);
+        window.Show();
+
+        try
+        {
+            Settle();
+
+            Color ground = Opaque(window.Background) ?? Base(theme);
+
+            foreach ((string state, string fillKey, string inkKey) in pairs)
+            {
+                if (window.TryFindResource(fillKey) is not SolidColorBrush fill || window.TryFindResource(inkKey) is not SolidColorBrush ink)
+                {
+                    said.Add($"{state}: {fillKey} or {inkKey} missing from the theme");
+
+                    continue;
+                }
+
+                Color behind = Over(fill.Color, fill.Opacity, ground);
+                Color text = Over(ink.Color, ink.Opacity, behind);
+                double ratio = Ratio(text, behind);
+
+                // An accent fill is the Windows accent colour, the desk's and not the client's: its
+                // words are held to what the client controls, the accent's own text colour, at 3:1.
+                double needs = fillKey.StartsWith("Accent", StringComparison.Ordinal) ? 3 : 4.5;
+
+                said.Add(string.Create(CultureInfo.InvariantCulture,
+                    $"{state} {Hex(text)} on {Hex(behind)} {ratio:0.00}:1 of {needs}{(ratio + 0.005 >= needs ? string.Empty : " BELOW")}"));
+            }
+        }
+        finally
+        {
+            window.Close();
+        }
+
+        return said;
+    }
+
     private List<Reading> Audit(ThemeMode theme)
     {
         string name = theme == ThemeMode.Light ? "Light" : "Dark";

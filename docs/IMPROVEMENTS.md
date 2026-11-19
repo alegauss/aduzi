@@ -223,6 +223,27 @@ Until one of those is chosen, the hovered state is the one this client has not m
 QS406 gave a button's edge the strong stroke at rest, hovered and pressed alike, so the
 edge is not what is at risk; the hovered fill behind a button's words is.
 
+### §QS411 Pressed accent words, and the override that hung the cases
+
+Found by QS410 on 2026-11-19, reading Fluent's hovered and pressed keys against the
+theme's ground in the guest. While an accent button is held, Fluent paints its words in
+AccentButtonForegroundPressed, a dimmed on-accent colour: #C2DAEF on #3183CA, 2.79:1, in
+the light theme and #215169 on #43A2D2, 3.00:1, in the dark, with the guest's default
+blue accent. Connect on Home and New on the sidebar are accent buttons.
+
+What was tried and why it is not in: the key overridden in each window's resources with
+TextOnAccentFillColorPrimaryBrush, beside the edge keys QS406 puts there, from
+Theme.Stroke on the window's Loaded. With it, the UI cases hung in three runs of three,
+two full and one alone, the client's UI thread idle in its message loop in the hang dump
+and the case runner waiting; set aside, the cases passed 31 of 31. Why one more key in
+the same dictionary does that is not known, and is the first thing to find, from the
+case that was running when it hung (the runner's own log names the case; the hang log
+only names the test).
+
+The fill is the Windows accent and not the client's, so the light pressed state may stay
+under 4.5:1 with the words at full strength (about 4.0:1 on this blue); what the client
+can own is the words. A press lasts as long as the button is held.
+
 ## Block E — SCP and SFTP as a thing a person operates
 
 ## Block F — A forward is a lifecycle, not a checkbox
