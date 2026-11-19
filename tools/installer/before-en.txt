@@ -1,0 +1,22 @@
+﻿WHAT SETUP IS ABOUT TO DO
+
+Aduzi is installed in three places, and nothing else on this computer is touched:
+
+  Program files    %LocalAppData%\Programs\Aduzi
+                   (C:\Program Files\Aduzi if you chose to install for all users)
+  Start menu       one shortcut, named Aduzi
+  Installed apps   one entry, which is how Aduzi is removed later
+
+For an install for yourself, no administrator is needed.
+
+No service, no scheduled task, no file association, no change to PATH. Nothing starts with Windows, and Aduzi does not check for updates on its own.
+
+
+YOUR SETTINGS AND SAVED SESSIONS
+
+They live in %AppData%\Aduzi, apart from the program. Installing a newer version over this one keeps them. Uninstalling asks whether to remove them, and keeps them unless you say yes.
+
+
+COMING FROM QUICKSHELL?
+
+Aduzi was called quickshell until November 2026. An install under that name is replaced, so Installed apps lists one app, and the first start moves your sessions and keys from %AppData%\quickshell to %AppData%\Aduzi.

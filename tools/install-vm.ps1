@@ -1,17 +1,17 @@
 #Requires -Version 5.1
 <#
 .SYNOPSIS
-  Install the release archive on a desk that is not the operator's, look where Windows looks, start
-  the installed copy, and take it away again the way the list of installed apps would.
+  Install the release's Setup.exe on a desk that is not the operator's, look where Windows looks,
+  start the installed copy, and take it away again the way the list of installed apps would.
 
 .DESCRIPTION
   QS77. The suite installs into places of its own - a temporary folder, a registry key under a test's
   name - because an entry under the real key is an app in the list of whoever runs it. So the suite
-  cannot say the one thing a user would: that the archive, unzipped on a real profile, installs
-  there, starts from there, and leaves again.
+  cannot say the one thing a user would: that the setup, run on a real profile, installs there,
+  starts from there, and leaves again.
 
-  This says it, on the guest. The archive release.cmd built is unzipped there and installed with
-  `--install --quiet` under the guest user's own token, which the log names - a medium one means no
+  This says it, on the guest. The setup release.cmd built (QS393) is run there silently, for the
+  current user, under the guest user's own token, which the log names - a medium one means no
   administrator was asked. Then the program folder, the Start menu shortcut and the uninstall entry
   are read back; the installed copy is started and has to reach its first interactive frame; the
   entry's own QuietUninstallString is run, which is what a deployment runs; and the three are read
@@ -20,8 +20,8 @@
   A machine-wide install is asked for too, without elevation, and has to be refused with 740 -
   the code a deployment tool reads as "run this as an administrator".
 
-.PARAMETER Archive
-  The archive to install. The newest in artifacts\release unless given.
+.PARAMETER Setup
+  The setup to run. The newest in artifacts\release unless given.
 
 .PARAMETER Former
   An archive of the client from before it was renamed Aduzi (QS384), installed first with a saved
@@ -33,7 +33,7 @@
 #>
 [CmdletBinding()]
 param(
-    [string] $Archive,
+    [string] $Setup,
 
     [string] $Former,
 
@@ -48,13 +48,13 @@ $script:RepoRoot = Split-Path -Parent $PSScriptRoot
 
 . (Join-Path $PSScriptRoot 'vm-guest.ps1')
 
-if (-not $Archive) {
-    $newest = Get-ChildItem -Path (Join-Path $script:RepoRoot 'artifacts\release') -Filter '*.zip' -ErrorAction SilentlyContinue |
+if (-not $Setup) {
+    $newest = Get-ChildItem -Path (Join-Path $script:RepoRoot 'artifacts\release') -Filter 'aduzi-*-setup*.exe' -ErrorAction SilentlyContinue |
         Sort-Object LastWriteTime -Descending | Select-Object -First 1
-    if ($newest) { $Archive = $newest.FullName }
+    if ($newest) { $Setup = $newest.FullName }
 }
-if (-not $Archive -or -not (Test-Path -LiteralPath $Archive)) {
-    Refuse 'there is no archive to install' 'Build one with release.cmd first.'
+if (-not $Setup -or -not (Test-Path -LiteralPath $Setup)) {
+    Refuse 'there is no setup to install' 'Build one with release.cmd first.'
 }
 if ($Former -and -not (Test-Path -LiteralPath $Former)) {
     Refuse "there is no former archive at $Former" 'Name a quickshell-<version>-win-x64 archive built before the rename.'
@@ -67,7 +67,7 @@ if (Test-Path -LiteralPath $stage) { Remove-Item -LiteralPath $stage -Recurse -F
 $null = New-Item -ItemType Directory -Path $stage
 
 $null = Invoke-VmRun -Guest -Arguments @('createDirectoryInGuest', $vmxPath, $script:GuestSync)
-Clear-GuestFile -Names @('install.log', 'release.zip', 'former.zip', 'install.ps1', 'install.cmd')
+Clear-GuestFile -Names @('install.log', 'setup.exe', 'setup.log', 'former.zip', 'install.ps1', 'install.cmd')
 
 # Everything the guest does is in one script, and it writes one log: a line per thing read back, each
 # saying ok or FAIL, and a verdict last. Single-quoted, so nothing in it is this host's to expand.
@@ -123,26 +123,26 @@ try {
             (New-Object Text.UTF8Encoding($false)))
     }
 
-    $download = Join-Path $sync 'download'
-    if (Test-Path -LiteralPath $download) { Remove-Item -LiteralPath $download -Recurse -Force }
-    Add-Type -AssemblyName System.IO.Compression.FileSystem
-    [IO.Compression.ZipFile]::ExtractToDirectory((Join-Path $sync 'release.zip'), $download)
-    $portable = Join-Path $download 'aduzi\aduzi.exe'
-    Check (Test-Path -LiteralPath $portable) "the archive unzips to one folder with aduzi.exe in it"
-
-    $everyone = Start-Process -FilePath $portable -ArgumentList '--install', '--all-users', '--quiet' -Wait -PassThru
-    Check ($everyone.ExitCode -eq 740) "--install --all-users without an administrator exits 740 (it exited $($everyone.ExitCode))"
-
-    $installing = Start-Process -FilePath $portable -ArgumentList '--install', '--quiet' -Wait -PassThru
-    Check ($installing.ExitCode -eq 0) "--install --quiet exits 0 (it exited $($installing.ExitCode))"
+    # QS393: the release is a Setup.exe, run the way a deployment runs it. /CURRENTUSER is the
+    # wizard's own default, said so the run cannot drift into asking for an administrator.
+    $setupLog = Join-Path $sync 'setup.log'
+    $installing = Start-Process -FilePath (Join-Path $sync 'setup.exe') `
+        -ArgumentList '/VERYSILENT', '/SUPPRESSMSGBOXES', '/NORESTART', '/CURRENTUSER', "/LOG=`"$setupLog`"" -Wait -PassThru
+    Check ($installing.ExitCode -eq 0) "the setup, silent and for this user, exits 0 (it exited $($installing.ExitCode))"
 
     $folder = Join-Path $env:LOCALAPPDATA 'Programs\Aduzi'
     $program = Join-Path $folder 'aduzi.exe'
     $files = @(Get-ChildItem -LiteralPath $folder -File -Recurse -ErrorAction SilentlyContinue).Count
-    $archived = @(Get-ChildItem -LiteralPath (Join-Path $download 'aduzi') -File -Recurse).Count
-    Check (Test-Path -LiteralPath $program) "the program is at $program"
-    Check ($files -eq $archived - 1) "every file but the marker was installed ($files of $archived)"
+    Check (Test-Path -LiteralPath $program) "the program is at $program ($files files)"
     Check (-not (Test-Path -LiteralPath (Join-Path $folder 'aduzi.portable'))) 'the installed copy is not portable'
+
+    # The setup is not an uninstaller of its own: the client's entry is the one way out.
+    $setupEntries = @(Get-ChildItem 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Uninstall' -ErrorAction SilentlyContinue |
+        Where-Object { $_.PSChildName -like '*_is1' -and (Get-ItemProperty -LiteralPath $_.PSPath).DisplayName -like 'Aduzi*' })
+    Check ($setupEntries.Count -eq 0) 'the setup left no uninstaller entry of its own'
+
+    $everyone = Start-Process -FilePath $program -ArgumentList '--install', '--all-users', '--quiet' -Wait -PassThru
+    Check ($everyone.ExitCode -eq 740) "--install --all-users without an administrator exits 740 (it exited $($everyone.ExitCode))"
 
     $shortcut = Join-Path ([Environment]::GetFolderPath('Programs')) 'Aduzi.lnk'
     $link = (New-Object -ComObject WScript.Shell).CreateShortcut($shortcut)
@@ -244,10 +244,10 @@ powershell -NoProfile -ExecutionPolicy Bypass -File "$script:GuestSync\install.p
 exit /b 0
 "@ | Set-Content -LiteralPath (Join-Path $stage 'install.cmd') -Encoding ascii
 
-Write-Host "  archive     $Archive"
+Write-Host "  setup       $Setup"
 
-$sent = Invoke-VmRun -Guest -Arguments @('copyFileFromHostToGuest', $vmxPath, (Resolve-Path -LiteralPath $Archive).Path, "$script:GuestSync\release.zip")
-if (-not $sent.Ok) { Refuse "could not copy the archive into the guest: $($sent.Output)" }
+$sent = Invoke-VmRun -Guest -Arguments @('copyFileFromHostToGuest', $vmxPath, (Resolve-Path -LiteralPath $Setup).Path, "$script:GuestSync\setup.exe")
+if (-not $sent.Ok) { Refuse "could not copy the setup into the guest: $($sent.Output)" }
 
 if ($Former) {
     Write-Host "  former      $Former"

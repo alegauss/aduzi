@@ -1,7 +1,7 @@
 @echo off
-rem QS371: a release published on GitHub. release.cmd builds the archive (QS77); this checks that the
-rem tree is committed and pushed and that the version is new, builds it, tags the commit v<version>,
-rem pushes the tag, and creates the GitHub release with the archive and SHA256SUMS.txt attached.
+rem QS371: a release published on GitHub. release.cmd builds the setup (QS77, QS393); this checks that
+rem the tree is committed and pushed and that the version is new, builds it, tags the commit v<version>,
+rem pushes the tag, and creates the GitHub release with the setup and SHA256SUMS.txt attached.
 rem
 rem   publish-release.cmd -Certificate <thumbprint>
 rem   publish-release.cmd -Unsigned                    published as a pre-release

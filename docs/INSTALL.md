@@ -1,24 +1,48 @@
 # Installing
 
-Aduzi ships as one archive, `aduzi-<version>-win-x64.zip`, with `SHA256SUMS.txt` beside
-it. It needs Windows 10 or 11 on x64 and nothing else — the .NET runtime is inside the archive.
+Aduzi ships as one installer, `aduzi-<version>-win-x64-setup.exe`, with `SHA256SUMS.txt` beside
+it. It needs Windows 10 or 11 on x64 and nothing else — the .NET runtime is inside the installer.
 
 Check a download against the sums before running it:
 
 ```
-certutil -hashfile aduzi-0.1.0-win-x64.zip SHA256
+certutil -hashfile aduzi-0.1.0-win-x64-setup.exe SHA256
 ```
 
-**The archive is not signed yet**, so SmartScreen warns on its first start. Signing is owed before
-the first release rather than after it, and until it lands a build says so in its own name:
-`...-unsigned.zip`.
+**The installer is not signed yet**, so SmartScreen warns when it starts: *More info*, then *Run
+anyway*. Signing is owed before the first release rather than after it, and until it lands a build
+says so in its own name: `...-setup-unsigned.exe`.
+
+## Install it with Setup
+
+Run the setup. In English or Portuguese, following Windows, it:
+
+1. asks whether to install for you or for every user of the computer — for you needs no
+   administrator;
+2. says what it installs and where, and that your settings survive an upgrade and an uninstall;
+3. installs, then shows the first steps: importing sessions, the command palette;
+4. offers to start Aduzi.
+
+If Aduzi is open, Setup says so and waits for it to be closed: an open session would lose what it
+was doing. For a deployment, the same setup runs silently:
+
+```
+aduzi-0.1.0-win-x64-setup.exe /VERYSILENT /SUPPRESSMSGBOXES /CURRENTUSER
+aduzi-0.1.0-win-x64-setup.exe /VERYSILENT /SUPPRESSMSGBOXES /ALLUSERS
+```
+
+Its exit code is the client's own (the table at the end): `740` when every user was asked for
+without an administrator.
+
+Setup is a front for the install described below — it runs `aduzi.exe --install` from the files it
+carries — so Setup adds no uninstaller of its own, and **Installed apps** removes Aduzi the same way
+whichever way it was installed.
 
 ## Run it without installing
 
-Unzip it anywhere — Downloads, a USB stick — and start `aduzi.exe` in the folder it makes.
-
-That copy is **portable**. The file `aduzi.portable` beside the executable keeps its settings,
-saved sessions and logs in `data\` next to it, and nothing is written to your profile. Deleting the
+Copy an installed `Aduzi` folder anywhere — a USB stick, another drive — and put an empty file named
+`aduzi.portable` beside `aduzi.exe`. That copy is **portable**: it keeps its settings, saved
+sessions and logs in `data\` next to it, and nothing is written to your profile. Deleting the
 folder removes all of it.
 
 ## Keep the files somewhere else
@@ -28,9 +52,9 @@ there, whichever copy it is: a second profile beside your usual one, or a store 
 It wins over `aduzi.portable` and over `%AppData%`, and installing or uninstalling never
 touches the folder it names.
 
-## Install it for yourself
+## Install it for yourself from a copy
 
-From that copy, open the palette with `Ctrl+Shift+P` and choose **Install Aduzi for this
+From a portable copy, open the palette with `Ctrl+Shift+P` and choose **Install Aduzi for this
 user**, or run:
 
 ```
@@ -42,7 +66,7 @@ Aduzi appears in your Start menu, and it is listed under **Installed apps** in S
 
 - The installed copy keeps its settings in `%AppData%\Aduzi`. The copy you installed from keeps
   its own in its `data` folder, and still works.
-- Installing a newer archive the same way replaces the installed copy whole — nothing of the old
+- Installing a newer version, with Setup or this way, replaces the installed copy whole — nothing of the old
   version is left beside the new one.
 - If the installed copy is running, you are asked to close it first rather than getting half of
   each version.

@@ -2,21 +2,21 @@
 <#
 .SYNOPSIS
   Build a release with release.ps1, tag the commit it was built from, and publish it on GitHub with
-  the archive and its checksum attached.
+  the setup and its checksum attached.
 
 .DESCRIPTION
   QS371. release.ps1 (QS77) makes what a release ships and stops at artifacts\release; this takes it
   to the page people download from. It runs here and not on a hosted runner because the signing
-  certificate and the performance baseline both live on this desk - CI builds an archive, unsigned
+  certificate and the performance baseline both live on this desk - CI builds a setup, unsigned
   and ungated, and that is not a release.
 
-  A release names one commit, so everything that could make the archive and the tag disagree is
+  A release names one commit, so everything that could make the setup and the tag disagree is
   refused before the two-minute publish starts: a tree with changes in it, a HEAD that is not what
   the branch's upstream has, a tag v<version> that already exists here or on GitHub, a release of
   that name already on GitHub. Bump <Version> in Directory.Build.props for a new one.
 
   Then release.ps1 runs with the same flags, HEAD is tagged v<version> and the tag pushed, and the
-  GitHub release is created with the archive and SHA256SUMS.txt. An unsigned archive is published
+  GitHub release is created with the setup and SHA256SUMS.txt. An unsigned setup is published
   as a pre-release, so the listing says what the file name already says.
 
 .PARAMETER Certificate
@@ -26,7 +26,7 @@
   Passed to release.ps1: the RFC 3161 timestamp server.
 
 .PARAMETER Unsigned
-  Passed to release.ps1. The archive is named ...-unsigned.zip and the release is a pre-release.
+  Passed to release.ps1. The setup is named ...-setup-unsigned.exe and the release is a pre-release.
 
 .PARAMETER Gated
   Passed to release.ps1: run the performance gate on the build before it is tagged.
@@ -108,7 +108,7 @@ if (-not (Get-Command 'gh' -ErrorAction SilentlyContinue)) {
 }
 if (-not (Test-Native gh auth status)) { Refuse 'the GitHub CLI is not signed in' 'gh auth login.' }
 
-# The tree the archive is built from is the tree the tag names, or the tag is a lie about it. The gate's
+# The tree the setup is built from is the tree the tag names, or the tag is a lie about it. The gate's
 # history is not part of that tree (QS376): every judged run appends a row about the commit, a refused
 # run leaves its row behind, and the gate sets its own files aside the same way when it marks a commit dirty.
 $history = 'benchmarks/results/gate-*.md'
@@ -156,13 +156,13 @@ if ($Gated) { $build += '-Gated' }
 if ($LASTEXITCODE -ne 0) { Refuse 'release.ps1 refused the build, so nothing was tagged or published' 'What it printed above says why.' }
 
 $suffix = if ($Unsigned) { '-unsigned' } else { '' }
-$zip = Join-Path $output "aduzi-$version-win-x64$suffix.zip"
+$setup = Join-Path $output "aduzi-$version-win-x64-setup$suffix.exe"
 $sums = Join-Path $output 'SHA256SUMS.txt'
-foreach ($file in @($zip, $sums)) {
+foreach ($file in @($setup, $sums)) {
     if (-not (Test-Path -LiteralPath $file)) { Refuse "release.ps1 succeeded and $file is not there" }
 }
 
-# The build can write nothing git tracks; if it did, the archive is not of the commit about to be tagged.
+# The build can write nothing git tracks; if it did, the setup is not of the commit about to be tagged.
 if (Read-Git status --porcelain -- . ":(exclude)$history") {
     Refuse 'the build left changes in the working tree' 'git status lists them; .gitignore should cover what a build writes.'
 }
@@ -181,7 +181,8 @@ if ($LASTEXITCODE -ne 0) {
 }
 Write-Host "  tagged     $tag, pushed to $remote"
 
-$create = @('release', 'create', $tag, $zip, $sums, '--verify-tag', '--title', "Aduzi $version")
+# The setup is the release (QS393); there is no zip beside it.
+$create = @('release', 'create', $tag, $setup, $sums, '--verify-tag', '--title', "Aduzi $version")
 if ($Notes) { $create += @('--notes-file', $Notes) } else { $create += '--generate-notes' }
 if ($Unsigned) { $create += '--prerelease' }
 if ($Draft) { $create += '--draft' }
@@ -192,7 +193,7 @@ finally { Pop-Location }
 if ($LASTEXITCODE -ne 0) {
     # The tag stays: it names the commit that was built, and a second run would refuse on it. Say how
     # to finish by hand rather than take back what is already public.
-    Refuse "the tag $tag is pushed but the GitHub release was not created" "gh release create $tag `"$zip`" `"$sums`" --verify-tag --generate-notes"
+    Refuse "the tag $tag is pushed but the GitHub release was not created" "gh release create $tag `"$setup`" `"$sums`" --verify-tag --generate-notes"
 }
 
 Write-Host "  released   $url"

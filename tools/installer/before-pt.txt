@@ -1,0 +1,22 @@
+﻿O QUE O ASSISTENTE VAI FAZER
+
+O Aduzi é instalado em três lugares, e nada mais neste computador é alterado:
+
+  Arquivos do programa    %LocalAppData%\Programs\Aduzi
+                          (C:\Program Files\Aduzi, se você escolheu instalar para todos os usuários)
+  Menu Iniciar            um atalho, chamado Aduzi
+  Aplicativos instalados  uma entrada, que é por onde o Aduzi é removido depois
+
+Para instalar só para você, não é preciso administrador.
+
+Nenhum serviço, nenhuma tarefa agendada, nenhuma associação de arquivo, nenhuma mudança no PATH. Nada inicia com o Windows, e o Aduzi não procura atualizações por conta própria.
+
+
+SUAS CONFIGURAÇÕES E SESSÕES SALVAS
+
+Ficam em %AppData%\Aduzi, separadas do programa. Instalar uma versão mais nova por cima desta as mantém. Ao desinstalar, o Aduzi pergunta se deve removê-las, e as mantém a menos que você diga sim.
+
+
+VEIO DO QUICKSHELL?
+
+O Aduzi se chamava quickshell até novembro de 2026. Uma instalação com esse nome é substituída, para que Aplicativos instalados mostre um só aplicativo, e a primeira execução move suas sessões e chaves de %AppData%\quickshell para %AppData%\Aduzi.

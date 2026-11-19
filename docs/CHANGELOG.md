@@ -296,6 +296,7 @@
 - ✅ **QS385** **The description and the site promise a live prompt under 400 ms, while the published measurement is 612 to 647 ms** — The GitHub description now states start-up as measured, 647 ms against a 400 ms budget, as the site and llms.txt already did, so no public text claims under 400 ms.
 - ✅ **QS387** **A reader who looks the name up finds Portuguese dictionaries and a bean, never why the client is called Aduzi** — The README, the site's footer and llms.txt say Aduzi is Portuguese for "I brought", from the Latin adducere, as an SSH client brings a remote machine.
 - ✅ **QS386** **There is nothing to download: no release or tag, only a CI artefact that expires in five days** — Aduzi 0.1.0 is on GitHub as an unsigned pre-release with SHA256SUMS; the download installs in the guest, and the README and site link to it (design superseded: a pre-release, not latest).
+- ✅ **QS393** **A release offers only a zip, so a person expecting Setup.exe gets a folder and no guided install** — A release is one Setup.exe: a bilingual wizard that says what goes where, runs the build's own --install, offers to start Aduzi, and runs silently for deployments; the zip is gone.
 
 ## Block I — An error a user can act on
 

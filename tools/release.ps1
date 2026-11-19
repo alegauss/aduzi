@@ -1,14 +1,14 @@
 #Requires -Version 5.1
 <#
 .SYNOPSIS
-  Build what a release ships: the client published self-contained, signed, zipped as a portable
-  copy, and the checksum a download is checked against.
+  Build what a release ships: the client published self-contained and signed, packed into one
+  Setup.exe wizard that installs it (QS393), and the checksum a download is checked against.
 
 .DESCRIPTION
-  QS77. One archive, and it is both editions. Unzipped and started, it is a portable copy that keeps
-  its settings beside itself and writes nothing to the profile; `aduzi --install`, or "Install
-  Aduzi for this user" in its palette, installs it for the person running it, with no
-  administrator prompt.
+  QS77, QS393. One Setup.exe. Its wizard says what it installs and where, then runs the build's own
+  `aduzi --install` from a temporary folder - for the person running it with no administrator
+  prompt, or for every user when they chose that - so a release installs through the same code as
+  the palette's "Install Aduzi for this user" and is removed by the entry that code writes.
 
   The build is the one QS75 measured - Release, self-contained, ReadyToRun - so the start-up figure
   in benchmarks\results\startup-h.md is a figure about the thing people download.
@@ -17,12 +17,12 @@
   improvement: an unsigned binary is refused by SmartScreen and by corporate policy, which for a
   client that handles credentials is the worst first impression on offer. So with a certificate it
   signs and refuses a signature this machine does not verify, and without one it refuses to run
-  unless -Unsigned says so - and then the archive's own name says so too, where nobody can miss it.
+  unless -Unsigned says so - and then the setup's own name says so too, where nobody can miss it.
 
   With -Gated it does not ship a regression by accident (QS79). Once the client is published, the
   performance gate times that build's start, and the parse and emulate arms of the replay harness
   run on that build's own assemblies and runtime settings, against this machine's baseline. A figure worse than the baseline's
-  own noise allows refuses the release before anything is signed or zipped. So does one a commit
+  own noise allows refuses the release before anything is signed or packed. So does one a commit
   since the baseline said was meant: that trade is allowed, and a new baseline is owed before the
   release, or the trailer would go on excusing the figure by any amount. A machine with no baseline
   is refused too. The gate is optional, by the maintainer's call: without -Gated the run says
@@ -37,14 +37,14 @@
   a timestamp stays valid for what was signed while the certificate was.
 
 .PARAMETER Unsigned
-  Build without signing. The archive is named ...-unsigned.zip, so it cannot pass for a release.
+  Build without signing. The setup is named ...-setup-unsigned.exe, so it cannot pass for a release.
 
 .PARAMETER Gated
   Run the performance gate on the published build before signing it, on a machine that has a
   baseline.
 
 .PARAMETER Output
-  Where the archive and SHA256SUMS.txt go: artifacts\release unless given, which .gitignore covers.
+  Where the setup and SHA256SUMS.txt go: artifacts\release unless given, which .gitignore covers.
 #>
 [CmdletBinding()]
 param(
@@ -93,6 +93,20 @@ function Find-SignTool {
     return $null
 }
 
+function Find-Iscc {
+    # Inno Setup's compiler (QS393): per-user where winget puts it, machine-wide where GitHub's
+    # windows runner has it, or on PATH.
+    foreach ($candidate in @(
+            (Join-Path $env:LOCALAPPDATA 'Programs\Inno Setup 6\ISCC.exe'),
+            (Join-Path ${env:ProgramFiles(x86)} 'Inno Setup 6\ISCC.exe'),
+            (Join-Path $env:ProgramFiles 'Inno Setup 6\ISCC.exe'))) {
+        if ($candidate -and (Test-Path -LiteralPath $candidate)) { return $candidate }
+    }
+    $onPath = Get-Command 'ISCC.exe' -ErrorAction SilentlyContinue
+    if ($onPath) { return $onPath.Source }
+    return $null
+}
+
 if (-not $Certificate -and -not $Unsigned) {
     Refuse 'a release is signed, and no certificate was given' 'Pass -Certificate <thumbprint>, or -Unsigned for a build whose name says it is not a release.'
 }
@@ -109,6 +123,10 @@ if ($Certificate) {
         Refuse "no certificate with the thumbprint $Certificate is in the current user's store" 'certmgr.msc shows what is there, under Personal.'
     }
 }
+
+# Asked before the two-minute publish rather than after it: a release is the setup.
+$iscc = Find-Iscc
+if (-not $iscc) { Refuse 'Inno Setup''s compiler (ISCC.exe) was not found' 'winget install JRSoftware.InnoSetup' }
 
 $version = (& dotnet msbuild $project -nologo -getProperty:Version | Out-String).Trim()
 if ($LASTEXITCODE -ne 0 -or -not $version) { Refuse 'the version could not be read from the project' }
@@ -168,7 +186,7 @@ if ($Certificate) {
     Write-Host "  signed     $($ours.Count) files, by $((Get-Item "Cert:\CurrentUser\My\$Certificate").Subject)"
 }
 else {
-    Write-Host '  UNSIGNED   no certificate was given, and the archive is named for it' -ForegroundColor Yellow
+    Write-Host '  UNSIGNED   no certificate was given, and the setup is named for it' -ForegroundColor Yellow
 }
 
 # The licence and the bundled libraries' notices, which MIT and ISC ask to travel with every copy (QS285).
@@ -176,31 +194,42 @@ foreach ($notice in @('LICENSE', 'THIRD-PARTY-NOTICES.md')) {
     Copy-Item -LiteralPath (Join-Path $root $notice) -Destination $publish -Force
 }
 
-# The marker that makes an unzipped copy portable. Installing it leaves the marker behind.
-$null = New-Item -ItemType File -Path (Join-Path $publish 'aduzi.portable') -Force
-
 $suffix = if ($Unsigned) { '-unsigned' } else { '' }
-$name = "aduzi-$version-win-x64$suffix.zip"
 $null = New-Item -ItemType Directory -Path $Output -Force
-$zip = Join-Path $Output $name
-if (Test-Path -LiteralPath $zip) { Remove-Item -LiteralPath $zip -Force }
 
-# With its folder, so unzipping it in Downloads makes one folder and not two hundred files.
-Add-Type -AssemblyName System.IO.Compression.FileSystem
-[IO.Compression.ZipFile]::CreateFromDirectory($publish, $zip, [IO.Compression.CompressionLevel]::Optimal, $true)
+# What an earlier build of this version left here - the zip a release shipped before QS393, a setup -
+# so the folder holds what this build made. Other versions' files stay: install-vm -Former installs one.
+Get-ChildItem -LiteralPath $Output -File |
+    Where-Object { $_.Name -like "aduzi-$version-win-x64*" -or $_.Name -eq 'SHA256SUMS.txt' } |
+    Remove-Item -Force
+
+# QS393. A release is one Setup.exe, built from the signed files. Its wizard runs the build's own
+# `aduzi.exe --install`, so it and the palette's install are one install, removed by one entry.
+$setupBase = "aduzi-$version-win-x64-setup$suffix"
+$setup = Join-Path $Output "$setupBase.exe"
+& $iscc /Q "/DPayload=$publish" "/DAppVersion=$version" "/DOutputName=$setupBase" "/DOutputDir=$Output" `
+    (Join-Path $PSScriptRoot 'installer\aduzi.iss')
+if ($LASTEXITCODE -ne 0 -or -not (Test-Path -LiteralPath $setup)) { Refuse 'Inno Setup could not build the setup' 'What ISCC printed above says why.' }
+
+if ($Certificate) {
+    & $signtool sign /sha1 $Certificate /fd sha256 /tr $Timestamp /td sha256 /q $setup
+    if ($LASTEXITCODE -ne 0) { Refuse 'signtool could not sign the setup' }
+    $signature = Get-AuthenticodeSignature -LiteralPath $setup
+    if ($signature.Status -ne 'Valid') { Refuse "the setup is signed but does not verify: $($signature.StatusMessage)" }
+}
 
 # The line `sha256sum -c` reads, with a newline it reads too. From .NET and not Get-FileHash, which
 # does not load in this Windows PowerShell when CI's pwsh step started it (QS266).
-$stream = [IO.File]::OpenRead($zip)
+$stream = [IO.File]::OpenRead($setup)
 try { $hash = ([BitConverter]::ToString([Security.Cryptography.SHA256]::Create().ComputeHash($stream)) -replace '-', '').ToLowerInvariant() }
 finally { $stream.Dispose() }
-[IO.File]::WriteAllText((Join-Path $Output 'SHA256SUMS.txt'), "$hash  $name`n")
+[IO.File]::WriteAllText((Join-Path $Output 'SHA256SUMS.txt'), "$hash  $setupBase.exe`n")
 
 $files = @(Get-ChildItem -LiteralPath $publish -File -Recurse).Count
 $unpacked = [math]::Round((Get-ChildItem -LiteralPath $publish -File -Recurse | Measure-Object Length -Sum).Sum / 1MB)
-$packed = [math]::Round((Get-Item -LiteralPath $zip).Length / 1MB, 1)
+$packed = [math]::Round((Get-Item -LiteralPath $setup).Length / 1MB, 1)
 
-Write-Host "  archive    $zip"
-Write-Host "             $packed MB, $files files, $unpacked MB unpacked"
+Write-Host "  setup      $setup"
+Write-Host "             $packed MB, $files files, $unpacked MB installed"
 Write-Host "  sha256     $hash"
 exit 0

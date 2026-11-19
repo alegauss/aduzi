@@ -1,0 +1,25 @@
+﻿O ADUZI ESTÁ INSTALADO. PRIMEIROS PASSOS
+
+1. Abra o Aduzi
+   Pelo Menu Iniciar (digite Aduzi), ou marque a caixa na próxima página.
+
+2. Traga suas sessões
+   Vem do MobaXterm ou do PuTTY? Tecle Ctrl+Shift+I para importar suas sessões salvas; um tipo de sessão que o Aduzi não suporta aparece no relatório em vez de sumir.
+   Os hosts do seu ~/.ssh/config já aparecem, com ProxyJump e Include.
+
+3. Encontre qualquer ação
+   Ctrl+Shift+P abre a paleta de comandos. O Aduzi não tem menu: toda ação está na paleta.
+
+4. Digite em várias sessões ao mesmo tempo
+   Ctrl+Shift+B.
+
+
+PARA REMOVER
+
+Configurações > Aplicativos > Aplicativos instalados > Aduzi > Desinstalar.
+
+
+MAIS
+
+Documentação, linha de comando e o que mudou em cada versão:
+https://alegauss.com/aduzi/

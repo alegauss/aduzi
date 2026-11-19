@@ -461,6 +461,19 @@ stays for a certificate on this desk, should the fallback of QS381 be taken.
 Done when a pushed tag ends in a GitHub release whose quickshell.exe and assemblies
 verify Valid and timestamped under Get-AuthenticodeSignature on the guest.
 
+### §QS394 QS394 — the notices pin a runtime patch the SDK floats past
+
+check-notices.ps1 (QS378) refuses a build whose shipped runtime is not listed at that
+version. THIRD-PARTY-NOTICES.md says Microsoft.NETCore.App.Runtime.win-x64 and
+Microsoft.WindowsDesktop.App.Runtime.win-x64 10.0.14; on 19 November 2026 this desk's
+SDK published 10.0.15, so release.cmd -Unsigned refused before reaching the setup
+(QS393). CI's setup-dotnet asks for 10.0.x and floats the same way.
+
+The check is right and the table is not wrong; what is missing is one place that names
+the patch. A global.json naming the SDK, read by setup-dotnet as claude-tray's build
+does, makes the desk and the runner publish the same runtime, and moving it becomes a
+commit that edits the notices in the same diff.
+
 ## Block I — An error a user can act on
 
 ### §QS128 A trace that carries both sides of the negotiation

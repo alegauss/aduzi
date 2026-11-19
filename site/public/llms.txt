@@ -14,7 +14,7 @@
 *Aduzi* is Portuguese for "I brought": from the Latin *adducere*, to lead something toward you.
 That is what an SSH client does with a remote machine.
 
-Formerly quickshell. The executable is `aduzi.exe` and the archive `aduzi-<version>-win-x64.zip`;
+Formerly quickshell. The executable is `aduzi.exe` and the installer `aduzi-<version>-win-x64-setup.exe`;
 an install under the old name upgrades in place, with its settings and saved sessions.
 
 **Status: pre-release, version 0.1.0**, published at

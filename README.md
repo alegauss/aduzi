@@ -30,19 +30,19 @@ machine, the date and the command that produced it.
 
 ## Install
 
-Download `aduzi-0.1.0-win-x64-unsigned.zip` from the
-**[0.1.0 release](https://github.com/alegauss/aduzi/releases/tag/v0.1.0)**, and check it against
-`SHA256SUMS.txt` beside it.
+Download `aduzi-<version>-win-x64-setup-unsigned.exe` from the
+**[latest release](https://github.com/alegauss/aduzi/releases/latest)**, check it against
+`SHA256SUMS.txt` beside it, and run it.
 
 > **Pre-release, and not signed yet.** Windows SmartScreen warns on first start: *More info*,
 > then *Run anyway*. The SSH client, SFTP, port forwards, tabs, split panes and the
 > MobaXterm/PuTTY importers work. What is done and what is still open is in the
 > [roadmap](docs/ROADMAP.md) and the [changelog](docs/CHANGELOG.md).
 
-The archive carries its own .NET runtime. Unzip it anywhere and it runs as a portable copy, or
-install it for yourself with `aduzi.exe --install` (no administrator prompt) or for every
-user with `--install --all-users`. [INSTALL.md](docs/INSTALL.md) lists everything it does to
-your machine, which is not much.
+The setup carries its own .NET runtime. It installs Aduzi for you with no administrator prompt,
+or for every user if you choose that; it says what goes where before it installs, and shows the
+first steps after. A deployment runs it with `/VERYSILENT`. [INSTALL.md](docs/INSTALL.md) lists
+everything it does to your machine, which is not much.
 
 To build it yourself you need Windows x64 and the [.NET 10 SDK](https://dotnet.microsoft.com/download):
 `run-tests.cmd` builds everything and runs the tests, and `run.cmd Release` builds the client and

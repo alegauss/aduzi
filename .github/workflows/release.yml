@@ -1,12 +1,12 @@
-name: Release archive
+name: Release setup
 
-# QS377: the release archive built from the tag, on GitHub's runner and not on the maintainer's desk.
+# QS377: the release setup built from the tag, on GitHub's runner and not on the maintainer's desk.
 # A signing service that signs open-source projects for free (SignPath Foundation) signs only what a
 # CI run of the public repository produced, checked against the repository, the commit and this
 # workflow. An archive zipped on the desk cannot meet that, however reproducible it is.
 #
-# It builds and keeps the archive, and publishes nothing: publish-release.cmd still makes the GitHub
-# release (QS371), and sending this run's archive to be signed is QS382. The performance gate is
+# It builds and keeps the setup (QS393), and publishes nothing: publish-release.cmd still makes the GitHub
+# release (QS371), and sending this run's setup to be signed is QS382. The performance gate is
 # optional and means something only on the desk that took its baseline (QS79), so the build here is
 # not -Gated, as CI's is not.
 
@@ -28,8 +28,8 @@ jobs:
         with:
           dotnet-version: "10.0.x"
 
-      # The tag is the version's name, and the archive is named from the project: a tag that says
-      # one version over a project that says another would ship an archive nobody can match to it.
+      # The tag is the version's name, and the setup is named from the project: a tag that says
+      # one version over a project that says another would ship a setup nobody can match to it.
       - name: Tag names the project's version
         shell: pwsh
         run: |
@@ -40,10 +40,15 @@ jobs:
           }
           "version=$version" >> $env:GITHUB_ENV
 
-      - name: Release archive (unsigned)
+      - name: Inno Setup
+        shell: pwsh
+        run: |
+          if (-not (Test-Path "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe")) { choco install innosetup --no-progress -y }
+
+      - name: Release setup (unsigned)
         run: .\release.cmd -Unsigned
 
-      - name: Keep the archive
+      - name: Keep the setup
         uses: actions/upload-artifact@v7
         with:
           name: aduzi-${{ env.version }}

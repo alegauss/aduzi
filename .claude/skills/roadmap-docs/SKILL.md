@@ -254,12 +254,13 @@ QS12's matrix widening, and it is a finding to file rather than a tolerance to r
 
 **`.\release.cmd` builds what a release ships, and `.\run-install-vm.cmd` installs it where Windows
 looks.** The first publishes the client self-contained and ReadyToRun — the build QS75 measured —
-signs it with `-Certificate <thumbprint>`, and zips it as one portable archive, with
-`SHA256SUMS.txt` beside it, into `artifacts\release\`. Without a certificate it refuses unless
-`-Unsigned` is given, and then the archive's own name says so. A pushed `v<version>` tag builds the
-same unsigned archive on GitHub (`.github/workflows/release.yml`, QS377), refused when the tag and
-`<Version>` disagree, because a signing service signs only what CI built. The second carries that archive to
-the guest, installs it under the guest user's own token, reads back the folder, the Start menu
+signs it with `-Certificate <thumbprint>`, and packs it into one Setup.exe (Inno Setup,
+`tools\installer\aduzi.iss`, QS393), with `SHA256SUMS.txt` beside it, into `artifacts\release\`.
+There is no zip. Without a certificate it refuses unless `-Unsigned` is given, and then the setup's
+own name says so. A pushed `v<version>` tag builds the same unsigned setup on GitHub
+(`.github/workflows/release.yml`, QS377), refused when the tag and `<Version>` disagree, because a
+signing service signs only what CI built. The second carries that setup to the guest, runs it
+silently under the guest user's own token, reads back the folder, the Start menu
 shortcut and the uninstall entry, starts the installed copy, and removes it through the entry's own
 command. An install on this machine is an app in its owner's list, so an installer change is proven
 there and not here.
