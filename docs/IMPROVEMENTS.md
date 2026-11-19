@@ -216,8 +216,9 @@ Theme.Stroke on the window's Loaded. With it, the UI cases hung in three runs of
 two full and one alone, the client's UI thread idle in its message loop in the hang dump
 and the case runner waiting; set aside, the cases passed 31 of 31. Why one more key in
 the same dictionary does that is not known, and is the first thing to find, from the
-case that was running when it hung (the runner's own log names the case; the hang log
-only names the test).
+case that was running when it hung . Neither log names it: winwright's Suite.Launch
+reports nothing until the run ends (WW631, which this waits on). Soaked alone, the
+quick-connect case passes with the override.
 
 The fill is the Windows accent and not the client's, so the light pressed state may stay
 under 4.5:1 with the words at full strength (about 4.0:1 on this blue); what the client
