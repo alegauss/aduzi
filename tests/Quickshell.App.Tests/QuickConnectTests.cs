@@ -276,6 +276,79 @@ public sealed class QuickConnectTests : IDisposable
         Assert.Equal(SignInMethod.KeyFile, way);
     }
 
+    /// <summary>
+    /// QS409: the address has a row of its own, as wide as the card, so its whole placeholder fits —
+    /// at the width Home's card had in the owner's screenshot, where it was cut to "user@host or use".
+    /// How to sign in and Connect share the row below it.
+    /// </summary>
+    [Fact]
+    public void TheAddressHasARowOfItsOwnWideEnoughForItsPlaceholder()
+    {
+        (double addressTop, double signInTop, double connectTop, double addressWidth, double cardWidth, double hintWidth) = Sta.Run(() =>
+        {
+            MainWindow window = new()
+            {
+                SessionsFile = Path.Combine(_directory, "sessions.json"),
+                SshConfigFile = Path.Combine(_directory, "none"),
+            };
+
+            QuickConnect quick = window.ShowHome().Quick;
+
+            // Measured on its own, at a width it is given, rather than at whatever Home's column is here.
+            switch (System.Windows.LogicalTreeHelper.GetParent(quick))
+            {
+                case System.Windows.Controls.Panel panel:
+                    panel.Children.Remove(quick);
+                    break;
+
+                case System.Windows.Controls.Decorator decorator:
+                    decorator.Child = null;
+                    break;
+
+                case System.Windows.Controls.ContentControl content:
+                    content.Content = null;
+                    break;
+            }
+
+            // In a window of its own, shown, so layout runs as it does on Home: 575 across, the card's
+            // width in the owner's screenshot.
+            System.Windows.Window host = new()
+            {
+                Content = quick,
+                Width = 575,
+                SizeToContent = System.Windows.SizeToContent.Height,
+                ShowActivated = false,
+                WindowStyle = System.Windows.WindowStyle.None,
+            };
+
+            host.Show();
+            host.UpdateLayout();
+
+            System.Windows.FrameworkElement Named(string name) =>
+                Under(quick).OfType<System.Windows.FrameworkElement>().First(each => each.Name == name);
+
+            System.Windows.Controls.TextBlock hint = Under(quick).OfType<System.Windows.Controls.TextBlock>()
+                                                                 .Single(each => each.Text == "user@host or user@host:port");
+
+            double Top(System.Windows.FrameworkElement element) => element.TranslatePoint(default, quick).Y;
+
+            System.Windows.FrameworkElement address = Named("Address");
+
+            (double, double, double, double, double, double) measured =
+                (Top(address), Top(Named("SignIn")), Top(Named("Connect")), address.ActualWidth,
+                 quick.ActualWidth, hint.DesiredSize.Width + hint.Margin.Left);
+
+            host.Close();
+
+            return measured;
+        });
+
+        Assert.True(signInTop > addressTop, "Sign in with is not below the address");
+        Assert.Equal(signInTop, connectTop, 1);
+        Assert.True(addressWidth > cardWidth * 0.8, $"the address is {addressWidth} wide in a card of {cardWidth}");
+        Assert.True(hintWidth <= addressWidth, $"the placeholder needs {hintWidth} and the address has {addressWidth}");
+    }
+
     private static IEnumerable<System.Windows.DependencyObject> Under(System.Windows.DependencyObject root)
     {
         yield return root;

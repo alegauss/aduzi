@@ -237,23 +237,6 @@ has been counted, the wait is what to fix; if a third frame appears, find what w
 loop. The QS402 face is built lazily on first use, which is a new first-frame cost worth
 ruling out.
 
-### §QS409 Address on a row of its own
-
-Reported by the owner on 2026-11-19 with a screenshot of Home in the dark theme. The
-quick connect card puts Address, Sign in with and Connect side by side, and at the
-window's usual width the Address field is narrower than its own placeholder: user@host
-or user@host:port is cut to user@host or use, which drops the half that says a port can
-be given.
-
-The owner asked for Address on one row and Sign in with on the next. The design: Address
-takes the card's full width; below it, Sign in with on the left and Connect on the
-right, aligned to the field's right edge so the button stays where the eye ends a line.
-The labels stay above their controls, the tab order stays Address, Sign in with,
-Connect, and Save as a session stays the card's last line. QuickConnectWindow is the
-same QuickConnect in a window of its own, so it takes the same arrangement. A test reads
-the arrangement from the tree: Address alone on its row, at the card's width, and its
-placeholder measured no wider than the field.
-
 ## Block E — SCP and SFTP as a thing a person operates
 
 ## Block F — A forward is a lifecycle, not a checkbox

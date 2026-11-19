@@ -171,6 +171,7 @@
 - ✅ **QS405 (open tabs and checked boxes)** **The contrast audit leaves out a third of what the client draws: open tabs, the session bar, menus and five dialogs** — The audit opens the main window with two tabs, reading both dots and chips, and settings with every box checked; all pass in both themes.
 - ✅ **QS408** **Menu shortcuts are drawn in the disabled text colour, 2.5:1 on the light menu and 3.2:1 on the dark** — An enabled menu item draws its shortcut in the theme's secondary text, 4.5:1 or better in both themes; a disabled one keeps the disabled colour.
 - ✅ **QS406** **Buttons and combo boxes show an edge of 1.3:1 in the dark theme and 1.5:1 in the light, so they read as labels** — Buttons and combo boxes in the theme's own look take Fluent's strong stroke, 3.3:1 on the light ground and 5.8:1 on the dark, and the audit now holds them to 3:1.
+- ✅ **QS409** **Home's quick connect cuts its Address placeholder short, the field sharing one row with Sign in with and Connect** — The address has the card's full width on a row of its own, so its whole placeholder shows; Sign in with and Connect share the row below.
 
 ## Block E — SCP and SFTP as a thing a person operates
 

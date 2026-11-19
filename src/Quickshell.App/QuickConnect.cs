@@ -146,21 +146,23 @@ public sealed class QuickConnect : Border
         AutomationProperties.SetName(connect, "Connect");
         connect.Click += (_, _) => Go();
 
-        // One row, bottom-aligned, 12 apart: the address, how to sign in, and Connect.
-        Grid row = new();
+        // The address on a row of its own, the card's full width (QS409): beside the other two it was
+        // narrower than its own placeholder, which lost the half that says a port can be given. Below
+        // it, how to sign in on the left and Connect on the right, ending where the field ends.
+        FrameworkElement address = Labelled("Address", box);
 
+        AutomationProperties.SetAutomationId(address, "AddressRow");
+
+        Grid row = new() { Margin = new Thickness(0, 12, 0, 0) };
+
+        row.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
         row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
         row.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
-        row.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
 
-        FrameworkElement address = Labelled("Address", box);
         FrameworkElement signIn = Labelled("Sign in with", _signIn);
 
-        signIn.Margin = new Thickness(12, 0, 0, 0);
         connect.Margin = new Thickness(12, 0, 0, 0);
-        Grid.SetColumn(signIn, 1);
         Grid.SetColumn(connect, 2);
-        row.Children.Add(address);
         row.Children.Add(signIn);
         row.Children.Add(connect);
 
@@ -203,8 +205,10 @@ public sealed class QuickConnect : Border
 
         StackPanel body = new();
 
-        body.Children.Add(row);
+        // The refusal under the address it is about, before the row that acts on it.
+        body.Children.Add(address);
         body.Children.Add(_refused);
+        body.Children.Add(row);
         body.Children.Add(_keyRow);
         body.Children.Add(under);
 

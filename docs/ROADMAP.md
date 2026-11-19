@@ -12,7 +12,6 @@
 
 - 🛠 **QS405** (deps: —) **The contrast audit leaves out a third of what the client draws: open tabs, the session bar, menus and five dialogs** — Still unaudited: the paste and closing questions, the vault import preview, and hovered or disabled states. → §QS405
 - 📋 **QS407** (deps: —) **TheLoopDrawsWhatTheSignalSaysAndNothingElse failed once in a full guest run and passed alone straight after** — A test that goes red at random is one a real regression in the render loop can hide behind, and the actual count it saw was not kept. → §QS407
-- 📋 **QS409** (deps: —) **Home's quick connect cuts its Address placeholder short, the field sharing one row with Sign in with and Connect** — Reported by the owner with a screenshot: user@host or user@host:port shows as user@host or use, so the hint never says the port form. → §QS409
 
 ## Block E — SCP and SFTP as a thing a person operates
 
