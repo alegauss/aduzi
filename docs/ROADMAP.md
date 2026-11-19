@@ -11,8 +11,8 @@
 ## Block D — The tree a user organises work in
 
 - 🛠 **QS405** (deps: —) **The contrast audit leaves out a third of what the client draws: open tabs, the session bar, menus and five dialogs** — Still unaudited: the paste and closing questions, the vault import preview, and hovered or disabled states. → §QS405
-- 📋 **QS406** (deps: —) **Buttons and combo boxes show an edge of 1.3:1 in the dark theme and 1.5:1 in the light, so they read as labels** — WCAG excuses a component its words identify, but Install into WSL… and the theme box looked like labels in the owner's settings screenshot. → §QS406
 - 📋 **QS407** (deps: —) **TheLoopDrawsWhatTheSignalSaysAndNothingElse failed once in a full guest run and passed alone straight after** — A test that goes red at random is one a real regression in the render loop can hide behind, and the actual count it saw was not kept. → §QS407
+- 📋 **QS409** (deps: —) **Home's quick connect cuts its Address placeholder short, the field sharing one row with Sign in with and Connect** — Reported by the owner with a screenshot: user@host or user@host:port shows as user@host or use, so the hint never says the port form. → §QS409
 
 ## Block E — SCP and SFTP as a thing a person operates
 

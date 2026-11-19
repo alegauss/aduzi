@@ -355,10 +355,10 @@ public sealed class ContrastAuditTests : IDisposable
                 yield return new Reading(theme, title, Quote(text.Text), "text", fore, back, Ratio(fore, back),
                                          large ? 3 : 4.5, backdrop);
             }
-            // A field, a check box and a radio button are found by their edge (1.4.11). A button or a
-            // combo box is found by its words, a chevron or a glyph, which are read as text above: WCAG
-            // asks no boundary of a component its own text identifies.
-            else if (node is TextBox or PasswordBox or CheckBox or RadioButton
+            // A field, a check box and a radio button are found by their edge (1.4.11), and so is a
+            // button or a combo box in the theme's own look (QS406). One the client draws itself — its
+            // own template or style, chromeless by design — is found by its words, read as text above.
+            else if ((node is TextBox or PasswordBox or CheckBox or RadioButton || (node is Button or ComboBox && Themed((Control)node)))
                      && node is Control { IsEnabled: true } control && measuredControls.Add(control))
             {
                 // A radio button or check box drawn as a segment (a toggle button's look) is found by its
@@ -394,6 +394,12 @@ public sealed class ContrastAuditTests : IDisposable
             }
         }
     }
+
+    /// <summary>Whether a control wears the theme's own look rather than one the client drew for it, and is not a part of another control.</summary>
+    private static bool Themed(Control control) =>
+        control.TemplatedParent is null
+        && control.ReadLocalValue(Control.TemplateProperty) == DependencyProperty.UnsetValue
+        && control.ReadLocalValue(FrameworkElement.StyleProperty) == DependencyProperty.UnsetValue;
 
     /// <summary>Whether a radio button or check box draws no mark of its own: no ellipse, no box, a segment.</summary>
     private static bool Segment(ToggleButton toggle) =>

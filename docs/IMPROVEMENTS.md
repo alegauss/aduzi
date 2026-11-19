@@ -215,23 +215,6 @@ Each is a window or state the audit can build as it builds the others, through t
 seams the tests use. The tab status ring, drawn in tertiary text as a non-text graphic,
 is the first reading this would give that nothing measures now.
 
-### §QS406 Buttons and combo boxes that look like labels
-
-Found by the contrast audit of QS403 on 2026-11-19. Fluent's standard button and combo
-box draw a fill a few per cent off the ground and an elevation border whose strongest
-stop is #353535 on #202020 in the dark theme (1.33:1) and #CCCCCC on #F3F3F3 in the
-light (1.45:1). The audit exempts them, as WCAG 1.4.11 does a component its own words
-identify, so QS403 does not fix them.
-
-The owner's screenshot is the case against leaving it there: in the settings window,
-Install the Claude Code plugin… and Install into WSL… read as two lines of text, and the
-theme and cursor boxes as values rather than choices.
-
-To decide: a stroke at ControlStrongStrokeColorDefault on these controls, which is what
-Fluent gives a check box and passes 3:1 on both grounds, or an accent fill on the one
-default button of each dialog only. Whichever, the audit then measures buttons and combo
-boxes at 3:1 instead of exempting them.
-
 ### §QS407 A render-loop test that fails at random
 
 Seen on 2026-11-19 while validating QS404, in a full guest run:
@@ -253,6 +236,23 @@ load until it fails, and read which. If Settled returns before the frame it wait
 has been counted, the wait is what to fix; if a third frame appears, find what woke the
 loop. The QS402 face is built lazily on first use, which is a new first-frame cost worth
 ruling out.
+
+### §QS409 Address on a row of its own
+
+Reported by the owner on 2026-11-19 with a screenshot of Home in the dark theme. The
+quick connect card puts Address, Sign in with and Connect side by side, and at the
+window's usual width the Address field is narrower than its own placeholder: user@host
+or user@host:port is cut to user@host or use, which drops the half that says a port can
+be given.
+
+The owner asked for Address on one row and Sign in with on the next. The design: Address
+takes the card's full width; below it, Sign in with on the left and Connect on the
+right, aligned to the field's right edge so the button stays where the eye ends a line.
+The labels stay above their controls, the tab order stays Address, Sign in with,
+Connect, and Save as a session stays the card's last line. QuickConnectWindow is the
+same QuickConnect in a window of its own, so it takes the same arrangement. A test reads
+the arrangement from the tree: Address alone on its row, at the card's width, and its
+placeholder measured no wider than the field.
 
 ## Block E — SCP and SFTP as a thing a person operates
 

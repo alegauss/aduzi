@@ -2004,12 +2004,18 @@ public sealed partial class MainWindow : Window
         foreach (Window owned in OwnedWindows)
         {
             owned.ThemeMode = ThemeMode;
+            Theme.Stroke(owned);
         }
 
         if (_browser is { } browser)
         {
             browser.ThemeMode = ThemeMode;
+            Theme.Stroke(browser);
         }
+
+        // The edge of every button and combo box is the theme's brush as a value (QS406), so it is
+        // taken again in the theme now in force.
+        Theme.Stroke(this);
 
         // Every pane that is already open, and not only the ones opened after this. A font size that
         // needs a restart is a font size nobody experiments with, and experimenting is the entire
