@@ -10,7 +10,7 @@
 
 ## Block D — The tree a user organises work in
 
-- 📋 **QS405** (deps: —) **The contrast audit leaves out a third of what the client draws: open tabs, the session bar, menus and five dialogs** — A window the audit never opens is one whose contrast nobody measured; the tab strip and session bar are on screen all day. → §QS405
+- ⏳ **QS405** (deps: —) **The contrast audit leaves out a third of what the client draws: open tabs, the session bar, menus and five dialogs** — Still unaudited: the menus, both import previews, paste confirmation, New folder, and focused, hovered or disabled states. → §QS405
 - 📋 **QS406** (deps: —) **Buttons and combo boxes show an edge of 1.3:1 in the dark theme and 1.5:1 in the light, so they read as labels** — WCAG excuses a component its words identify, but Install into WSL… and the theme box looked like labels in the owner's settings screenshot. → §QS406
 - 📋 **QS407** (deps: —) **TheLoopDrawsWhatTheSignalSaysAndNothingElse failed once in a full guest run and passed alone straight after** — A test that goes red at random is one a real regression in the render loop can hide behind, and the actual count it saw was not kept. → §QS407
 

@@ -168,6 +168,7 @@
 - ✅ **QS402** **The terminal's default face is Cascadia Mono, not the Vera-based face MobaXterm users read all day** — Noto Sans Mono, the nearest OSI-licensed face to MobaFont, ships inside the client and is the default fontFamily, found by name with nothing installed.
 - ✅ **QS403** **In the dark theme the settings window's empty fields and unchecked boxes barely stand out from its background** — Every window takes the theme's solid ground instead of Mica, and an audit of fifteen windows in both themes finds no text under 4.5:1 and no field under 3:1.
 - ✅ **QS404** **Several dialogs dim text with an opacity of 0.7 or 0.8 instead of the theme's secondary text colour** — Sign in, both vault dialogs and agent approval take the theme's secondary text colour through Theme.Quiet, as every other window does, instead of the primary at an opacity.
+- ✅ **QS405 (open tabs and checked boxes)** **The contrast audit leaves out a third of what the client draws: open tabs, the session bar, menus and five dialogs** — The audit opens the main window with two tabs, reading both dots and chips, and settings with every box checked; all pass in both themes.
 
 ## Block E — SCP and SFTP as a thing a person operates
 

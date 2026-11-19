@@ -33,6 +33,9 @@ namespace Quickshell.App.Tests;
 /// </summary>
 public sealed class ContrastAuditTests : IDisposable
 {
+    /// <summary>The one device, atlas and render loop these tabs draw with. See QS49.</summary>
+    private static readonly TerminalShare Shared = new();
+
     private readonly string _directory = Path.Combine(Path.GetTempPath(), $"quickshell-contrast-{Guid.NewGuid():N}");
 
     public void Dispose()
@@ -65,6 +68,14 @@ public sealed class ContrastAuditTests : IDisposable
         }
 
         Write(readings);
+
+        // Both tabs' dots were read in both themes (QS405): an audit that stopped finding them would
+        // otherwise pass on having measured nothing.
+        foreach (string theme in (string[])["Light", "Dark"])
+        {
+            Assert.True(readings.Count(each => each is { Window: "Main window, tabs", Kind: "graphic" } && each.Theme == theme) >= 2,
+                        $"the tab dots were not measured in the {theme} theme");
+        }
 
         Reading[] failing = [.. readings.Where(reading => !reading.Passes)];
 
@@ -138,7 +149,32 @@ public sealed class ContrastAuditTests : IDisposable
             return main;
         });
 
+        // With tabs open (QS405): the strip, each tab's dot and its prod chip, and the sidebar's
+        // Connected chip. One local shell, which wears the ring, and one saved session up, which wears
+        // the fill; the terminal itself is the renderer's and not WPF's, so it is not read here.
+        yield return ("Main window, tabs", () =>
+        {
+            MainWindow main = new() { SessionsFile = sessions, SettingsPath = settings, Linked = tab => tab.Saved is not null };
+            TerminalTab db = TerminalTab.Open(Quickshell.App.Settings.Default, Shared, "db1.example.com");
+
+            db.Saved = "Work/db";
+            main.Add(TerminalTab.Open(Quickshell.App.Settings.Default, Shared, "local"));
+            main.Add(db);
+            main.RefreshSessions();
+            main.ToggleFolder("Work");
+            main.Retitle();
+
+            return main;
+        });
+
         yield return ("Settings", () => new SettingsWindow(settings));
+
+        // Every box checked (QS405): a checked box is a filled one, which is a different reading.
+        string ticked = Path.Combine(_directory, "settings-ticked.json");
+
+        File.WriteAllText(ticked, "{ \"cursorBlink\": true, \"warnOnPaste\": true, \"ligatures\": true, \"agentGateway\": true, \"agentCertificateHello\": true }");
+
+        yield return ("Settings, boxes checked", () => new SettingsWindow(ticked));
         yield return ("New session", () => new SessionDialog(SessionEditor.Creating(SessionTree.ReadFrom(sessions), "Work", "web")));
         yield return ("Choice", () =>
         {
@@ -209,7 +245,17 @@ public sealed class ContrastAuditTests : IDisposable
                 continue;
             }
 
-            if (node is TextBlock text && text.Text.Trim().Length > 0 && text.Foreground is SolidColorBrush ink)
+            // A dot the client draws itself, outside any control's template: a tab's state, the status
+            // bar's. A graphic that carries meaning, read at 3:1 (1.4.11) on the stronger of its stroke
+            // and its fill (QS405).
+            if (node is System.Windows.Shapes.Ellipse { TemplatedParent: null } dot)
+            {
+                Color ground = Behind(dot, floor);
+                (double ratio, Color drawn) = Boundary(dot, ground);
+
+                yield return new Reading(theme, title, Describe(dot), "graphic", drawn, ground, ratio, 3, backdrop);
+            }
+            else if (node is TextBlock text && text.Text.Trim().Length > 0 && text.Foreground is SolidColorBrush ink)
             {
                 Color back = Behind(text, floor);
                 Color fore = Over(ink.Color, ink.Opacity * Faded(text), back);
@@ -479,6 +525,20 @@ public sealed class ContrastAuditTests : IDisposable
         }
     }
 
+    /// <summary>A dot by what it says: the status of the tab it sits in, or its own name.</summary>
+    private static string Describe(System.Windows.Shapes.Ellipse dot)
+    {
+        for (DependencyObject? at = dot; at is not null; at = VisualTreeHelper.GetParent(at))
+        {
+            if (at is TabItem tab)
+            {
+                return $"dot of tab \"{AutomationProperties.GetName(tab)}\" ({AutomationProperties.GetItemStatus(tab)})";
+            }
+        }
+
+        return $"dot {AutomationProperties.GetAutomationId(dot)}".Trim();
+    }
+
     private static string Describe(Control control)
     {
         string id = AutomationProperties.GetAutomationId(control);
@@ -511,16 +571,19 @@ public sealed class ContrastAuditTests : IDisposable
         report.AppendLine();
         report.AppendLine("Text needs 4.5:1 (3:1 when large); a control's edge needs 3:1. A window marked * has no background of its own and is drawn over Mica, measured here against the theme's base fill.");
         report.AppendLine();
-        report.AppendLine("| Theme | Window | Readings | Below | Worst |");
-        report.AppendLine("|---|---|---:|---:|---|");
+        report.AppendLine("| Theme | Window | Readings | Of which | Below | Worst |");
+        report.AppendLine("|---|---|---:|---|---:|---|");
 
         foreach (IGrouping<(string Theme, string Window), Reading> group in readings.GroupBy(each => (each.Theme, each.Window)))
         {
             Reading worst = group.MinBy(each => each.Ratio / each.Needs)!;
             string mica = group.First().OverBackdrop ? " *" : string.Empty;
 
+            // What was measured, by kind, so a reading that was never taken shows as missing (QS405).
+            string kinds = string.Join(", ", group.GroupBy(each => each.Kind).Select(kind => $"{kind.Count()} {kind.Key}"));
+
             report.AppendLine(string.Create(CultureInfo.InvariantCulture,
-                $"| {group.Key.Theme} | {group.Key.Window}{mica} | {group.Count()} | {group.Count(each => !each.Passes)} | {worst.What} {worst.Ratio:0.00}:1 of {worst.Needs}:1 |"));
+                $"| {group.Key.Theme} | {group.Key.Window}{mica} | {group.Count()} | {kinds} | {group.Count(each => !each.Passes)} | {worst.What} {worst.Ratio:0.00}:1 of {worst.Needs}:1 |"));
         }
 
         report.AppendLine();
