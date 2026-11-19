@@ -282,6 +282,78 @@ public sealed class ContrastAuditTests : IDisposable
             ((MenuItem)main.MenuBarMenu.Items[0]).IsSubmenuOpen = true;
         });
 
+        // The paste question: a clipboard with a newline in it, which is what asks, sent nowhere.
+        yield return ("Paste question", () =>
+        {
+            MainWindow main = new()
+            {
+                SessionsFile = sessions,
+                SettingsPath = settings,
+                Tells = _ => { },
+                Clipboard = new HeldClipboard { Text = "echo one\r\necho two\n" },
+                Pasting = _ => ValueTask.CompletedTask,
+                Bracketed = () => false,
+            };
+
+            return Handed(main, () => main.PasteFromClipboard());
+        }, null);
+
+        // The closing question: a session open and the guard asking, on closing the window.
+        yield return ("Closing question", () =>
+        {
+            MainWindow main = new() { SessionsFile = sessions, SettingsPath = settings, Guard = CloseGuard.Asking(), Tells = _ => { } };
+
+            main.Sessions.Open("db1.example.com");
+
+            Window asked = Handed(main, main.Close);
+
+            // Asked once; the audit closes this window afterwards, and must not be asked again.
+            main.Guard = null;
+
+            return asked;
+        }, null);
+
+        // The vault import preview, over a plan read from a vault this run exported.
+        yield return ("Vault import preview", () =>
+        {
+            SecretStore before = SecretStore.In(Path.Combine(_directory, "old-machine"));
+
+            using (Secret password = Secret.From("a-password".AsSpan()))
+            {
+                before.Save(SshEndpoint.For("db1.example.com", "deploy", 22), password);
+            }
+
+            string vault = Path.Combine(_directory, $"sessions-{Guid.NewGuid():N}.kdbx");
+            const string Passphrase = "correct horse battery staple contrast";
+
+            using (VaultExport export = VaultExport.Gather(SessionTree.ReadFrom(sessions), before))
+            using (Secret passphrase = Secret.From(Passphrase.AsSpan()))
+            using (KdbxKey key = KdbxKey.Derive(passphrase, kdf: new KdbxKdf(8 * 1024, 2)))
+            {
+                export.Write(vault, key);
+            }
+
+            Window? preview = null;
+            MainWindow main = new()
+            {
+                SessionsFile = sessions,
+                SettingsPath = settings,
+                Tells = _ => { },
+                OpensSecrets = () => SecretStore.In(Path.Combine(_directory, "new-machine")),
+                AsksVaultImport = () => new VaultImportAnswer(vault, Passphrase, null),
+                ConfirmsVaultImport = (plan, path) =>
+                {
+                    preview = new VaultImportPreview(plan, path);
+
+                    return null;
+                },
+            };
+
+            main.ImportVault();
+
+            return preview!;
+        }, null);
+
         // A field with the keyboard: its accent underline is the focus indicator, read at 3:1.
         yield return ("Settings, a field focused", () => new SettingsWindow(settings), window =>
         {
@@ -291,6 +363,37 @@ public sealed class ContrastAuditTests : IDisposable
 
             Keyboard.Focus(field);
         });
+    }
+
+    /// <summary>
+    /// The dialog a main window builds and shows itself when something is done to it, handed over
+    /// unshown through <see cref="MainWindow.ShowingDialog"/>; the main window is shown first, since
+    /// the dialog is owned by it.
+    /// </summary>
+    private static Window Handed(MainWindow main, Action asking)
+    {
+        Window? built = null;
+
+        main.Show();
+        MainWindow.ShowingDialog = dialog =>
+        {
+            built = dialog;
+
+            return false;
+        };
+
+        try
+        {
+            asking();
+        }
+        finally
+        {
+            MainWindow.ShowingDialog = null;
+        }
+
+        Assert.NotNull(built);
+
+        return built;
     }
 
     private sealed class Nothing : ICommand

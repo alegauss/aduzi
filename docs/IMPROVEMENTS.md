@@ -202,19 +202,6 @@ the per-frame cost is the wake and the present, which is a different line.
 
 ## Block D — The tree a user organises work in
 
-### §QS405 What the contrast audit does not open yet
-
-The audit QS403 added opens fifteen windows at rest. Left out, on 2026-11-19:
-
-- the main window with tabs open: the tab strip with its status dots and tag chips, the session bar, the connection status bar, a split's divider, the search bar over a pane;
-- the menu bar, its menus, and the sidebar's context menus;
-- the vault import preview, the MobaXterm import preview, the paste confirmation, the New folder dialog, and the file browser's own small dialogs;
-- every state but rest: a focused field (its accent underline), a hovered and a selected row, a checked box, a disabled control, and the palette with a row selected, where QS403's chord failure was.
-
-Each is a window or state the audit can build as it builds the others, through the same
-seams the tests use. The tab status ring, drawn in tertiary text as a non-text graphic,
-is the first reading this would give that nothing measures now.
-
 ### §QS407 A render-loop test that fails at random
 
 Seen on 2026-11-19 while validating QS404, in a full guest run:
@@ -236,6 +223,27 @@ load until it fails, and read which. If Settled returns before the frame it wait
 has been counted, the wait is what to fix; if a third frame appears, find what woke the
 loop. The QS402 face is built lazily on first use, which is a new first-frame cost worth
 ruling out.
+
+### §QS410 Hovered and pressed, unmeasured
+
+Split from QS405 on 2026-11-19. The contrast audit reads every window and dialog the
+client draws, at rest, with a menu open, with boxes checked and with a field focused. A
+hovered row, a hovered button and a pressed one are not read, and cannot be from where
+the audit stands: WPF's IsMouseOver is read-only, set only by a pointer actually over
+the element, and Fluent's templates switch their colours on it in triggers no code can
+drive.
+
+Two ways in, neither available now. A pointer moved over the control on the guest's
+desk, which winwright can do, followed by a reading of the colours drawn; but winwright
+reads the accessibility tree, which carries no colour, so the reading would need a
+capture of the pixels under the control, which the evidence rule keeps for a person to
+look at rather than as proof. Or the hover colours read from the theme's own keys
+(ButtonBackgroundPointerOver and its kin) and measured against the ground, which says
+what Fluent would draw without showing that it does.
+
+Until one of those is chosen, the hovered state is the one this client has not measured.
+QS406 gave a button's edge the strong stroke at rest, hovered and pressed alike, so the
+edge is not what is at risk; the hovered fill behind a button's words is.
 
 ## Block E — SCP and SFTP as a thing a person operates
 

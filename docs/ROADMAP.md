@@ -10,8 +10,8 @@
 
 ## Block D — The tree a user organises work in
 
-- 🛠 **QS405** (deps: —) **The contrast audit leaves out a third of what the client draws: open tabs, the session bar, menus and five dialogs** — Still unaudited: the paste and closing questions, the vault import preview, and hovered or disabled states. → §QS405
 - 📋 **QS407** (deps: —) **TheLoopDrawsWhatTheSignalSaysAndNothingElse failed once in a full guest run and passed alone straight after** — A test that goes red at random is one a real regression in the render loop can hide behind, and the actual count it saw was not kept. → §QS407
+- 📋 **QS410** (deps: —) **The contrast audit cannot read a hovered or pressed control, so those colours have never been measured** — WPF sets IsMouseOver only under a real pointer, and nothing in this desk both moves one and reads the colours it draws. → §QS410
 
 ## Block E — SCP and SFTP as a thing a person operates
 
@@ -306,13 +306,6 @@
 - **The gate holds start on the reference desk** release.cmd, or run-perf-gate.cmd, run
   on xps at the commit with the fix judges start as held beside 40fb448, and the row it
   appends to benchmarks/results/gate-xps.md says so.
-
-## Done when — QS405
-
-- **Every window and state the client draws is in the contrast audit** Checked by
-  ContrastAuditTests' report: the menus, the vault and MobaXterm import previews, paste
-  confirmation and New folder each have a row in both themes, and focused, hovered and
-  disabled states each a reading, with none below WCAG.
 
 ## Non-goals
 
