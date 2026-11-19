@@ -122,7 +122,7 @@ export const sponsor: SponsorDeclaration = {
 /* ------------------------------------------------------------------ hero */
 
 export const hero = {
-  badge: "Pre-release 0.1.0 · Windows 10 / 11 · x64",
+  badge: "Pre-release 0.2.0 · Windows 10 / 11 · x64",
   titleLead: "SSH on Windows,",
   titleAccent: "without the suite around it.",
   sub: [
@@ -580,7 +580,7 @@ export const download = {
   intro: [
     "Windows 10 or 11, x64. It installs under ",
     { code: "%LOCALAPPDATA%" },
-    " and asks for nothing else, which is what reaches a managed laptop. Version 0.1.0 is a pre-release on GitHub, and it is not signed yet, so SmartScreen warns on first start.",
+    " and asks for nothing else, which is what reaches a managed laptop. Version 0.2.0 is a pre-release on GitHub: one Setup.exe that says what it installs and where. It is not signed yet, so SmartScreen warns when it starts.",
   ] as Rich,
   facts: [
     "No service, no scheduled task",

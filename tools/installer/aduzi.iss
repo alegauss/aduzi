@@ -1,6 +1,6 @@
 ﻿; Aduzi's Setup.exe (QS393). Built by tools\release.ps1, which passes every define below; by hand:
 ;
-;   ISCC.exe /DPayload=<published folder> /DAppVersion=0.1.0 /DOutputName=aduzi-0.1.0-win-x64-setup tools\installer\aduzi.iss
+;   ISCC.exe /DPayload=<published folder> /DAppVersion=0.2.0 /DOutputName=aduzi-0.2.0-win-x64-setup tools\installer\aduzi.iss
 ;
 ; A wizard in front of the installer the client already is, not a second one. Installation.cs writes
 ; the program folder, the Start menu shortcut and the entry in the list of installed apps, retires an

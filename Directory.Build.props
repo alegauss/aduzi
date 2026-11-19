@@ -37,7 +37,7 @@
     <!-- What a release is called: the archive carries it in its name, and the list of installed apps
          shows it. One number for every assembly, so a release is one edit here and not one per
          project. -->
-    <Version>0.1.0</Version>
+    <Version>0.2.0</Version>
 
     <!-- MIT (QS285), chosen by the owner; LICENSE at the root, the bundled libraries credited in
          THIRD-PARTY-NOTICES.md, both carried in the release archive. -->
