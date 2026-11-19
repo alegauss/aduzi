@@ -202,22 +202,6 @@ the per-frame cost is the wake and the present, which is a different line.
 
 ## Block D — The tree a user organises work in
 
-### §QS404 Secondary text from the theme, everywhere
-
-Found while fixing QS403 on 2026-11-19. Home, the session dialog, the sidebar, the
-session bar and now the settings window take TextFillColorSecondaryBrush for quieter
-text. Six places derive it instead, by putting the primary at an opacity: SignInDialog's
-two notes (0.7), VaultExportDialog's two notes (0.7) and its labels (0.8),
-VaultImportDialog's labels (0.8), and ApprovalDialog's plan hash (0.75) and rule line
-(0.7).
-
-They pass the audit on the solid ground QS403 gives every window, so this is not a
-contrast failure. It is two greys for one meaning: an opacity on the primary is a colour
-the theme never chose, it changes with the primary, and it is the same text one window
-says in another shade. The fix is the one QS403 made in the settings window, one
-SetResourceReference each, and the audit's readings for those windows should not move
-below 4.5:1.
-
 ### §QS405 What the contrast audit does not open yet
 
 The audit QS403 added opens fifteen windows at rest. Left out, on 2026-11-19:
@@ -247,6 +231,28 @@ To decide: a stroke at ControlStrongStrokeColorDefault on these controls, which 
 Fluent gives a check box and passes 3:1 on both grounds, or an accent fill on the one
 default button of each dialog only. Whichever, the audit then measures buttons and combo
 boxes at 3:1 instead of exempting them.
+
+### §QS407 A render-loop test that fails at random
+
+Seen on 2026-11-19 while validating QS404, in a full guest run:
+TerminalViewTests.TheLoopDrawsWhatTheSignalSaysAndNothingElse failed with
+"Assert.Equal() Failure: Values differ, Expected: 2", the assertion that the loop drew
+exactly twice after one damage signal. The same class run alone straight after passed 10
+of 10, and the full run before it, with the same code under test, passed too. QS404
+touched only dialog text colours, nothing the render loop reads.
+
+The actual value was not kept: the summary prints only the expected one, and the
+filtered rerun replaced the guest's TRX. So whether the loop drew a third frame (a wake
+the signal did not ask for) or the test read the count before the second frame had
+landed is not known, and the two mean different things: the first is the defect the test
+exists to catch, the second is the test's own wait.
+
+To do: keep the TRX of a red full run under its own name before any rerun writes over
+it, so the actual value survives; then run the class in a loop inside a full suite's
+load until it fails, and read which. If Settled returns before the frame it waits for
+has been counted, the wait is what to fix; if a third frame appears, find what woke the
+loop. The QS402 face is built lazily on first use, which is a new first-frame cost worth
+ruling out.
 
 ## Block E — SCP and SFTP as a thing a person operates
 

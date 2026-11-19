@@ -154,7 +154,7 @@ public sealed class VaultImportDialog : Window
     }
 
     private static TextBlock Label(string text, double top = 0) =>
-        new() { Text = text, Margin = new Thickness(0, top, 0, 4), Opacity = 0.8 };
+        Theme.Quiet(new() { Text = text, Margin = new Thickness(0, top, 0, 4) });
 }
 
 /// <summary>

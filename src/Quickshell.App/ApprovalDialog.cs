@@ -62,7 +62,7 @@ public sealed class ApprovalDialog : Window
         AutomationProperties.SetAutomationId(heading, "AskHeading");
         body.Children.Add(heading);
 
-        TextBlock hash = new() { Text = $"Plan {request.ShortHash}", Margin = new Thickness(0, 2, 0, 10), Opacity = 0.75 };
+        TextBlock hash = Theme.Quiet(new() { Text = $"Plan {request.ShortHash}", Margin = new Thickness(0, 2, 0, 10) });
 
         AutomationProperties.SetAutomationId(hash, "PlanHash");
         body.Children.Add(hash);
@@ -174,7 +174,7 @@ public sealed class ApprovalDialog : Window
         AutomationProperties.SetAutomationId(what, call.Tool == "edit_file" ? "AskDiff" : "AskCommand");
         inside.Children.Add(what);
 
-        TextBlock rule = new() { Text = call.Rule, FontSize = 11, Opacity = 0.7, Margin = new Thickness(0, 4, 0, 0), TextWrapping = TextWrapping.Wrap };
+        TextBlock rule = Theme.Quiet(new() { Text = call.Rule, FontSize = 11, Margin = new Thickness(0, 4, 0, 0), TextWrapping = TextWrapping.Wrap });
 
         AutomationProperties.SetAutomationId(rule, "AskRule");
         inside.Children.Add(rule);

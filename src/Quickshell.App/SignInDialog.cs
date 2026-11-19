@@ -41,12 +41,11 @@ public sealed class SignInDialog : Window
 
         StackPanel body = new() { Margin = new Thickness(18) };
 
-        body.Children.Add(new TextBlock
+        body.Children.Add(Theme.Quiet(new TextBlock
         {
             Text = $"{question.Endpoint.User}@{question.Endpoint.Host} asks:",
             Margin = new Thickness(0, 0, 0, 6),
-            Opacity = 0.7,
-        });
+        }));
 
         TextBlock prompt = new()
         {
@@ -71,14 +70,13 @@ public sealed class SignInDialog : Window
 
             // What remembering does and does not protect, in the store's own words, so every
             // surface that offers it says the same thing.
-            body.Children.Add(new TextBlock
+            body.Children.Add(Theme.Quiet(new TextBlock
             {
                 Text = Quickshell.Transport.SecretStore.WhatThisDoesNotProtect,
                 TextWrapping = TextWrapping.Wrap,
                 Margin = new Thickness(20, 4, 0, 0),
-                Opacity = 0.7,
                 FontSize = 11,
-            });
+            }));
         }
 
         StackPanel row = new()

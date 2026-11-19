@@ -124,27 +124,25 @@ public sealed class VaultExportDialog : Window
 
         AutomationProperties.SetAutomationId(_keys, "Keys");
         body.Children.Add(_keys);
-        body.Children.Add(new TextBlock
+        body.Children.Add(Theme.Quiet(new TextBlock
         {
             Text = KeysTerms,
             TextWrapping = TextWrapping.Wrap,
             MaxWidth = 400,
             Margin = new Thickness(20, 4, 0, 0),
-            Opacity = 0.7,
             FontSize = 11,
-        });
+        }));
 
         AutomationProperties.SetAutomationId(_keep, "Keep");
         body.Children.Add(_keep);
-        body.Children.Add(new TextBlock
+        body.Children.Add(Theme.Quiet(new TextBlock
         {
             Text = KeepTerms,
             TextWrapping = TextWrapping.Wrap,
             MaxWidth = 400,
             Margin = new Thickness(20, 4, 0, 0),
-            Opacity = 0.7,
             FontSize = 11,
-        });
+        }));
 
         StackPanel row = new()
         {
@@ -282,5 +280,5 @@ public sealed class VaultExportDialog : Window
         }
     }
 
-    private static TextBlock Label(string text) => new() { Text = text, Margin = new Thickness(0, 0, 0, 4), Opacity = 0.8 };
+    private static TextBlock Label(string text) => Theme.Quiet(new() { Text = text, Margin = new Thickness(0, 0, 0, 4) });
 }

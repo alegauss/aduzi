@@ -40,4 +40,18 @@ public static class Theme
 
         window.SetResourceReference(Window.BackgroundProperty, "SolidBackgroundFillColorBaseBrush");
     }
+
+    /// <summary>
+    /// Makes a piece of text the quieter kind, in the theme's own secondary colour, and hands it back
+    /// (QS404). Not the primary at an opacity: that is a grey the theme never chose, a shade off what
+    /// every other window says the same kind of text in.
+    /// </summary>
+    public static System.Windows.Controls.TextBlock Quiet(System.Windows.Controls.TextBlock text)
+    {
+        ArgumentNullException.ThrowIfNull(text);
+
+        text.SetResourceReference(System.Windows.Controls.TextBlock.ForegroundProperty, "TextFillColorSecondaryBrush");
+
+        return text;
+    }
 }
