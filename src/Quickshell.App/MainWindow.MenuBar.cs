@@ -160,6 +160,8 @@ public sealed partial class MainWindow
                 };
 
                 AutomationProperties.SetName(item, action.Name);
+                Chord(item);
+                item.IsEnabledChanged += (_, _) => Chord(item);
                 top.Items.Add(item);
             }
 
@@ -167,6 +169,29 @@ public sealed partial class MainWindow
         }
 
         bar.Visibility = Visibility.Visible;
+    }
+
+    /// <summary>
+    /// The key Fluent's menu item template draws its shortcut with, which is the disabled text colour
+    /// on every item: 2.5:1 on the light menu and 3.2:1 on the dark (QS405's audit).
+    /// </summary>
+    private const string GestureInk = "TextFillColorDisabledBrush";
+
+    /// <summary>
+    /// An item that can run shows its shortcut in the theme's secondary text, as quieter text is
+    /// everywhere else; one that cannot keeps the template's disabled colour for both its name and its
+    /// shortcut, since the same key paints both. Redone when the item turns on or off.
+    /// </summary>
+    private void Chord(MenuItem item)
+    {
+        if (item.IsEnabled && TryFindResource("TextFillColorSecondaryBrush") is System.Windows.Media.Brush quieter)
+        {
+            item.Resources[GestureInk] = quieter;
+        }
+        else
+        {
+            item.Resources.Remove(GestureInk);
+        }
     }
 
     /// <summary>Puts the bar away, unless the setting keeps it up, and gives the keyboard back to the window.</summary>

@@ -1987,6 +1987,13 @@ public sealed partial class MainWindow : Window
 
         ThemeMode = Theme.Mode(settings.Theme);
 
+        // The menu's shortcuts carry the theme's colour as a value (QS405), so a bar on screen is made
+        // again in the theme now in force.
+        if (MenuBarShowing)
+        {
+            ShowMenuBar();
+        }
+
         // Open or folded as the file says, which a fold in any window wrote (QS268).
         _sidebar.Shape(settings.SessionsSidebar);
 
@@ -2580,7 +2587,7 @@ public sealed partial class MainWindow : Window
             asking.DialogResult = true;
         };
 
-        asking.ShowDialog();
+        Shown(asking);
 
         return pasting;
     }
@@ -2847,7 +2854,7 @@ public sealed partial class MainWindow : Window
             asking.DialogResult = true;
         };
 
-        asking.ShowDialog();
+        Shown(asking);
 
         // The checkbox is read whichever button was pressed, and even where the dialog was dismissed:
         // a user who ticked it has switched the question off, and what they then decided about this
@@ -4488,8 +4495,17 @@ public sealed partial class MainWindow : Window
         dialog.Content = body;
         dialog.Loaded += (_, _) => name.Focus();
 
-        return dialog.ShowDialog() == true ? name.Text : null;
+        return Shown(dialog) == true ? name.Text : null;
     }
+
+    /// <summary>
+    /// Shows a dialog this window builds itself — New folder, the paste question, the closing
+    /// question — modally, unless a caller says otherwise: how the contrast audit is handed one to
+    /// read rather than a person to answer it (QS405).
+    /// </summary>
+    public static Func<Window, bool?>? ShowingDialog { get; set; }
+
+    private static bool? Shown(Window dialog) => (ShowingDialog ?? (shown => shown.ShowDialog()))(dialog);
 
     /// <summary><see cref="NewSession"/>, with a store that will not read said rather than thrown.</summary>
     public void NewSessionOrSay(string folder = "") => Sessionally(() => NewSession(folder));

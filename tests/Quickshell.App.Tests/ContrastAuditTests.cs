@@ -41,6 +41,7 @@ public sealed class ContrastAuditTests : IDisposable
     public void Dispose()
     {
         Choice.Showing = null;
+        MainWindow.ShowingDialog = null;
 
         if (Directory.Exists(_directory))
         {
@@ -89,7 +90,10 @@ public sealed class ContrastAuditTests : IDisposable
         string name = theme == ThemeMode.Light ? "Light" : "Dark";
         List<Reading> readings = [];
 
-        foreach ((string title, Func<Window> make) in Windows())
+        IEnumerable<(string Title, Func<Window> Make, Action<Window>? After)> all =
+            Windows().Select(each => (each.Title, each.Make, (Action<Window>?)null)).Concat(States());
+
+        foreach ((string title, Func<Window> make, Action<Window>? after) in all)
         {
             Window window = make();
 
@@ -103,11 +107,25 @@ public sealed class ContrastAuditTests : IDisposable
             try
             {
                 Settle();
-                readings.AddRange(Read(name, title, window, theme));
+
+                if (after is not null)
+                {
+                    after(window);
+                    Settle();
+                }
+
+                List<Reading> read = [.. Read(name, title, window, theme)];
+
+                // A window that gave nothing to read was never seen, which is not a pass (QS405).
+                Assert.True(read.Count > 0, $"{title} gave no reading in the {name} theme");
+                readings.AddRange(read);
             }
             finally
             {
+                Window? owner = window.Owner;
+
                 window.Close();
+                owner?.Close();
             }
         }
 
@@ -207,6 +225,72 @@ public sealed class ContrastAuditTests : IDisposable
         yield return ("Agent approval", () => new ApprovalDialog(new ApprovalRequest("1", "run-1",
             [new AskedCall("Work/db", "deploy@db1.example.com", ["prod"], "run", ["systemctl", "restart", "nginx"], null, null, "ask")])));
         yield return ("Policy change", () => new PolicyChangeDialog(policy));
+    }
+
+    /// <summary>
+    /// Windows read in a state other than at rest (QS405): a dialog the main window builds and shows
+    /// itself, a menu open, a field with the keyboard. Each is a window and a step taken once it is up.
+    /// </summary>
+    private IEnumerable<(string Title, Func<Window> Make, Action<Window>? After)> States()
+    {
+        string sessions = Path.Combine(_directory, "sessions.json");
+        string settings = Path.Combine(_directory, "settings.json");
+
+        // New folder is built and shown by the main window; the seam hands it over unshown.
+        yield return ("New folder", () =>
+        {
+            MainWindow main = new() { SessionsFile = sessions, SettingsPath = settings };
+            Window? built = null;
+
+            main.Show();
+            MainWindow.ShowingDialog = dialog =>
+            {
+                built = dialog;
+
+                return false;
+            };
+
+            try
+            {
+                main.NewFolder("Work");
+            }
+            finally
+            {
+                MainWindow.ShowingDialog = null;
+            }
+
+            return built!;
+        }, null);
+
+        // The menu bar with its first menu open: the items, their chords and the separators, which
+        // the sidebar's context menus draw with the same template.
+        yield return ("Main window, a menu open", () =>
+        {
+            MainWindow main = new() { SessionsFile = sessions, SettingsPath = settings };
+
+            main.RefreshSessions();
+            main.ShowHome();
+
+            return main;
+        }, window =>
+        {
+            MainWindow main = (MainWindow)window;
+
+            main.ShowMenuBar();
+            main.UpdateLayout();
+
+            ((MenuItem)main.MenuBarMenu.Items[0]).IsSubmenuOpen = true;
+        });
+
+        // A field with the keyboard: its accent underline is the focus indicator, read at 3:1.
+        yield return ("Settings, a field focused", () => new SettingsWindow(settings), window =>
+        {
+            window.Activate();
+
+            TextBox field = Descendants(window).OfType<TextBox>().First(box => AutomationProperties.GetAutomationId(box) == "fontFamily");
+
+            Keyboard.Focus(field);
+        });
     }
 
     private sealed class Nothing : ICommand
@@ -519,6 +603,17 @@ public sealed class ContrastAuditTests : IDisposable
             yield return child;
 
             foreach (DependencyObject below in Descendants(child))
+            {
+                yield return below;
+            }
+        }
+
+        // An open popup's content is a tree of its own, which a menu's items live in (QS405).
+        if (root is Popup { IsOpen: true, Child: { } shown })
+        {
+            yield return shown;
+
+            foreach (DependencyObject below in Descendants(shown))
             {
                 yield return below;
             }
