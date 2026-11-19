@@ -6,7 +6,7 @@ it. It needs Windows 10 or 11 on x64 and nothing else — the .NET runtime is in
 Check a download against the sums before running it:
 
 ```
-certutil -hashfile aduzi-0.2.0-win-x64-setup.exe SHA256
+certutil -hashfile aduzi-0.2.1-win-x64-setup.exe SHA256
 ```
 
 **The installer is not signed yet**, so SmartScreen warns when it starts: *More info*, then *Run
@@ -27,8 +27,8 @@ If Aduzi is open, Setup says so and waits for it to be closed: an open session w
 was doing. For a deployment, the same setup runs silently:
 
 ```
-aduzi-0.2.0-win-x64-setup.exe /VERYSILENT /SUPPRESSMSGBOXES /CURRENTUSER
-aduzi-0.2.0-win-x64-setup.exe /VERYSILENT /SUPPRESSMSGBOXES /ALLUSERS
+aduzi-0.2.1-win-x64-setup.exe /VERYSILENT /SUPPRESSMSGBOXES /CURRENTUSER
+aduzi-0.2.1-win-x64-setup.exe /VERYSILENT /SUPPRESSMSGBOXES /ALLUSERS
 ```
 
 Its exit code is the client's own (the table at the end): `740` when every user was asked for

@@ -6,7 +6,7 @@
 
 **SSH on Windows, without the suite around it: sessions, keys, SFTP, tunnels, tabs and split panes, free and MIT, with your MobaXterm sessions imported in one command.**
 
-Windows 10 and 11 · no account, no telemetry, no update check · pre-release 0.2.0
+Windows 10 and 11 · no account, no telemetry, no update check · pre-release 0.2.1
 
 Formerly quickshell. An install under the old name upgrades in place, settings and sessions
 included ([Upgrading from quickshell](docs/INSTALL.md#upgrading-from-quickshell)).
@@ -31,7 +31,7 @@ machine, the date and the command that produced it.
 ## Install
 
 Download `aduzi-<version>-win-x64-setup-unsigned.exe` from the
-**[releases page](https://github.com/alegauss/aduzi/releases)**, check it against
+**[latest release](https://github.com/alegauss/aduzi/releases/latest)**, check it against
 `SHA256SUMS.txt` beside it, and run it.
 
 > **Pre-release, and not signed yet.** Windows SmartScreen warns on first start: *More info*,
