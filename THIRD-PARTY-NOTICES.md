@@ -16,8 +16,8 @@ OSI licence (QS378).
 
 | Library | Packages | Version | Licence | Copyright |
 |---|---|---|---|---|
-| [.NET runtime](https://github.com/dotnet/runtime) | Microsoft.NETCore.App.Runtime.win-x64 | 10.0.14 | MIT | © .NET Foundation and Contributors |
-| [Windows Desktop runtime](https://github.com/dotnet/wpf) (WPF) | Microsoft.WindowsDesktop.App.Runtime.win-x64 | 10.0.14 | MIT | © .NET Foundation and Contributors |
+| [.NET runtime](https://github.com/dotnet/runtime) | Microsoft.NETCore.App.Runtime.win-x64 | 10.0.15 | MIT | © .NET Foundation and Contributors |
+| [Windows Desktop runtime](https://github.com/dotnet/wpf) (WPF) | Microsoft.WindowsDesktop.App.Runtime.win-x64 | 10.0.15 | MIT | © .NET Foundation and Contributors |
 | [SSH.NET](https://github.com/sshnet/SSH.NET) | SSH.NET | 2026.0.0 | MIT | Copyright © Renci 2010-2026 |
 | [BouncyCastle.Cryptography](https://github.com/bcgit/bc-csharp) | BouncyCastle.Cryptography | 2.7.0 | MIT | Copyright © Legion of the Bouncy Castle Inc. 2000-2026 |
 | [NSec.Cryptography](https://github.com/ektrah/nsec) | NSec.Cryptography | 26.4.0 | MIT | © 2026 Klaus Hartke |

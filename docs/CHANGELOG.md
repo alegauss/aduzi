@@ -297,6 +297,7 @@
 - ✅ **QS387** **A reader who looks the name up finds Portuguese dictionaries and a bean, never why the client is called Aduzi** — The README, the site's footer and llms.txt say Aduzi is Portuguese for "I brought", from the Latin adducere, as an SSH client brings a remote machine.
 - ✅ **QS386** **There is nothing to download: no release or tag, only a CI artefact that expires in five days** — Aduzi 0.1.0 is on GitHub as an unsigned pre-release with SHA256SUMS; the download installs in the guest, and the README and site link to it (design superseded: a pre-release, not latest).
 - ✅ **QS393** **A release offers only a zip, so a person expecting Setup.exe gets a folder and no guided install** — A release is one Setup.exe: a bilingual wizard that says what goes where, runs the build's own --install, offers to start Aduzi, and runs silently for deployments; the zip is gone.
+- ✅ **QS394** **release.cmd refuses on a desk whose SDK publishes runtime 10.0.15, because the notices list 10.0.14** — global.json pins SDK 10.0.404 and CI reads it, so desk and runner publish runtime 10.0.15, which the notices now list; release.cmd builds again.
 
 ## Block I — An error a user can act on
 

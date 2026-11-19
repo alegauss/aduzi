@@ -22,7 +22,6 @@
 - 📋 **QS380** (deps: QS386 ✅, visibility VS58) **Every release still ships unsigned, so SmartScreen warns on the first download and managed machines refuse it** — The Store signs the MSIX itself, and claude-tray tests that path first (VS58); SignPath and Certum become the fallback. → §QS380
 - 💭 **QS381** (deps: QS380) **If SignPath Foundation declines the project, there is no affordable certificate lined up** — Certum's Open Source Code Signing certificate is issued to individuals anywhere for tens of euros a year, and release.ps1 -Certificate can use it. → §QS381
 - 📋 **QS382** (deps: QS380) **Once a certificate exists, nothing sends the tagged build to SignPath and publishes what comes back** — With SignPath the key never reaches this desk, so the tag workflow submits its archive, waits for the maintainer's approval and publishes the signed result. → §QS382
-- 📋 **QS394** (deps: —) **release.cmd refuses on a desk whose SDK publishes runtime 10.0.15, because the notices list 10.0.14** — The notices pin a runtime patch the SDK floats past, so every SDK update blocks a release until the table is edited; global.json pinning the SDK would hold both still. → §QS394
 
 ## Block I — An error a user can act on
 
