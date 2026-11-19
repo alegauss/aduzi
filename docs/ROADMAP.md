@@ -308,6 +308,13 @@
   on xps at the commit with the fix judges start as held beside 40fb448, and the row it
   appends to benchmarks/results/gate-xps.md says so.
 
+## Done when — QS405
+
+- **Every window and state the client draws is in the contrast audit** Checked by
+  ContrastAuditTests' report: the menus, the vault and MobaXterm import previews, paste
+  confirmation and New folder each have a row in both themes, and focused, hovered and
+  disabled states each a reading, with none below WCAG.
+
 ## Non-goals
 
 - **No X11 server or X11 forwarding** The bundled X server is the largest single piece
