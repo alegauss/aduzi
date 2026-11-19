@@ -31,6 +31,35 @@ public static class Entry
     [System.Runtime.InteropServices.DllImport("user32.dll")]
     private static extern uint GetDpiForSystem();
 
+    [System.Runtime.InteropServices.DllImport("kernel32.dll")]
+    [return: System.Runtime.InteropServices.MarshalAs(System.Runtime.InteropServices.UnmanagedType.Bool)]
+    private static extern bool AttachConsole(int processId);
+
+    [System.Runtime.InteropServices.DllImport("kernel32.dll")]
+    private static extern IntPtr GetStdHandle(int which);
+
+    /// <summary>
+    /// Lets a windowed program's printing verb reach the terminal it was typed into (QS395).
+    ///
+    /// <para>aduzi.exe is a windowed program, so Windows gives it no console, and what it prints goes
+    /// nowhere unless its caller redirected it. Where output is already a pipe or a file - an agent's
+    /// host, <c>| more</c>, <c>&gt; audit.txt</c> - it is left alone; where it is nothing, the caller's
+    /// console is borrowed. Before the first <see cref="Console"/> call, which is when .NET reads the
+    /// handles it writes to.</para>
+    /// </summary>
+    private static void AttachToCallersConsole()
+    {
+        const int StandardOutput = -11;
+        const int ParentProcess = -1;
+
+        IntPtr output = GetStdHandle(StandardOutput);
+
+        if (output == IntPtr.Zero || output == new IntPtr(-1))
+        {
+            AttachConsole(ParentProcess);
+        }
+    }
+
     /// <summary>
     /// Opens the window, runs until it closes, and remembers where it was.
     /// </summary>
@@ -62,6 +91,8 @@ public static class Entry
         // `--audit [run]`: a gateway run's log as a change summary, or the runs there are (QS333).
         if (arguments.Contains(CommandLine.Audit, StringComparer.Ordinal))
         {
+            AttachToCallersConsole();
+
             return PrintAudit(Given(arguments, CommandLine.Audit));
         }
 

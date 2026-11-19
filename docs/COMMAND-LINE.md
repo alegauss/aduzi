@@ -90,3 +90,7 @@ document weighs both.
 | `--agent-hook` | | Reads a Claude Code PreToolUse call on standard input and denies a shell command that reaches a server around the agent gateway, or a write to the files that limit agents, saying why. Opens no window. |
 | `--mcp` | | Serves the agent gateway to an agent such as Claude Code on standard input and output, and opens no window. Refused unless the agentGateway setting is on; every call is judged by the agent policy first. |
 | `--plugin-version` | `<version>` | With --mcp: the version of Aduzi that wrote the Claude Code plugin starting it. A plugin written by another version is refused, naming both, until it is installed again from Settings. |
+
+`--audit` prints into the terminal it was typed in. Because Aduzi is a windowed program, the terminal
+does not wait for it, so the prompt can come back before the summary does. Pipe it to have the
+terminal wait and the lines arrive in order: `aduzi.exe --audit | more`, or `> audit.txt` for a file.

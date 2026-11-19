@@ -2,7 +2,11 @@
 
   <!-- The only assembly allowed to reference all three. -->
   <PropertyGroup>
-    <OutputType>Exe</OutputType>
+    <!-- QS395: a windowed program, said outright. It was Exe, which the SDK was meant to infer into
+         WinExe for WPF and did not, so aduzi.exe was console-subsystem from QS1 on: Windows opened an
+         empty console beside the window, and closing that console ended the client. The audit verb,
+         the one that prints to a person, attaches to its caller's console instead (Entry). -->
+    <OutputType>WinExe</OutputType>
     <TargetFramework>net10.0-windows</TargetFramework>
     <RootNamespace>Quickshell.App</RootNamespace>
     <!-- QS384: the client's name since 2026-11-02, so the executable is aduzi.exe. The namespaces

@@ -170,6 +170,11 @@ try {
     Check (Test-Path -LiteralPath $report) 'the installed copy started and drew its first screen, Home or a shell'
     if (Test-Path -LiteralPath $report) { Say "start $((Get-Content -LiteralPath $report -Raw).Trim())" }
 
+    # QS395: a windowed program gets no console. A console-subsystem build is given a conhost of its
+    # own, a window beside the client that ends it when closed.
+    $hosts = @(Get-CimInstance Win32_Process -Filter "ParentProcessId = $($running.Id) AND Name = 'conhost.exe'")
+    Check ($hosts.Count -eq 0) "the installed copy started with no console window ($($hosts.Count) conhost)"
+
     if ($upgrading) {
         # The session saved under the old name, read by the new window: found by name in its
         # accessibility tree, not inferred from a file having moved.

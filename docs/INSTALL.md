@@ -110,7 +110,9 @@ them. `--uninstall --quiet`, which is what a deployment runs, never removes them
 
 ## Build it from source
 
-The .NET 10 SDK on Windows x64 is the only prerequisite. Clone, then from the repository root:
+The .NET SDK that `global.json` names (10.0.404 today, or a later 10.0.4xx patch) on Windows x64 is
+the only prerequisite. It is pinned because its patch decides the .NET runtime a release ships, which
+`THIRD-PARTY-NOTICES.md` lists at that version. Clone, then from the repository root:
 
 ```
 run-tests.cmd
